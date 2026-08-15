@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HireSense AI — Live Landing Page Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0d17;
+      color: #f8fafc;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+    .font-serif-accent {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic;
+    }
+    .periwinkle-hero-card {
+      background: linear-gradient(135deg, #7c8cf8 0%, #6366f1 50%, #4f46e5 100%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 30px 70px rgba(99, 102, 241, 0.35);
+      border-radius: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sky-blue-btn {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: #030712;
+      font-weight: 900;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .showcase-white-card {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      transition: all 0.3s ease;
+    }
+    .showcase-white-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 25px 50px rgba(99, 102, 241, 0.25);
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  </style>
+</head>
+<body class="p-6">
+  
+  <!-- Header Navbar -->
+  <header class="max-w-7xl mx-auto mb-10 flex items-center justify-between glass-panel p-4 rounded-2xl border border-white/10">
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-400 flex items-center justify-center font-black text-white text-xl">
+        ⚡
+      </div>
+      <div>
+        <span className="text-xl font-extrabold text-white">HireSense <span className="text-sky-400">AI</span></span>
+        <span className="block text-[10px] text-indigo-300 font-mono">Recruitment Intelligence Engine</span>
+      </div>
+    </div>
+
+    <!-- Big Naked Eye Visible Login Button -->
+    <a href="http://localhost:5173" target="_blank" className="sky-blue-btn px-8 py-3.5 rounded-full text-base font-black flex items-center gap-2">
+      <span>Login / Sign In</span>
+    </a>
+  </header>
+
+  <div class="space-y-20 max-w-7xl mx-auto">
+    
+    <!-- 1. Periwinkle Lavender Hero Card -->
+    <section class="periwinkle-hero-card p-10 md:p-14 text-white relative overflow-hidden shadow-2xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        
+        <div class="space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-mono font-bold">
+            ✨ HireSense AI • Recruitment Intelligence Platform
+          </div>
+
+          <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-tight">
+            AI Precision is the key to software recruitment
+          </h1>
+          
+          <p class="text-indigo-100 text-lg leading-relaxed">
+            Evaluate engineering candidates with PyMuPDF resume text parsing, multi-vector embeddings, and automated skill match scoring.
+          </p>
+          
+          <div class="flex items-center gap-4 pt-2">
+            <a href="http://localhost:5173" target="_blank" class="sky-blue-btn px-9 py-4 rounded-full text-base font-black flex items-center gap-2">
+              <span>Get started →</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-3xl border-2 border-white/30 bg-slate-950/80 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-black text-white text-sm">Vector Cosine Engine</span>
+            <span class="px-3 py-1 rounded-full bg-emerald-500/25 text-emerald-300 font-bold text-xs font-mono">ACTIVE MATCH</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-indigo-950/70 border border-indigo-400/30 space-y-2">
+            <div class="flex justify-between items-center text-xs text-indigo-200 font-bold">
+              <span>Candidate: Alex Chen</span>
+              <span class="font-black text-emerald-400 font-mono text-sm">94% Match Score</span>
+            </div>
+            <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden">
+              <div class="bg-gradient-to-r from-sky-400 to-indigo-400 h-full rounded-full" style="width: 94%"></div>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-200 space-y-1 font-mono font-medium">
+            <p>✓ PyMuPDF Stream Resume Extractor</p>
+            <p>✓ Dense Vector Cosine Similarity</p>
+            <p>✓ Heuristic Skill Keyword Scoring</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. Featured Media Bar -->
+    <section class="text-center space-y-4">
+      <span class="text-xs font-mono font-bold text-indigo-300 uppercase tracking-widest">Featured In Tech Media</span>
+      <div class="flex flex-wrap items-center justify-center gap-10 text-xl md:text-2xl font-black text-slate-200 opacity-90">
+        <span>TechCrunch</span>
+        <span>Wired</span>
+        <span class="font-serif-accent">MIT Tech Review</span>
+        <span>Forbes AI</span>
+        <span>VentureBeat</span>
+        <span>IEEE Spectrum</span>
+      </div>
+    </section>
+
+    <!-- 3. Customer Spotlight Card -->
+    <section class="max-w-4xl mx-auto glass-panel p-8 rounded-3xl border-2 border-white/15 flex flex-col md:flex-row items-center gap-8">
+      <div class="w-24 h-24 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-600 flex items-center justify-center shrink-0 text-slate-950 font-black text-3xl">
+        👥
+      </div>
+      <div class="space-y-2">
+        <p class="text-slate-200 text-lg italic font-light">
+          "HireSense AI parsed our tech stack requirements and ranked top candidates in seconds. It transformed our technical hiring into an automated precision pipeline."
+        </p>
+        <div>
+          <h4 class="text-base font-extrabold text-white">Meet Nicholas</h4>
+          <span class="text-xs text-sky-300 font-mono font-bold">VP of Engineering Hiring, Tech Innovations</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Section Header & 4x2 Grid -->
+    <section class="space-y-10 text-center">
+      <div class="space-y-2">
+        <h2 class="text-4xl md:text-5xl font-black text-white">
+          AI Precision is the key to software recruitment
+        </h2>
+        <p class="text-sm text-slate-300 max-w-xl mx-auto font-medium">
+          Explore active software engineering positions auto-ranked by multi-vector match accuracy.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+        
+        <div class="showcase-white-card overflow-hidden flex flex-col justify-between">
+          <div class="bg-gradient-to-tr from-indigo-500 to-sky-400 h-36 p-4 flex items-end justify-between">
+            <span class="px-3 py-1 rounded-full bg-slate-950 text-white text-xs font-black">94% Match</span>
+            <span class="text-white font-bold">💼</span>
+          </div>
+          <div class="p-5 space-y-2">
+            <span class="text-[11px] font-mono font-bold text-indigo-600 uppercase">Tech Innovations Inc.</span>
+            <h3 class="text-base font-extrabold text-slate-900">Senior Full-Stack Engineer</h3>
+            <p class="text-xs text-slate-500 font-medium">Python • FastAPI • React • PostgreSQL</p>
+          </div>
+          <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-mono">
+            <span class="font-black text-slate-900">$145,000 / yr</span>
+            <a href="http://localhost:5173" target="_blank" class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-extrabold">Apply</a>
+          </div>
+        </div>
+
+        <div class="showcase-white-card overflow-hidden flex flex-col justify-between">
+          <div class="bg-gradient-to-tr from-sky-500 to-indigo-600 h-36 p-4 flex items-end justify-between">
+            <span class="px-3 py-1 rounded-full bg-slate-950 text-white text-xs font-black">91% Match</span>
+            <span class="text-white font-bold">💼</span>
+          </div>
+          <div class="p-5 space-y-2">
+            <span class="text-[11px] font-mono font-bold text-indigo-600 uppercase">CloudScale Systems</span>
+            <h3 class="text-base font-extrabold text-slate-900">AI / ML Research Scientist</h3>
+            <p class="text-xs text-slate-500 font-medium">Python • PyTorch • TensorFlow • NLP</p>
+          </div>
+          <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-mono">
+            <span class="font-black text-slate-900">$160,000 / yr</span>
+            <a href="http://localhost:5173" target="_blank" class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-extrabold">Apply</a>
+          </div>
+        </div>
+
+        <div class="showcase-white-card overflow-hidden flex flex-col justify-between">
+          <div class="bg-gradient-to-tr from-purple-600 to-sky-400 h-36 p-4 flex items-end justify-between">
+            <span class="px-3 py-1 rounded-full bg-slate-950 text-white text-xs font-black">89% Match</span>
+            <span class="text-white font-bold">💼</span>
+          </div>
+          <div class="p-5 space-y-2">
+            <span class="text-[11px] font-mono font-bold text-indigo-600 uppercase">DataPulse AI Labs</span>
+            <h3 class="text-base font-extrabold text-slate-900">Frontend React Architect</h3>
+            <p class="text-xs text-slate-500 font-medium">React 18 • TypeScript • Tailwind CSS</p>
+          </div>
+          <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-mono">
+            <span class="font-black text-slate-900">$135,000 / yr</span>
+            <a href="http://localhost:5173" target="_blank" class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-extrabold">Apply</a>
+          </div>
+        </div>
+
+        <div class="showcase-white-card overflow-hidden flex flex-col justify-between">
+          <div class="bg-gradient-to-tr from-indigo-600 to-blue-700 h-36 p-4 flex items-end justify-between">
+            <span class="px-3 py-1 rounded-full bg-slate-950 text-white text-xs font-black">95% Match</span>
+            <span class="text-white font-bold">💼</span>
+          </div>
+          <div class="p-5 space-y-2">
+            <span class="text-[11px] font-mono font-bold text-indigo-600 uppercase">Nexus Software</span>
+            <h3 class="text-base font-extrabold text-slate-900">Cloud Infrastructure Lead</h3>
+            <p class="text-xs text-slate-500 font-medium">Docker • Kubernetes • AWS • CI/CD</p>
+          </div>
+          <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-mono">
+            <span class="font-black text-slate-900">$170,000 / yr</span>
+            <a href="http://localhost:5173" target="_blank" class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-extrabold">Apply</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-4 flex justify-center">
+        <a href="http://localhost:5173" target="_blank" class="sky-blue-btn px-10 py-4 rounded-full text-base font-black flex items-center gap-2">
+          <span>Get started →</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

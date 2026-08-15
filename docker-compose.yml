@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: hiresense_postgres
+    environment:
+      POSTGRES_USER: hiresense
+      POSTGRES_PASSWORD: hiresense123
+      POSTGRES_DB: hiresense_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hiresense -d hiresense_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hiresense_redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: hiresense_backend
+    environment:
+      - DATABASE_URL=postgresql://hiresense:hiresense123@postgres:5432/hiresense_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=hiresense-ai-super-secret-key-change-in-production-2026
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: hiresense_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
