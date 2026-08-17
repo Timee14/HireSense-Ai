@@ -167,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {/* Notifications Popover Dropdown */}
                 {notificationsOpen && (
-                  <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-[#022c22] border-2 border-[#34d399] rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fade-in">
+                  <div className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-3 w-[calc(100vw-24px)] sm:w-96 max-w-md bg-[#022c22] border-2 border-[#34d399] rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fade-in">
                     <div className="flex items-center justify-between border-b border-[#34d399]/30 pb-2">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-[#34d399]" />

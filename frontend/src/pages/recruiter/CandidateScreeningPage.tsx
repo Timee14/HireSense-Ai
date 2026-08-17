@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Users, Sparkles, Filter, ChevronRight, CheckCircle2, Clock, XCircle,
   Award, Mail, Video, Calendar, Send, ExternalLink, X, Copy, Check,
-  AlertCircle, MessageSquare, Briefcase, UserCheck, Star, Eye, Layers
+  AlertCircle, MessageSquare, Briefcase, UserCheck, Star, Eye, Layers, Building
 } from 'lucide-react';
 import { Application, Job, JobRecommendation } from '../../types';
 import { scheduleInterview } from '../../api/client';
@@ -125,7 +125,6 @@ export const CandidateScreeningPage: React.FC<CandidateScreeningPageProps> = ({
         send_email: true
       });
 
-      // Update local state to 'interview'
       setLocalApplicants(prev =>
         prev.map(a => (a.id === activeApplicantForInterview.id ? { ...a, status: 'interview' } : a))
       );
@@ -193,25 +192,25 @@ ${companyName}`
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 py-6 text-white animate-fade-in">
+    <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 text-white animate-fade-in">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#064e3b] border border-[#34d399]/40 font-bold text-xs text-[#34d399]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#064e3b] border border-[#34d399]/40 font-bold text-xs text-[#34d399]">
             <Sparkles className="w-4 h-4 text-[#34d399]" />
-            <span className="uppercase tracking-wider font-mono">Automated Vector Screening & Pipeline Command</span>
+            <span className="uppercase tracking-wider font-mono">Vector Screening & Pipeline Command</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white font-outfit mt-2">Candidate Intelligence</h1>
-          <p className="text-sm text-emerald-100/70">Applicants auto-ranked by cosine vector distance and multi-dimensional skill fit.</p>
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-white font-outfit mt-2">Candidate Intelligence</h1>
+          <p className="text-xs sm:text-sm text-emerald-100/70">Applicants auto-ranked by cosine vector distance and multi-dimensional skill fit.</p>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <select
             value={selectedJobId}
             onChange={(e) => setSelectedJobId(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white font-bold focus:outline-none focus:border-[#34d399] shadow-md"
+            className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white font-bold focus:outline-none focus:border-[#34d399] shadow-md"
           >
             <option value="all" className="bg-[#022c22] text-white">All Job Postings ({jobs.length})</option>
             {jobs.map((j) => (
@@ -222,7 +221,7 @@ ${companyName}`
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white font-bold focus:outline-none focus:border-[#34d399] shadow-md"
+            className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white font-bold focus:outline-none focus:border-[#34d399] shadow-md"
           >
             <option value="all" className="bg-[#022c22] text-white">All Stages ({stageCounts.all})</option>
             <option value="shortlisted" className="bg-[#022c22] text-white">Shortlisted ✓ ({stageCounts.shortlisted})</option>
@@ -236,14 +235,14 @@ ${companyName}`
 
       {/* Dynamic Toast Status Notification Banner */}
       {statusToast && (
-        <div className={`p-4 rounded-2xl border-2 text-sm font-bold flex items-center justify-between gap-3 shadow-xl animate-fade-in ${
+        <div className={`p-3.5 sm:p-4 rounded-2xl border-2 text-xs sm:text-sm font-bold flex items-center justify-between gap-3 shadow-xl animate-fade-in ${
           statusToast.type === 'emerald'
             ? 'bg-[#064e3b] border-[#34d399] text-white'
             : statusToast.type === 'rose'
             ? 'bg-rose-950 border-rose-500 text-rose-200'
             : 'bg-amber-950 border-amber-500 text-amber-200'
         }`}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <CheckCircle2 className="w-5 h-5 text-[#34d399] shrink-0" />
             <span>{statusToast.msg}</span>
           </div>
@@ -254,7 +253,7 @@ ${companyName}`
       )}
 
       {/* Stage Summary Tabs Bar */}
-      <div className="flex flex-wrap gap-2 pt-1">
+      <div className="flex overflow-x-auto pb-1 gap-2 no-scrollbar">
         {[
           { key: 'all', label: 'All Candidates', count: stageCounts.all },
           { key: 'shortlisted', label: 'Shortlisted ✓', count: stageCounts.shortlisted },
@@ -265,14 +264,14 @@ ${companyName}`
           <button
             key={tab.key}
             onClick={() => setStatusFilter(tab.key)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center gap-2 border ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center gap-1.5 sm:gap-2 border whitespace-nowrap shrink-0 ${
               statusFilter === tab.key
                 ? 'bg-[#10b981] text-white border-[#34d399] shadow-lg shadow-[#10b981]/20'
                 : 'bg-[#022c22] text-emerald-100/70 border-[#34d399]/20 hover:bg-[#064e3b] hover:text-white'
             }`}
           >
             <span>{tab.label}</span>
-            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
               statusFilter === tab.key ? 'bg-black/30 text-white' : 'bg-black/40 text-[#6ee7b7]'
             }`}>
               {tab.count}
@@ -281,8 +280,146 @@ ${companyName}`
         ))}
       </div>
 
-      {/* Applicant Table */}
-      <div className="emerald-card overflow-hidden !p-0 border border-[#34d399]/30 shadow-2xl">
+      {/* Mobile Card Layout (< md) */}
+      <div className="block md:hidden space-y-4">
+        {filteredApplicants.length === 0 ? (
+          <div className="emerald-card p-6 text-center text-emerald-100/70 text-xs">
+            No candidates match the selected filter.
+          </div>
+        ) : (
+          filteredApplicants.map((app, idx) => {
+            const ms = app.match_score || {
+              overall_score: 85 - idx * 5,
+              skills_score: 80,
+              experience_score: 75,
+              projects_score: 80,
+              education_score: 90,
+              certifications_score: 60,
+              matched_skills: ['Python', 'FastAPI', 'React', 'PostgreSQL'],
+              missing_skills: ['Docker'],
+              ai_explanation: 'Strong candidate match with solid engineering background.'
+            };
+            const badge = getStatusBadge(app.status);
+
+            return (
+              <div key={app.id || idx} className="emerald-card p-4 space-y-3.5 border border-[#34d399]/30">
+                
+                {/* Header Row */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-7 h-7 rounded-full bg-[#10b981] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 border border-[#34d399]">
+                      #{idx + 1}
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-white text-base font-outfit leading-tight">{app.candidate_name || 'Candidate'}</h4>
+                      <span className="text-[11px] text-emerald-100/70 block truncate max-w-[180px]">
+                        {app.job_title || selectedJob?.title || 'Engineering Role'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className={`px-2.5 py-1 rounded-full font-bold text-xs font-outfit border shrink-0 ${
+                    ms.overall_score >= 70
+                      ? 'bg-[#064e3b] border-[#34d399]/40 text-[#34d399]'
+                      : 'bg-amber-950/60 border-amber-500/40 text-amber-300'
+                  }`}>
+                    {ms.overall_score}% MATCH
+                  </span>
+                </div>
+
+                {/* Email and Current Status */}
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/5">
+                  <span className="text-[#6ee7b7] font-mono text-[11px] flex items-center gap-1 truncate max-w-[160px]">
+                    <Mail className="w-3 h-3 text-[#34d399] shrink-0" />
+                    <span className="truncate">{app.candidate_email || 'alex.dev@example.com'}</span>
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${badge.bg}`}>
+                    {badge.label}
+                  </span>
+                </div>
+
+                {/* Skill Badges */}
+                <div className="flex flex-wrap gap-1">
+                  {ms.matched_skills.slice(0, 4).map((sk, sIdx) => (
+                    <span key={sIdx} className="px-2 py-0.5 rounded bg-[#064e3b]/80 text-[#6ee7b7] text-[10px] font-semibold border border-[#34d399]/30">
+                      ✓ {sk}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Pipeline Actions Controls */}
+                <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
+                  
+                  {/* Status Dropdown */}
+                  <select
+                    value={app.status}
+                    onChange={(e) => handleStatusChange(app.id, app.candidate_name || '', e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-xl bg-[#022c22] border border-[#34d399]/40 text-xs font-bold text-white focus:outline-none focus:border-[#34d399]"
+                  >
+                    <option value="applied" className="bg-[#022c22] text-white">Applied</option>
+                    <option value="under_review" className="bg-[#022c22] text-white">Under Review ⏳</option>
+                    <option value="shortlisted" className="bg-[#022c22] text-white">Shortlist ✓</option>
+                    <option value="interview" className="bg-[#022c22] text-white">Interview 📅</option>
+                    <option value="rejected" className="bg-[#022c22] text-white">Decline ✗</option>
+                  </select>
+
+                  {/* 1-Click Shortlist Star Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleStatusChange(app.id, app.candidate_name || '', app.status === 'shortlisted' ? 'under_review' : 'shortlisted')}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all shrink-0 ${
+                      app.status === 'shortlisted'
+                        ? 'bg-[#10b981] text-white border-[#34d399]'
+                        : 'bg-[#022c22] text-[#34d399] border-[#34d399]/30'
+                    }`}
+                    title="1-Click Shortlist"
+                  >
+                    <Star className={`w-4 h-4 ${app.status === 'shortlisted' ? 'fill-white' : ''}`} />
+                  </button>
+
+                  {/* 1-Click Interview / Gmail Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenInterviewModal(app)}
+                    className="p-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] hover:bg-[#10b981] hover:text-white transition-all shrink-0"
+                    title="Schedule Interview & Gmail"
+                  >
+                    <Mail className="w-4 h-4" />
+                  </button>
+
+                  {/* Review AI Fit Radar */}
+                  <button
+                    type="button"
+                    onClick={() => onOpenMatchModal({
+                      job: selectedJob || {
+                        id: app.job_id,
+                        recruiter_id: '',
+                        title: app.job_title || 'Engineering Role',
+                        location: 'Remote',
+                        employment_type: 'Full-time',
+                        experience_level: 'Mid-Level',
+                        description: 'Software Engineering position.',
+                        status: 'active',
+                        created_at: ''
+                      },
+                      match_details: ms
+                    })}
+                    className="p-2.5 rounded-xl bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all shrink-0"
+                    title="Review Fit Radar"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+
+                </div>
+
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Table View (>= md) */}
+      <div className="hidden md:block emerald-card overflow-hidden !p-0 border border-[#34d399]/30 shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[850px]">
             
@@ -460,17 +597,17 @@ ${companyName}`
       {/* INTERVIEW & GMAIL INVITATION DISPATCH MODAL                               */}
       {/* ========================================================================= */}
       {activeApplicantForInterview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#022c22] border-2 border-[#34d399] rounded-3xl max-w-2xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#022c22] border-2 border-[#34d399] rounded-3xl max-w-2xl w-full p-4 sm:p-6 md:p-8 space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto">
             
             {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-[#34d399]/30 pb-4">
+            <div className="flex items-start justify-between border-b border-[#34d399]/30 pb-3 sm:pb-4">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] text-xs font-bold font-mono">
                   <Video className="w-3.5 h-3.5" />
                   <span>CANDIDATE INTERVIEW DISPATCH</span>
                 </div>
-                <h3 className="text-2xl font-black text-white font-outfit">
+                <h3 className="text-xl sm:text-2xl font-black text-white font-outfit">
                   Invite {activeApplicantForInterview.candidate_name} to Interview
                 </h3>
                 <p className="text-xs text-emerald-100/70">
@@ -480,7 +617,7 @@ ${companyName}`
 
               <button
                 onClick={() => setActiveApplicantForInterview(null)}
-                className="p-2 rounded-xl bg-white/10 hover:bg-rose-500/20 text-white/70 hover:text-white transition-colors"
+                className="p-2 rounded-xl bg-white/10 hover:bg-rose-500/20 text-white/70 hover:text-white transition-colors shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -493,17 +630,17 @@ ${companyName}`
                 <p className="text-xs text-emerald-100/90">{interviewSuccessMsg}</p>
               </div>
             ) : (
-              <div className="space-y-5 text-xs">
+              <div className="space-y-4 sm:space-y-5 text-xs">
                 
                 {/* Candidate & Position Metadata Card */}
-                <div className="p-4 rounded-2xl bg-[#064e3b]/60 border border-[#34d399]/30 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-[#064e3b]/60 border border-[#34d399]/30 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block">Candidate Email</span>
-                    <span className="text-sm font-bold text-[#34d399] font-mono">{activeApplicantForInterview.candidate_email || 'alex.dev@example.com'}</span>
+                    <span className="text-xs sm:text-sm font-bold text-[#34d399] font-mono break-all">{activeApplicantForInterview.candidate_email || 'alex.dev@example.com'}</span>
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block">Position & Company</span>
-                    <span className="text-sm font-bold text-white font-outfit">
+                    <span className="text-xs sm:text-sm font-bold text-white font-outfit">
                       {activeApplicantForInterview.job_title || selectedJob?.title} ({activeApplicantForInterview.company_name || selectedJob?.company_name || 'HireSense Partner'})
                     </span>
                   </div>
@@ -518,7 +655,7 @@ ${companyName}`
                   <select
                     value={interviewType}
                     onChange={(e) => setInterviewType(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white font-bold focus:outline-none focus:border-[#34d399]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white font-bold focus:outline-none focus:border-[#34d399]"
                   >
                     <option value="Technical Round 1 (Live Coding & Architecture)">Technical Round 1 (Live Coding & Architecture)</option>
                     <option value="HR & Cultural Fit Discussion">HR & Cultural Fit Discussion</option>
@@ -533,13 +670,13 @@ ${companyName}`
                     <Calendar className="w-3.5 h-3.5 text-[#34d399]" />
                     <span>Proposed Date & Time</span>
                   </label>
-                  <div className="flex flex-wrap gap-2 mb-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
                     {['Tomorrow at 2:00 PM EST', 'Wednesday at 11:00 AM EST', 'Thursday at 4:00 PM EST'].map((preset) => (
                       <button
                         key={preset}
                         type="button"
                         onClick={() => setScheduledAt(preset)}
-                        className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                        className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all ${
                           scheduledAt === preset
                             ? 'bg-[#10b981] text-white border border-[#34d399]'
                             : 'bg-white/5 text-emerald-100/70 border border-white/10 hover:bg-white/10'
@@ -554,7 +691,7 @@ ${companyName}`
                     value={scheduledAt}
                     onChange={(e) => setScheduledAt(e.target.value)}
                     placeholder="e.g. 2026-08-20 at 14:00 EST"
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white font-medium focus:outline-none focus:border-[#34d399]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white font-medium focus:outline-none focus:border-[#34d399]"
                   />
                 </div>
 
@@ -569,7 +706,7 @@ ${companyName}`
                       type="text"
                       value={meetingLink}
                       onChange={(e) => setMeetingLink(e.target.value)}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-[#34d399] font-mono font-bold focus:outline-none focus:border-[#34d399]"
+                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-[#34d399] font-mono font-bold focus:outline-none focus:border-[#34d399] truncate"
                     />
                     <button
                       type="button"
@@ -577,7 +714,7 @@ ${companyName}`
                       className="px-3 py-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-xs font-bold text-[#34d399] hover:bg-[#10b981] hover:text-white transition-all flex items-center gap-1 shrink-0"
                     >
                       {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedLink ? 'Copied' : 'Copy'}</span>
+                      <span className="hidden sm:inline">{copiedLink ? 'Copied' : 'Copy'}</span>
                     </button>
                   </div>
                 </div>
@@ -592,21 +729,21 @@ ${companyName}`
                     rows={3}
                     value={recruiterNotes}
                     onChange={(e) => setRecruiterNotes(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white leading-relaxed focus:outline-none focus:border-[#34d399]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white leading-relaxed focus:outline-none focus:border-[#34d399]"
                   />
                 </div>
 
                 {/* Dispatch Action Buttons */}
-                <div className="pt-3 border-t border-[#34d399]/30 flex flex-col sm:flex-row items-center justify-end gap-3">
+                <div className="pt-3 border-t border-[#34d399]/30 flex flex-col sm:flex-row items-center justify-end gap-2.5 sm:gap-3">
                   
                   {/* Button 1: Open Directly in Gmail */}
                   <button
                     type="button"
                     onClick={handleOpenGmail}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-white hover:bg-[#047857] transition-all font-bold flex items-center justify-center gap-2 shadow-lg text-xs"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-white hover:bg-[#047857] transition-all font-bold flex items-center justify-center gap-2 shadow-lg text-xs"
                   >
                     <Mail className="w-4 h-4 text-[#34d399]" />
-                    <span>Open & Send via Gmail</span>
+                    <span>Open in Gmail</span>
                     <ExternalLink className="w-3.5 h-3.5 text-slate-300" />
                   </button>
 
@@ -615,10 +752,10 @@ ${companyName}`
                     type="button"
                     onClick={handleConfirmInterview}
                     disabled={isSubmittingInterview}
-                    className="w-full sm:w-auto btn-emerald-cta text-xs px-6 py-2.5 shadow-xl"
+                    className="w-full sm:w-auto btn-emerald-cta text-xs px-5 py-2.5 shadow-xl"
                   >
                     {isSubmittingInterview ? (
-                      <span>Dispatching Notification...</span>
+                      <span>Dispatching...</span>
                     ) : (
                       <>
                         <Send className="w-4 h-4 text-white" />

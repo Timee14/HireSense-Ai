@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Clock, CheckCircle2, XCircle, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { FileText, Clock, CheckCircle2, XCircle, AlertCircle, ArrowUpRight, MapPin, Calendar, Building, Sparkles } from 'lucide-react';
 import { Application } from '../../types';
 
 interface ApplicationsPageProps {
@@ -17,13 +17,13 @@ export const ApplicationsPage: React.FC<ApplicationsPageProps> = ({ applications
         );
       case 'interview':
         return (
-          <span className="px-3 py-1 rounded-full bg-[#064e3b] text-[#38bdf8] border border-[#38bdf8]/40 text-xs font-bold flex items-center gap-1.5 w-fit">
+          <span className="px-3 py-1 rounded-full bg-purple-950/80 text-purple-300 border border-purple-500/40 text-xs font-bold flex items-center gap-1.5 w-fit">
             <Clock className="w-3.5 h-3.5" /> Interview Scheduled
           </span>
         );
       case 'under_review':
         return (
-          <span className="px-3 py-1 rounded-full bg-[#064e3b] text-[#6ee7b7] border border-[#34d399]/40 text-xs font-bold flex items-center gap-1.5 w-fit">
+          <span className="px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 w-fit">
             <Clock className="w-3.5 h-3.5" /> Under Review
           </span>
         );
@@ -43,14 +43,60 @@ export const ApplicationsPage: React.FC<ApplicationsPageProps> = ({ applications
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 py-6 text-white">
+    <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 text-white animate-fade-in">
       
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold text-white font-outfit">Submitted Applications</h1>
-        <p className="text-sm text-emerald-100/70 mt-1">Track your application stage and view recruiter review status</p>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#064e3b] border border-[#34d399]/40 font-bold text-xs text-[#34d399] mb-2">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span className="uppercase tracking-wider">Candidate Pipeline</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white font-outfit">Submitted Applications</h1>
+        <p className="text-xs sm:text-sm text-emerald-100/70 mt-1">Track your real-time application stage and recruiter screening status.</p>
       </div>
 
-      <div className="emerald-card overflow-hidden !p-0">
+      {/* Mobile Card View (< md) */}
+      <div className="block md:hidden space-y-4">
+        {applications.length === 0 ? (
+          <div className="emerald-card p-6 text-center text-emerald-100/70 text-xs">
+            No active job applications found. Explore recommended jobs to apply!
+          </div>
+        ) : (
+          applications.map((app, idx) => (
+            <div key={idx} className="emerald-card p-4 space-y-3 border border-[#34d399]/30">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h4 className="font-bold text-white text-base font-outfit">{app.job?.title || 'Software Engineer'}</h4>
+                  <div className="flex items-center gap-1.5 text-xs text-[#34d399] font-bold mt-0.5">
+                    <Building className="w-3.5 h-3.5 shrink-0" />
+                    <span>{app.job?.company_name || 'HireSense Partner'}</span>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-lg bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] font-bold text-xs shrink-0">
+                  {app.match_score?.overall_score || 88}% Match
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-white/5 text-xs">
+                <div className="flex items-center gap-1 text-emerald-100/70">
+                  <MapPin className="w-3.5 h-3.5 text-[#34d399]" />
+                  <span>{app.job?.location || 'Remote'}</span>
+                </div>
+                <div className="flex items-center gap-1 text-emerald-100/60 font-mono text-[11px]">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{new Date(app.applied_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+
+              <div className="pt-1">
+                {getStatusBadge(app.status)}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View (>= md) */}
+      <div className="hidden md:block emerald-card overflow-hidden !p-0 border border-[#34d399]/30 shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[650px]">
             
