@@ -20,15 +20,50 @@ export interface RecruiterProfile {
   company_website?: string;
 }
 
+export interface RoleRating {
+  role: string;
+  rating: number;
+  match_level?: string;
+  level?: string;
+  key_fit?: string;
+  fit?: string;
+}
+
+export interface RecruiterCheck {
+  id: string;
+  category: string;
+  title: string;
+  status: 'passed' | 'warning' | 'critical';
+  score: number;
+  issue_count: number;
+  summary: string;
+  fix: string;
+}
+
+export interface ScoreBoostItem {
+  points: string;
+  action: string;
+  detail: string;
+}
+
 export interface AIAnalysis {
   id: string;
   overall_score: number;
+  score_tier?: string;
+  tier_color?: string;
+  career_level?: string;
   ats_score: number;
-  skills_score: number;
+  impact_score?: number;
   experience_score: number;
-  projects_score: number;
-  education_score: number;
+  skills_score: number;
+  action_verb_score?: number;
+  projects_score?: number;
+  education_score?: number;
   formatting_score: number;
+  extracted_skills?: string[];
+  role_ratings?: RoleRating[];
+  recruiter_checks?: RecruiterCheck[];
+  score_boost_roadmap?: ScoreBoostItem[];
   suggestions?: string[];
   extracted_education?: any[];
   extracted_experience?: any[];
@@ -43,6 +78,7 @@ export interface Resume {
   file_type: string;
   status: string;
   uploaded_at: string;
+  raw_text?: string;
   analysis?: AIAnalysis;
 }
 
@@ -92,6 +128,36 @@ export interface JobRecommendation {
   match_details: MatchBreakdown;
 }
 
+export interface NotificationItem {
+  id: string;
+  user_id: string;
+  type: string;
+  message: string;
+  is_read: number;
+  created_at: string;
+  parsed_data?: {
+    title?: string;
+    job_title?: string;
+    company_name?: string;
+    scheduled_at?: string;
+    location_or_link?: string;
+    notes?: string;
+    interview_type?: string;
+    candidate_email?: string;
+    gmail_url?: string;
+    status?: string;
+  };
+}
+
+export interface InterviewScheduleRequest {
+  application_id: string;
+  interview_type?: string;
+  scheduled_at: string;
+  location_or_link?: string;
+  notes?: string;
+  send_email?: boolean;
+}
+
 export interface Application {
   id: string;
   job_id: string;
@@ -99,8 +165,13 @@ export interface Application {
   status: 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'offer' | 'rejected';
   applied_at: string;
   job?: Job;
+  job_title?: string;
+  company_name?: string;
   candidate_name?: string;
   candidate_headline?: string;
+  candidate_email?: string;
+  candidate_phone?: string;
+  candidate_location?: string;
   match_score?: MatchBreakdown;
 }
 

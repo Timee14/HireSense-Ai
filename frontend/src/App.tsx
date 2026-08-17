@@ -12,8 +12,8 @@ import { CreateJobPage } from './pages/recruiter/CreateJobPage';
 import { CandidateScreeningPage } from './pages/recruiter/CandidateScreeningPage';
 import { RecruiterAnalyticsPage } from './pages/recruiter/RecruiterAnalyticsPage';
 import { MatchRadarModal } from './components/ui/MatchRadarModal';
-import { apiRequest, uploadFile, getToken, setToken, removeToken } from './api/client';
-import { User, CandidateProfile, RecruiterProfile, Resume, Job, JobRecommendation, Application, RecruiterAnalytics, JobCreate } from './types';
+import { apiRequest, uploadFile, getToken, setToken, removeToken, getNotifications, markNotificationAsRead } from './api/client';
+import { User, CandidateProfile, RecruiterProfile, Resume, Job, JobRecommendation, Application, RecruiterAnalytics, JobCreate, NotificationItem } from './types';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -58,6 +58,26 @@ export const App: React.FC = () => {
     }
   };
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  const loadNotifications = async () => {
+    try {
+      const notifs = await getNotifications().catch(() => []);
+      setNotifications(notifs || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMarkNotificationRead = async (id: string) => {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: 1 } : n));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const loadCandidateData = async () => {
     try {
       const prof = await apiRequest<CandidateProfile>('/candidates/me');
@@ -71,6 +91,8 @@ export const App: React.FC = () => {
 
       const apps = await apiRequest<Application[]>('/applications/candidate/my-applications').catch(() => []);
       setCandidateApplications(apps);
+
+      await loadNotifications();
     } catch (err) {
       console.error(err);
     }
@@ -84,10 +106,10 @@ export const App: React.FC = () => {
       const analytics = await apiRequest<RecruiterAnalytics>('/analytics/recruiter').catch(() => null);
       setRecruiterAnalytics(analytics);
 
-      if (jobs.length > 0) {
-        const apps = await apiRequest<Application[]>(`/applications/job/${jobs[0].id}`).catch(() => []);
-        setAllApplicants(apps);
-      }
+      const apps = await apiRequest<Application[]>('/applications/recruiter/all').catch(() => []);
+      setAllApplicants(apps);
+
+      await loadNotifications();
     } catch (err) {
       console.error(err);
     }
@@ -126,6 +148,23 @@ export const App: React.FC = () => {
     const u: User = { id: res.user_id, email: res.email, role: res.role, name: res.name };
     setUser(u);
     if (role === 'candidate') {
+      setActiveTab('candidate_dash');
+      loadCandidateData();
+    } else {
+      setActiveTab('recruiter_dash');
+      loadRecruiterData();
+    }
+  };
+
+  const handleResetPassword = async (email: string, newPass: string) => {
+    const res = await apiRequest<any>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, new_password: newPass })
+    });
+    setToken(res.access_token);
+    const u: User = { id: res.user_id, email: res.email, role: res.role, name: res.name };
+    setUser(u);
+    if (res.role === 'candidate') {
       setActiveTab('candidate_dash');
       loadCandidateData();
     } else {
@@ -190,6 +229,8 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
         onOpenAuth={() => setAuthModalOpen(true)}
         onLogout={handleLogout}
+        notifications={notifications}
+        onMarkNotificationRead={handleMarkNotificationRead}
       />
 
       {/* Main Content Area */}
@@ -216,7 +257,10 @@ export const App: React.FC = () => {
             {activeTab === 'resume_analyzer' && (
               <ResumeAnalyzerPage
                 resume={resume}
+                recommendations={recommendations}
                 onUploadResume={handleUploadResume}
+                onApply={handleApplyJob}
+                onNavigate={setActiveTab}
               />
             )}
 
@@ -288,6 +332,7 @@ export const App: React.FC = () => {
         onClose={() => setAuthModalOpen(false)}
         onLogin={handleLogin}
         onRegister={handleRegister}
+        onResetPassword={handleResetPassword}
         onQuickDemo={handleQuickDemo}
       />
 

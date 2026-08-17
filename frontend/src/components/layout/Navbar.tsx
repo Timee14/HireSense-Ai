@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { Sparkles, LogOut, User as UserIcon, Briefcase, FileText, LayoutDashboard, Target, Users, BarChart3, PlusCircle, Menu, X } from 'lucide-react';
-import { User } from '../../types';
+import {
+  Sparkles, LogOut, User as UserIcon, Briefcase, FileText, LayoutDashboard,
+  Target, Users, BarChart3, PlusCircle, Menu, X, Bell, Video, Mail,
+  CheckCircle2, ExternalLink, Calendar, MessageSquare
+} from 'lucide-react';
+import { User, NotificationItem } from '../../types';
 import { ExpandableTabs, TabItem } from '../ui/expandable-tabs';
 
 interface NavbarProps {
@@ -9,6 +13,8 @@ interface NavbarProps {
   setActiveTab: (tab: string) => void;
   onOpenAuth: () => void;
   onLogout: () => void;
+  notifications?: NotificationItem[];
+  onMarkNotificationRead?: (id: string) => Promise<void>;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,9 +22,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   onOpenAuth,
-  onLogout
+  onLogout,
+  notifications = [],
+  onMarkNotificationRead
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  const unreadCount = notifications.filter(n => n.is_read === 0).length;
 
   const candidateTabs: TabItem[] = [
     { title: "Dashboard", icon: LayoutDashboard },
@@ -78,9 +89,15 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  const handleNotificationClick = async (notif: NotificationItem) => {
+    if (notif.is_read === 0 && onMarkNotificationRead) {
+      await onMarkNotificationRead(notif.id);
+    }
+  };
+
   return (
     <header className="sticky top-2 sm:top-4 z-50 max-w-7xl mx-auto px-2 sm:px-4">
-      <nav className="bg-[#042f26]/95 backdrop-blur-xl rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 shadow-2xl border border-[#34d399]/40 flex-nowrap">
+      <nav className="bg-[#042f26]/95 backdrop-blur-xl rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 shadow-2xl border border-[#34d399]/40 flex-nowrap relative">
         
         {/* Brand Logo */}
         <div 
@@ -124,10 +141,123 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         )}
 
-        {/* User Status / Login Buttons */}
+        {/* Right Section: Notification Bell + User Status / Login Buttons */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {user ? (
             <div className="flex items-center gap-2 sm:gap-3">
+              
+              {/* Notification Mailbox Bell (Candidates & Recruiters) */}
+              <div className="relative">
+                <button
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  className={`p-2 rounded-xl border transition-all relative ${
+                    unreadCount > 0
+                      ? 'bg-[#064e3b] text-[#34d399] border-[#34d399] shadow-lg shadow-[#34d399]/20 animate-pulse'
+                      : 'bg-white/10 text-white/80 border-white/10 hover:bg-white/20'
+                  }`}
+                  title="Interview Notifications & Mailbox"
+                >
+                  <Bell className="w-4 h-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-mono text-[9px] font-black flex items-center justify-center shadow-md animate-bounce">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notifications Popover Dropdown */}
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-[#022c22] border-2 border-[#34d399] rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fade-in">
+                    <div className="flex items-center justify-between border-b border-[#34d399]/30 pb-2">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-[#34d399]" />
+                        <h4 className="text-xs font-bold text-white uppercase font-mono">Candidate Mailbox & Alerts</h4>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-[#064e3b] text-[#34d399] text-[10px] font-mono font-bold">
+                        {unreadCount} Unread
+                      </span>
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto space-y-2.5 divide-y divide-white/5">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-emerald-100/70">
+                          <CheckCircle2 className="w-6 h-6 text-[#34d399] mx-auto mb-1 opacity-60" />
+                          <span>No interview notifications yet.</span>
+                        </div>
+                      ) : (
+                        notifications.map((notif) => {
+                          const data = notif.parsed_data || {};
+                          const isInterview = notif.type === 'interview_invite' || data.status === 'interview_scheduled' || notif.type === 'interview';
+                          return (
+                            <div
+                              key={notif.id}
+                              onClick={() => handleNotificationClick(notif)}
+                              className={`p-3 rounded-xl transition-all space-y-2 cursor-pointer ${
+                                notif.is_read === 0
+                                  ? 'bg-[#064e3b]/80 border border-[#34d399]/60'
+                                  : 'bg-black/30 border border-white/5 opacity-80'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-1.5">
+                                  {isInterview ? (
+                                    <Video className="w-4 h-4 text-[#34d399] shrink-0" />
+                                  ) : (
+                                    <Sparkles className="w-4 h-4 text-[#34d399] shrink-0" />
+                                  )}
+                                  <h5 className="font-bold text-white text-xs font-outfit leading-tight">
+                                    {data.title || (isInterview ? 'Interview Scheduled!' : 'Shortlisted for Role!')}
+                                  </h5>
+                                </div>
+                                <span className="text-[9px] font-mono text-emerald-100/60 shrink-0">
+                                  {notif.created_at?.slice(11, 16) || 'Today'}
+                                </span>
+                              </div>
+
+                              <p className="text-[11px] text-emerald-100/90 leading-relaxed">
+                                {data.notes || (isInterview ? `You are selected for an interview for ${data.job_title} at ${data.company_name}!` : 'Your application was shortlisted!')}
+                              </p>
+
+                              {data.scheduled_at && (
+                                <div className="flex items-center gap-1.5 text-[10px] text-[#6ee7b7] font-mono">
+                                  <Calendar className="w-3 h-3 text-[#34d399]" />
+                                  <span>Time: {data.scheduled_at}</span>
+                                </div>
+                              )}
+
+                              {/* Google Meet & Gmail Action Links */}
+                              {data.location_or_link && (
+                                <div className="flex items-center gap-2 pt-1">
+                                  <a
+                                    href={data.location_or_link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-2.5 py-1 rounded-lg bg-[#10b981] hover:bg-[#34d399] text-white text-[10px] font-bold flex items-center gap-1 transition-all"
+                                  >
+                                    <Video className="w-3 h-3" />
+                                    <span>Join Google Meet</span>
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                  </a>
+                                  <a
+                                    href="https://mail.google.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-2 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-[#6ee7b7] text-[10px] font-bold flex items-center gap-1 border border-white/10"
+                                  >
+                                    <Mail className="w-3 h-3" />
+                                    <span>Check Gmail</span>
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-[#064e3b] border border-[#34d399]/40 text-[#6ee7b7] text-xs font-bold font-mono whitespace-nowrap">
                 {user.role.toUpperCase()}
               </span>
@@ -196,4 +326,3 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
-

@@ -73,3 +73,29 @@ export async function uploadFile<T>(endpoint: string, file: File): Promise<T> {
 
   return response.json();
 }
+
+export async function scheduleInterview(data: any): Promise<any> {
+  return apiRequest('/interviews/schedule', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getNotifications(): Promise<any[]> {
+  return apiRequest<any[]>('/notifications');
+}
+
+export async function markNotificationAsRead(id: string): Promise<any> {
+  return apiRequest(`/notifications/${id}/read`, {
+    method: 'PATCH',
+  });
+}
+
+export async function resetPassword(email: string, newPassword: string): Promise<any> {
+  return apiRequest('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ email, new_password: newPassword }),
+  });
+}
+
+
