@@ -428,32 +428,32 @@ export const AIInterviewStudioPage: React.FC<AIInterviewStudioPageProps> = ({ re
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#10b981]/20 border border-[#34d399]/50 flex items-center justify-center shadow-xl shrink-0 group">
-              <BrainCircuit className="w-8 h-8 text-[#34d399] animate-pulse" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#10b981]/20 border border-[#34d399]/50 flex items-center justify-center shadow-xl shrink-0 group">
+              <BrainCircuit className="w-6 h-6 sm:w-8 sm:h-8 text-[#34d399] animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#10b981]/20 border border-[#34d399]/40 text-[#6ee7b7] text-xs font-semibold uppercase tracking-wider font-mono">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#10b981]/20 border border-[#34d399]/40 text-[#6ee7b7] text-[10px] sm:text-xs font-semibold uppercase tracking-wider font-mono">
                   Emerald AI Studio
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-medium">
+                <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-[10px] sm:text-xs font-medium">
                   Multi-AI Evaluator (ChatGPT • Claude • Gemini)
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-1 font-outfit">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1 font-outfit">
                 AI Interview Practice & Upskilling Studio
               </h1>
-              <p className="text-slate-300 text-sm sm:text-base mt-1 max-w-2xl">
+              <p className="text-slate-300 text-xs sm:text-sm md:text-base mt-1 max-w-2xl">
                 Simulate realistic job interviews with live speech-to-text, 30s inactivity auto-guidance, STAR framework sample responses, and multi-model feedback.
               </p>
             </div>
           </div>
 
           {/* Stepper Pill Status */}
-          <div className="flex items-center gap-2 bg-slate-950/60 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 shrink-0 self-start md:self-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/60 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 shrink-0 self-stretch sm:self-auto overflow-x-auto">
             <button
               onClick={() => setStep('role_select')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
                 step === 'role_select'
                   ? 'bg-[#10b981] text-slate-950 font-bold shadow-md shadow-[#10b981]/20'
                   : 'text-slate-400 hover:text-white'
@@ -464,7 +464,7 @@ export const AIInterviewStudioPage: React.FC<AIInterviewStudioPageProps> = ({ re
             <button
               disabled={questions.length === 0}
               onClick={() => setStep('live_interview')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
                 step === 'live_interview'
                   ? 'bg-[#10b981] text-slate-950 font-bold shadow-md shadow-[#10b981]/20'
                   : questions.length > 0 ? 'text-slate-400 hover:text-white' : 'text-slate-600 cursor-not-allowed'
@@ -475,7 +475,7 @@ export const AIInterviewStudioPage: React.FC<AIInterviewStudioPageProps> = ({ re
             <button
               disabled={step !== 'review_report'}
               onClick={() => setStep('review_report')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
                 step === 'review_report'
                   ? 'bg-[#10b981] text-slate-950 font-bold shadow-md shadow-[#10b981]/20'
                   : 'text-slate-600 cursor-not-allowed'
@@ -486,6 +486,7 @@ export const AIInterviewStudioPage: React.FC<AIInterviewStudioPageProps> = ({ re
           </div>
         </div>
       </div>
+
 
       {/* ========================================================================= */}
       {/* STEP 1: ROLE & JOB DESCRIPTION SELECTION */}
