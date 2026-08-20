@@ -1,11 +1,12 @@
 import React from 'react';
-import { Sparkles, ArrowRight, ShieldCheck, Cpu, Target, Award, Users, FileText, CheckCircle2, ChevronRight, Briefcase, BarChart3, ArrowUpRight } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Cpu, Target, Award, Users, FileText, CheckCircle2, ChevronRight, Briefcase, BarChart3, ArrowUpRight, BrainCircuit } from 'lucide-react';
 
 interface LandingPageProps {
-  onSelectRoleDemo: (role: 'candidate' | 'recruiter') => void;
+  onSelectRoleDemo: (role: 'candidate' | 'recruiter', targetTab?: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) => {
+
   const featureCards = [
     {
       title: "AI Resume Parsing",
@@ -81,23 +82,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
               HireSense AI parses PDF resumes, computes dense vector embeddings, and outputs automated candidate match scores.
             </p>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5 flex-wrap">
               <button
-                onClick={() => onSelectRoleDemo('candidate')}
+                onClick={() => onSelectRoleDemo('candidate', 'candidate_dash')}
                 className="btn-emerald-cta w-full sm:w-auto"
               >
                 <span>Candidate Portal</span>
-                <ArrowRight className="w-5 h-5 text-white" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </button>
 
               <button
-                onClick={() => onSelectRoleDemo('recruiter')}
+                onClick={() => onSelectRoleDemo('candidate', 'ai_interview')}
+                className="btn-emerald-secondary w-full sm:w-auto flex items-center justify-center gap-2 !border-[#34d399]/60 hover:!bg-[#10b981]/20"
+              >
+                <BrainCircuit className="w-4 h-4 text-[#34d399]" />
+                <span>AI Mock Interview</span>
+              </button>
+
+              <button
+                onClick={() => onSelectRoleDemo('recruiter', 'recruiter_dash')}
                 className="btn-emerald-secondary w-full sm:w-auto"
               >
                 <span>Recruiter Portal</span>
               </button>
             </div>
           </div>
+
 
           {/* Right Column: Floating Emerald Glass Candidate Card */}
           <div className="lg:col-span-5 relative flex justify-center">
@@ -396,13 +406,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
             {/* Action CTA */}
             <div className="pt-2">
               <button
-                onClick={() => onSelectRoleDemo('candidate')}
+                onClick={() => onSelectRoleDemo('candidate', 'resume_analyzer')}
                 className="btn-emerald-cta w-full sm:w-auto !h-12 !px-8 !text-sm"
               >
                 <span>Scan Your Resume Free</span>
                 <ArrowRight className="w-4 h-4 text-white" />
               </button>
             </div>
+
 
           </div>
 
@@ -504,7 +515,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
             </div>
 
             <button
-              onClick={() => onSelectRoleDemo('candidate')}
+              onClick={() => onSelectRoleDemo('candidate', 'job_recs')}
               className="btn-emerald-secondary !h-12 !px-6 !text-sm"
             >
               <span>Explore All Jobs</span>
@@ -544,7 +555,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                     <span className="text-sm font-black text-white">{job.salary}</span>
                   </div>
                   <button
-                    onClick={() => onSelectRoleDemo('candidate')}
+                    onClick={() => onSelectRoleDemo('candidate', 'job_recs')}
                     className="btn-emerald-cta !h-10 !px-5 !text-xs !font-bold"
                   >
                     <span>Apply</span>
@@ -591,13 +602,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
 
           <div className="text-center">
             <button
-              onClick={() => onSelectRoleDemo('recruiter')}
+              onClick={() => onSelectRoleDemo('recruiter', 'recruiter_dash')}
               className="btn-emerald-cta !h-14 !px-10 !text-lg"
             >
               <span>Launch Recruiter Command Center</span>
               <ArrowRight className="w-6 h-6 text-white" />
             </button>
           </div>
+
 
         </div>
       </section>

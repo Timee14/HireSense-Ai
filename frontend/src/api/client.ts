@@ -78,7 +78,17 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     // Network failure / Vercel isolated frontend fallback
   }
 
-  // Graceful Mock Responder for Vercel Static Previews
+  // Graceful Mock Responder for Vercel Static Previews & Offline Execution
+  if (endpoint.includes('/auth/me')) {
+    const isRecruiter = token?.includes('recruiter');
+    return {
+      id: isRecruiter ? 'rec-demo-01' : 'cand-demo-01',
+      email: isRecruiter ? 'recruiter@techinnovations.com' : 'alex.dev@example.com',
+      role: isRecruiter ? 'recruiter' : 'candidate',
+      name: isRecruiter ? 'Tech Innovations Recruiter' : 'Alex Chen'
+    } as any;
+  }
+
   if (endpoint.includes('/auth/login') || endpoint.includes('/auth/register') || endpoint.includes('/auth/reset-password')) {
     const isRecruiter = endpoint.includes('recruiter') || (options.body && options.body.toString().includes('recruiter'));
     return {
@@ -90,6 +100,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       name: isRecruiter ? 'Tech Innovations Recruiter' : 'Alex Chen'
     } as any;
   }
+
 
   if (endpoint.includes('/candidates/me/recommendations')) {
     return [
