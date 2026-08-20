@@ -128,6 +128,84 @@ export interface JobRecommendation {
   match_details: MatchBreakdown;
 }
 
+export interface InterviewQuestion {
+  id: string;
+  question: string;
+  category: 'behavioral' | 'technical' | 'problem_solving' | 'system_design' | 'leadership';
+  difficulty: 'entry' | 'mid' | 'senior';
+  key_competencies: string[];
+  sample_response: {
+    star_situation?: string;
+    star_task?: string;
+    star_action?: string;
+    star_result?: string;
+    full_sample: string;
+    chatgpt_tip: string;
+    claude_tip: string;
+    gemini_tip: string;
+  };
+}
+
+export interface MultiAIEvaluation {
+  overall_score: number; // 0-100
+  clarity_score: number;
+  technical_depth_score: number;
+  star_structure_score: number;
+  relevance_score: number;
+  chatgpt_review: {
+    model: string;
+    summary: string;
+    strengths: string[];
+    improvements: string[];
+    fluency_rating: string;
+    verdict: string;
+  };
+  claude_review: {
+    model: string;
+    summary: string;
+    strengths: string[];
+    improvements: string[];
+    depth_rating: string;
+    verdict: string;
+  };
+  gemini_review: {
+    model: string;
+    summary: string;
+    matched_skills: string[];
+    missing_keywords: string[];
+    upskill_action: string;
+    verdict: string;
+  };
+  upskilling_recommendations: {
+    topic: string;
+    priority: 'high' | 'medium' | 'low';
+    resource_type: string;
+    actionable_step: string;
+  }[];
+}
+
+export interface InterviewAnswer {
+  question_id: string;
+  question_text: string;
+  user_answer: string;
+  audio_duration_seconds: number;
+  skipped: boolean;
+  evaluation?: MultiAIEvaluation;
+}
+
+export interface InterviewSession {
+  id: string;
+  candidate_id?: string;
+  role_title: string;
+  job_description: string;
+  total_questions: number;
+  completed_at: string;
+  average_score: number;
+  answers: InterviewAnswer[];
+  top_strengths: string[];
+  priority_upskill_areas: string[];
+}
+
 export interface NotificationItem {
   id: string;
   user_id: string;

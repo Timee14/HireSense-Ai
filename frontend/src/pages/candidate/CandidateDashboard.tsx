@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Briefcase, Award, ArrowUpRight, Target, Sparkles, CheckCircle2, Cpu, ArrowRight, TrendingUp } from 'lucide-react';
+import { FileText, Briefcase, Award, ArrowUpRight, Target, Sparkles, CheckCircle2, Cpu, ArrowRight, TrendingUp, BrainCircuit, Mic, Zap } from 'lucide-react';
 import { CandidateProfile, Resume, JobRecommendation } from '../../types';
 
 interface CandidateDashboardProps {
@@ -55,14 +55,59 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
           </p>
         </div>
 
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => onNavigate('ai_interview')}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-slate-950 font-bold text-sm shadow-lg shadow-[#10b981]/25 flex items-center gap-2 transition-all hover:scale-105"
+          >
+            <BrainCircuit className="w-4 h-4 text-slate-950" />
+            <span>AI Mock Interview Studio</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('resume_analyzer')}
+            className="btn-emerald-cta w-full sm:w-auto"
+          >
+            <FileText className="w-5 h-5 text-white" />
+            <span>Detailed ATS Intelligence</span>
+          </button>
+        </div>
+      </div>
+
+      {/* AI Interview Studio Hero Banner */}
+      <div className="bg-gradient-to-r from-[#022c22] via-[#064e3b] to-[#042f26] border border-[#34d399]/50 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#10b981]/20 border border-[#34d399]/50 flex items-center justify-center shrink-0 shadow-lg">
+            <BrainCircuit className="w-7 h-7 text-[#34d399] animate-pulse" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded-full bg-[#10b981]/20 border border-[#34d399]/40 text-[#6ee7b7] text-[10px] font-bold uppercase tracking-wider font-mono">
+                New Feature
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-[10px] font-medium">
+                Multi-AI (ChatGPT • Claude • Gemini)
+              </span>
+            </div>
+            <h3 className="text-xl font-bold text-white font-outfit">
+              AI Interview Practice & Skill-Up Studio
+            </h3>
+            <p className="text-xs text-slate-300 max-w-xl">
+              Practice live role-specific interview questions with speech-to-text, 30-second silence prompts, STAR sample answers, and instant multi-AI evaluations.
+            </p>
+          </div>
+        </div>
+
         <button
-          onClick={() => onNavigate('resume_analyzer')}
-          className="btn-emerald-cta w-full sm:w-auto"
+          onClick={() => onNavigate('ai_interview')}
+          className="px-6 py-3 rounded-2xl bg-[#10b981] hover:bg-[#059669] text-slate-950 font-extrabold text-sm shadow-xl shadow-[#10b981]/30 flex items-center justify-center gap-2 shrink-0 transition-all hover:scale-105"
         >
-          <FileText className="w-5 h-5 text-white" />
-          <span>Detailed ATS Intelligence</span>
+          <Mic className="w-4 h-4 text-slate-950" />
+          <span>Launch AI Interview</span>
+          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+
 
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

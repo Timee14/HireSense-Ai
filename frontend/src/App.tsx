@@ -7,6 +7,7 @@ import { ResumeAnalyzerPage } from './pages/candidate/ResumeAnalyzerPage';
 import { JobRecommendationsPage } from './pages/candidate/JobRecommendationsPage';
 import { ApplicationsPage } from './pages/candidate/ApplicationsPage';
 import { SkillGapsPage } from './pages/candidate/SkillGapsPage';
+import { AIInterviewStudioPage } from './pages/candidate/AIInterviewStudioPage';
 import { RecruiterDashboard } from './pages/recruiter/RecruiterDashboard';
 import { CreateJobPage } from './pages/recruiter/CreateJobPage';
 import { CandidateScreeningPage } from './pages/recruiter/CandidateScreeningPage';
@@ -254,7 +255,15 @@ export const App: React.FC = () => {
               />
             )}
 
+            {activeTab === 'ai_interview' && (
+              <AIInterviewStudioPage
+                resume={resume}
+                onNavigate={setActiveTab}
+              />
+            )}
+
             {activeTab === 'resume_analyzer' && (
+
               <ResumeAnalyzerPage
                 resume={resume}
                 recommendations={recommendations}
