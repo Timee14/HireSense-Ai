@@ -159,8 +159,264 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
         </div>
       </section>
 
-      {/* 2. FEATURE SECTION */}
+      {/* 2. CREATIVE ATS RESUME GRADER & TWO-TIER SYSTEM SHOWCASE (Enhancv-inspired Visual Scanner) */}
+      <section className="py-20 md:py-28 px-4 relative bg-[#011d17] border-y border-[#34d399]/20 overflow-hidden">
+        {/* Background Ambient Glows */}
+        <div className="absolute top-1/2 -left-20 w-96 h-96 bg-[#10b981]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
+          
+          {/* Left Column: Interactive Illustrated "RESUME GRADER" Machine & Scanning Document */}
+          <div className="lg:col-span-6 flex justify-center items-center relative">
+            
+            {/* Machine & Paper Container */}
+            <div className="relative w-full max-w-[500px] flex items-center justify-center select-none">
+              
+              {/* Left Hardware Module: "RESUME GRADER" Control Panel */}
+              <div className="w-28 sm:w-36 bg-gradient-to-b from-slate-900 via-slate-950 to-indigo-950/90 border border-slate-700/80 rounded-2xl p-3 sm:p-4 shadow-2xl shadow-black/80 flex flex-col items-center justify-between z-20 shrink-0 space-y-3 relative -mr-4 backdrop-blur-md">
+                
+                {/* Title */}
+                <div className="text-center">
+                  <span className="text-[9px] sm:text-[10px] font-black text-slate-300 tracking-widest font-mono uppercase block leading-tight">
+                    RESUME
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-black text-[#34d399] tracking-widest font-mono uppercase block leading-tight">
+                    GRADER
+                  </span>
+                </div>
+
+                {/* Speedometer Gauge */}
+                <div className="w-16 h-12 sm:w-20 sm:h-14 bg-slate-950 rounded-xl border border-slate-800 p-1 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                  {/* Gauge Arc */}
+                  <div className="w-12 h-6 sm:w-16 sm:h-8 border-t-4 border-l-4 border-r-4 border-amber-400 rounded-t-full relative">
+                    {/* Animated Needle */}
+                    <div className="absolute bottom-0 left-1/2 w-1 h-5 sm:h-6 bg-gradient-to-t from-amber-500 to-emerald-400 origin-bottom -translate-x-1/2 rotate-45 transform transition-transform duration-700 animate-pulse" />
+                    <div className="absolute -bottom-1 left-1/2 w-2.5 h-2.5 rounded-full bg-white -translate-x-1/2 shadow" />
+                  </div>
+                  <span className="text-[8px] font-mono text-emerald-400 font-bold mt-1">94% ATS</span>
+                </div>
+
+                {/* ECG / Wave Pulse Monitor */}
+                <div className="w-full bg-slate-950 rounded-xl border border-slate-800 p-2 shadow-inner overflow-hidden relative">
+                  <div className="flex items-center justify-center h-6 sm:h-8">
+                    <svg className="w-full h-full" viewBox="0 0 100 30" fill="none">
+                      <path
+                        d="M0 15 H20 L28 4 L36 26 L44 10 L52 18 L60 15 H100"
+                        stroke="#34d399"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="animate-pulse"
+                      />
+                    </svg>
+                  </div>
+                  <div className="w-full h-[1px] bg-slate-800 mt-1" />
+                </div>
+
+                {/* Status Indicator LEDs */}
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                  <div className="w-2 h-2 rounded-full bg-rose-500 shadow-md shadow-rose-500/50" />
+                  <div className="w-2 h-2 rounded-full bg-amber-400 shadow-md shadow-amber-400/50" />
+                  <div className="w-2 h-2 rounded-full bg-white shadow-md shadow-white/50 animate-ping" />
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/50" />
+                </div>
+
+                {/* Output Paper Ejection Slot */}
+                <div className="w-full bg-slate-950 rounded-lg p-1.5 border border-slate-800 flex justify-center">
+                  <div className="w-10 h-1.5 bg-indigo-500/40 rounded-full" />
+                </div>
+
+                {/* Ejected receipt / printout snippet */}
+                <div className="w-20 bg-white text-slate-900 rounded-b-md p-1.5 text-[7px] font-mono shadow-md border-t-2 border-dashed border-slate-400 -mt-1 scale-90">
+                  <div className="w-full h-0.5 bg-slate-400 mb-0.5" />
+                  <div className="w-3/4 h-0.5 bg-rose-400 mb-0.5" />
+                  <div className="w-full h-0.5 bg-emerald-500" />
+                </div>
+
+              </div>
+
+              {/* Center & Right: High-Res Resume Document Passing Through Dark Scanner Base */}
+              <div className="flex-1 relative">
+                
+                {/* Paper Resume Document */}
+                <div className="bg-white text-slate-900 rounded-2xl shadow-2xl p-4 sm:p-6 border border-slate-200 relative overflow-hidden transform rotate-0 hover:scale-[1.01] transition-transform duration-300">
+                  
+                  {/* Laser Scanning Beam (Animated vertical gradient line) */}
+                  <div className="absolute left-0 right-0 h-2 bg-gradient-to-r from-transparent via-[#10b981] to-transparent opacity-75 shadow-lg shadow-[#10b981] animate-scan z-30 pointer-events-none" />
+
+                  {/* Resume Header */}
+                  <div className="border-b border-slate-200 pb-2.5 mb-2.5">
+                    <h3 className="text-sm sm:text-base font-extrabold text-slate-900 font-outfit">
+                      Taylor Foster
+                    </h3>
+                    <p className="text-[10px] sm:text-xs text-sky-700 font-bold">
+                      Senior IT Project Manager & Cloud Lead
+                    </p>
+                    <div className="flex items-center gap-3 text-[8px] text-slate-500 mt-0.5">
+                      <span>San Francisco, CA</span>
+                      <span>•</span>
+                      <span>taylor.foster@cloudmail.com</span>
+                    </div>
+                  </div>
+
+                  {/* Summary Section */}
+                  <div className="mb-2.5">
+                    <span className="text-[8px] sm:text-[9px] font-extrabold text-slate-800 uppercase tracking-wider block mb-0.5">
+                      Summary
+                    </span>
+                    <p className="text-[7.5px] sm:text-[8.5px] text-slate-600 leading-tight">
+                      Results-oriented project lead with 8+ years experience scaling cloud infrastructures, CI/CD pipelines, and microservices for high-velocity teams.
+                    </p>
+                  </div>
+
+                  {/* Technical Skills Section with ATS Highlights */}
+                  <div className="mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <span className="text-[8px] sm:text-[9px] font-extrabold text-slate-800 uppercase tracking-wider block mb-1">
+                      Technical Skills (ATS Parsed)
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono text-[7px] sm:text-[8px] font-bold border border-emerald-300">
+                        SQL
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono text-[7px] sm:text-[8px] font-bold border border-emerald-300">
+                        FastAPI
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono text-[7px] sm:text-[8px] font-bold border border-emerald-300">
+                        Python
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono text-[7px] sm:text-[8px] font-bold border border-emerald-300">
+                        AWS / Docker
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-sky-100 text-sky-800 rounded font-mono text-[7px] sm:text-[8px] font-bold">
+                        PostgreSQL
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Professional Experience & Key Achievements */}
+                  <div className="space-y-1.5">
+                    <span className="text-[8px] sm:text-[9px] font-extrabold text-slate-800 uppercase tracking-wider block">
+                      Key Quantified Achievements
+                    </span>
+                    
+                    {/* Highlighted Result 1 */}
+                    <div className="p-1.5 rounded-md bg-gradient-to-r from-emerald-50 via-teal-50 to-transparent border-l-2 border-emerald-500">
+                      <span className="text-[7.5px] sm:text-[8px] font-bold text-emerald-900 block">
+                        Cost Tuning \u0026 Distributed Systems
+                      </span>
+                      <p className="text-[7px] sm:text-[7.5px] text-slate-700 leading-tight">
+                        Optimized database indexing and Redis caching, saving over <strong>$120,000 annually</strong> while dropping API latency by <strong>68%</strong>.
+                      </p>
+                    </div>
+
+                    {/* Highlighted Result 2 */}
+                    <div className="p-1.5 rounded-md bg-gradient-to-r from-sky-50 via-indigo-50 to-transparent border-l-2 border-sky-500">
+                      <span className="text-[7.5px] sm:text-[8px] font-bold text-sky-900 block">
+                        Exceeded Deployment Throughput Target by 92%
+                      </span>
+                      <p className="text-[7px] sm:text-[7.5px] text-slate-700 leading-tight">
+                        Standardized automated CI/CD PR test coverage gates across 14 internal engineering repositories.
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Scanner Hardware Base Stand (Glassmorphic chassis matching screenshot) */}
+                <div className="h-14 sm:h-18 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-950 rounded-2xl border-t-2 border-indigo-500/40 shadow-2xl p-2.5 flex items-center justify-between -mt-4 relative z-20 mx-2">
+                  <div className="w-full h-8 sm:h-10 bg-slate-950/90 rounded-xl border border-slate-800 flex items-center justify-between px-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="text-[9px] font-mono text-[#34d399] font-bold uppercase">
+                        AI SCANNER: ACTIVE (300 DPI EXTRACT)
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-mono text-slate-400 font-bold">
+                      STREAM MATCH: 94.2%
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Right Column: High-Converting Explanatory Copy & Multi-Tier Framework */}
+          <div className="lg:col-span-6 space-y-6 text-left">
+            
+            {/* Step Pill */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#10b981]/20 border border-[#34d399]/50 text-[#34d399] flex items-center justify-center font-extrabold text-sm font-mono shadow-md">
+                1
+              </div>
+              <span className="text-xs font-mono font-bold text-[#6ee7b7] uppercase tracking-widest">
+                Two-Tier Calibration Architecture
+              </span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight font-outfit">
+              HireSense’s Resume Checker forms its ATS score with a two-tier system
+            </h2>
+
+            <div className="space-y-4 text-emerald-100/80 text-sm sm:text-base leading-relaxed">
+              <p>
+                When you're applying for a job, there's a high chance your resume will be screened through an applicant tracking system before it finds its way on a recruiter's screen. ATS helps hiring managers find the right candidates by indexing resumes into a searchable vector database and extracting structured competencies.
+              </p>
+              
+              <p>
+                That's why the success of your application is highly dependent on how tailored your resume is for the role, the clarity of your section formatting, and what measurable impact keywords you have included.
+              </p>
+
+              <p>
+                And then your resume must stand out in a pile of applicants, as well as deal with potential red flags, missing tech stack metrics, and role fit. HireSense’s dual-engine Grader & AI Mock Studio handles that by giving you the exact strategies you need to conquer this step.
+              </p>
+            </div>
+
+            {/* Feature Bullets / Calibration Tiers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="p-4 rounded-2xl bg-[#042f26]/80 border border-[#34d399]/30 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#34d399]" />
+                  <h4 className="text-sm font-bold text-white font-outfit">Tier 1: ATS Keyword Density</h4>
+                </div>
+                <p className="text-xs text-emerald-100/70">
+                  Dense vector cosine similarity and semantic skill matching with zero parsing errors.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#042f26]/80 border border-[#34d399]/30 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#34d399]" />
+                  <h4 className="text-sm font-bold text-white font-outfit">Tier 2: Recruiter Rubric</h4>
+                </div>
+                <p className="text-xs text-emerald-100/70">
+                  Evaluates quantifiable impact ($, %, scale), STAR structure, and executive tone.
+                </p>
+              </div>
+            </div>
+
+            {/* Action CTA */}
+            <div className="pt-2">
+              <button
+                onClick={() => onSelectRoleDemo('candidate')}
+                className="btn-emerald-cta w-full sm:w-auto !h-12 !px-8 !text-sm"
+              >
+                <span>Scan Your Resume Free</span>
+                <ArrowRight className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 3. PLATFORM CAPABILITIES FEATURE SECTION */}
       <section className="py-20 md:py-28 px-4 relative bg-[#022c22]/60">
+
         <div className="max-w-7xl mx-auto space-y-16 text-center">
           
           <div className="space-y-4 max-w-3xl mx-auto">

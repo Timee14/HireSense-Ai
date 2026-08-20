@@ -269,3 +269,25 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(52, 211, 153, 0.7);
 }
+
+/* Creative ATS Laser Scanning Animation */
+@keyframes scan {
+  0% {
+    top: 0%;
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    top: 95%;
+    opacity: 0.2;
+  }
+}
+
+.animate-scan {
+  animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
