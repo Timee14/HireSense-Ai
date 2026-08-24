@@ -208,19 +208,19 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
       )}
 
       {/* Raw Extracted Text Viewer (Collapsible) */}
-      {showRawText && resume?.raw_text && (
+      {showRawText && currentResume?.raw_text && (
         <div className="luma-card p-6 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-white font-sans uppercase tracking-wider flex items-center gap-2">
               <FileText className="w-4 h-4 text-cyan-400" />
-              <span>Extracted Plaintext Stream (PyMuPDF)</span>
+              <span>Extracted Plaintext Stream (ATS Parser)</span>
             </h3>
             <button onClick={() => setShowRawText(false)} className="text-xs text-slate-400 hover:text-white">
               Close
             </button>
           </div>
           <pre className="p-4 rounded-xl bg-black/60 text-slate-300 font-mono text-xs max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-white/10">
-            {resume.raw_text}
+            {currentResume.raw_text}
           </pre>
         </div>
       )}

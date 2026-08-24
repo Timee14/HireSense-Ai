@@ -1,3 +1,5 @@
+import { extractTextFromFile, analyzeResumeContent } from '../lib/resumeParser';
+
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined' && (window as any).VITE_API_URL) {
     return (window as any).VITE_API_URL;
@@ -368,12 +370,14 @@ export async function uploadFile<T>(endpoint: string, file: File): Promise<T> {
       return data;
     }
   } catch (err) {
-    // Vercel standalone preview fallback
+    // Fallback to in-browser high-precision ATS analysis engine
   }
 
-  // Generate dynamic parsed resume from actual uploaded file
-  const isDeveloper = file.name.toLowerCase().includes('dev') || file.name.toLowerCase().includes('engineer') || file.name.toLowerCase().includes('resume');
-  const score = isDeveloper ? 89 : 82;
+  // 1. Extract actual plaintext tokens from uploaded file buffer
+  const extractedText = await extractTextFromFile(file);
+
+  // 2. Perform deep deterministic ATS rubric scoring based on actual content
+  const analysis = analyzeResumeContent(extractedText, file.name);
 
   const dynamicResume = {
     id: `resume-${Date.now()}`,
@@ -382,93 +386,8 @@ export async function uploadFile<T>(endpoint: string, file: File): Promise<T> {
     file_type: file.name.split('.').pop()?.toLowerCase() || 'pdf',
     status: "complete",
     uploaded_at: "Just now",
-    raw_text: `PARSED RESUME: ${file.name}\nCandidate: Alex Chen\nEmail: alex.dev@example.com\nExtracted Skills: Python, FastAPI, React, TypeScript, SQL, Docker, PostgreSQL, REST APIs, Tailwind CSS\nExperience: Senior Full-Stack Software Engineer (4+ years verified tenure)\nAchievements: Reduced API latency by 38%, handled 50,000+ requests/day, designed vector embeddings and search algorithms.`,
-    analysis: {
-      overall_score: score,
-      score_tier: score >= 85 ? "Elite Match" : "Competitive Match",
-      tier_color: "cyan",
-      career_level: "Senior Full-Stack Engineer (4+ yrs)",
-      ats_score: score + 3,
-      impact_score: 85,
-      experience_score: 88,
-      skills_score: 92,
-      action_verb_score: 86,
-      formatting_score: 95,
-      extracted_skills: ["Python", "FastAPI", "React", "TypeScript", "SQL", "PostgreSQL", "Docker", "Git", "REST APIs", "Tailwind CSS"],
-      recruiter_checks: [
-        {
-          id: "impact",
-          category: "Quantify Impact",
-          title: "Measurable Metrics & Business Scale",
-          status: "passed" as const,
-          score: 85,
-          issue_count: 0,
-          summary: `Extracted 5+ quantified outcomes and metrics from ${file.name}.`,
-          fix: "Great job! Keep highlighting % and $ metrics."
-        },
-        {
-          id: "skills",
-          category: "Skills Breadth",
-          title: "Technical Stack Alignment",
-          status: "passed" as const,
-          score: 92,
-          issue_count: 0,
-          summary: "Core technologies (Python, FastAPI, React, PostgreSQL, Docker) recognized.",
-          fix: "Strong technical alignment."
-        },
-        {
-          id: "experience",
-          category: "Experience Depth",
-          title: "Professional Tenure & Seniority Calibration",
-          status: "passed" as const,
-          score: 88,
-          issue_count: 0,
-          summary: "Verified professional engineering tenure recognized.",
-          fix: "Calibrated for senior roles."
-        },
-        {
-          id: "verbs",
-          category: "Action Verbs",
-          title: "Power Action Verbs vs Passive Phrases",
-          status: "passed" as const,
-          score: 86,
-          issue_count: 0,
-          summary: "High density of active power verbs found.",
-          fix: "Strong writing style."
-        },
-        {
-          id: "formatting",
-          category: "Length & Structure",
-          title: "ATS Parsing & Section Completeness",
-          status: "passed" as const,
-          score: 95,
-          issue_count: 0,
-          summary: "Clean formatting and optimal word count.",
-          fix: "Optimal ATS structure."
-        }
-      ],
-      role_ratings: [
-        { role: "Senior Full-Stack Engineer", rating: score + 5, match_level: "Exceptional Match", key_fit: "Strong Python, FastAPI, and React stack alignment." },
-        { role: "Backend Python Engineer", rating: score + 2, match_level: "Strong Fit", key_fit: "Proficiency in FastAPI, PostgreSQL & async processing." },
-        { role: "Frontend UI/UX Engineer", rating: score - 4, match_level: "Solid Fit", key_fit: "Proven React, TypeScript, and UI toolchains." }
-      ],
-      score_boost_roadmap: [
-        {
-          points: "+6 Points",
-          action: "Highlight Cloud & Microservices Orchestration",
-          detail: "Detail AWS ECS, Lambda, or Kubernetes container clustering."
-        },
-        {
-          points: "+4 Points",
-          action: "Add Unit & Integration Test Coverage Metrics",
-          detail: "Specify pytest / Jest test suite coverage percentages."
-        }
-      ],
-      suggestions: [
-        `Successfully calibrated ${file.name} against ATS benchmark rubrics!`,
-        "High score achieved for Senior Full-Stack and Backend Python roles."
-      ]
-    }
+    raw_text: extractedText,
+    analysis: analysis
   };
 
   localStorage.setItem('hiresense_active_resume', JSON.stringify(dynamicResume));
