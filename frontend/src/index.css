@@ -146,37 +146,23 @@
   transform: translateY(-1px);
 }
 
-/* Emerald Green Gradient Hero Section */
+/* Legacy Aliases -> Luma Minimalist Tokens */
 .emerald-hero-bg {
-  background: linear-gradient(135deg, #022c22 0%, #064e3b 35%, #047857 70%, #059669 100%);
+  background: rgba(16, 18, 24, 0.75);
   position: relative;
   overflow: hidden;
 }
 
-.emerald-hero-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 70% 30%, rgba(110, 231, 183, 0.25) 0%, transparent 65%);
-  pointer-events: none;
-}
-
-/* Primary Glowing Mint/Emerald CTA Button */
 .btn-emerald-cta {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  font-weight: 800;
-  border-radius: 14px;
-  min-height: 48px;
-  padding: 10px 20px;
-  font-size: 0.92rem;
-  box-shadow: 
-    0 8px 25px rgba(16, 185, 129, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: all 250ms ease;
+  background-color: #ffffff;
+  color: #090a0f;
+  font-weight: 700;
+  border-radius: 12px;
+  min-height: 44px;
+  padding: 10px 22px;
+  font-size: 0.88rem;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12);
+  transition: all 200ms ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -184,19 +170,10 @@
   touch-action: manipulation;
 }
 
-@media (min-width: 640px) {
-  .btn-emerald-cta {
-    min-height: 52px;
-    padding: 12px 28px;
-    font-size: 1rem;
-    gap: 10px;
-  }
-}
-
 .btn-emerald-cta:hover {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 14px 35px rgba(16, 185, 129, 0.6);
+  background-color: #f1f5f9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
 }
 
 /* Secondary Translucent Glass Button */

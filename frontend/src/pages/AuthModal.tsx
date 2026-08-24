@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { X, User, Briefcase, Mail, Lock, Sparkles, KeyRound, CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { X, User, Briefcase, KeyRound, Sparkles, CheckCircle2, ArrowLeft, ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react';
+type UserRole = 'candidate' | 'recruiter';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, pass: string) => Promise<void>;
-  onRegister: (email: string, pass: string, role: 'candidate' | 'recruiter', name: string) => Promise<void>;
-  onResetPassword?: (email: string, newPass: string) => Promise<void>;
-  onQuickDemo: (role: 'candidate' | 'recruiter') => void;
+  onLogin: (email: string, role: UserRole, name?: string, password?: string) => Promise<void>;
+  onRegister: (email: string, role: UserRole, name: string, password?: string) => Promise<void>;
+  onResetPassword?: (email: string, newPassword: string) => Promise<void>;
+  onQuickDemo: (role: UserRole) => void;
 }
+
+type AuthMode = 'login' | 'register' | 'forgot_password';
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
@@ -18,12 +21,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onResetPassword,
   onQuickDemo
 }) => {
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot_password'>('login');
-  const [role, setRole] = useState<'candidate' | 'recruiter'>('candidate');
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [role, setRole] = useState<UserRole>('candidate');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,36 +37,55 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     setError('');
     setSuccessMsg('');
-    setLoading(true);
 
-    try {
-      if (authMode === 'forgot_password') {
-        if (password.length < 4) {
-          setError('Password must be at least 4 characters');
-          setLoading(false);
-          return;
-        }
-        if (password !== confirmPassword) {
-          setError('Passwords do not match. Please re-enter.');
-          setLoading(false);
-          return;
-        }
+    if (authMode === 'forgot_password') {
+      if (!password || password.length < 6) {
+        setError('New password must be at least 6 characters.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('Passwords do not match. Please verify.');
+        return;
+      }
+
+      setLoading(true);
+      try {
         if (onResetPassword) {
           await onResetPassword(email, password);
+        } else {
+          await onLogin(email, role, name, password);
         }
-        setSuccessMsg('Password updated successfully! Logging you in...');
+        setSuccessMsg('Password successfully updated! Logging you in...');
         setTimeout(() => {
           onClose();
         }, 1200);
-      } else if (authMode === 'register') {
-        await onRegister(email, password, role, name);
-        onClose();
-      } else {
-        await onLogin(email, password);
-        onClose();
+      } catch (err: any) {
+        setError(err.message || 'Failed to update password. Please check your email.');
+      } finally {
+        setLoading(false);
       }
+      return;
+    }
+
+    if (authMode === 'register' && !name.trim()) {
+      setError('Please provide your name.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Please enter your email.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (authMode === 'login') {
+        await onLogin(email, role, undefined, password);
+      } else {
+        await onRegister(email, role, name, password);
+      }
+      onClose();
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      setError(err.message || 'Authentication error. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -72,44 +94,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleSwitchToForgot = () => {
     setError('');
     setSuccessMsg('');
+    setPassword('');
+    setConfirmPassword('');
     setAuthMode('forgot_password');
   };
 
   const handleSwitchToLogin = () => {
     setError('');
     setSuccessMsg('');
+    setPassword('');
+    setConfirmPassword('');
     setAuthMode('login');
   };
 
   const handleSwitchToRegister = () => {
     setError('');
     setSuccessMsg('');
+    setPassword('');
+    setConfirmPassword('');
     setAuthMode('register');
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn text-white">
-      <div className="relative w-full max-w-lg bg-[#0c0e14]/95 p-5 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl space-y-4 sm:space-y-6 border border-white/15 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="luma-card max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative border border-white/15">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10"
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header */}
-        <div className="text-center space-y-1 sm:space-y-2 pr-6">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center mx-auto shadow-md">
-            {authMode === 'forgot_password' ? (
-              <KeyRound className="w-6 h-6 text-cyan-400" />
-            ) : (
-              <Sparkles className="w-6 h-6 text-cyan-400 animate-pulse" />
-            )}
+        {/* Header */}
+        <div className="text-center space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-slate-300 font-mono text-xs font-semibold mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span>HireSense Intelligent Access</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white font-sans tracking-tight">
-            {authMode === 'login' && 'Sign in to HireSense AI'}
+          <h2 className="text-2xl font-black text-white font-sans">
+            {authMode === 'login' && 'Sign In to HireSense'}
             {authMode === 'register' && 'Create Your Account'}
             {authMode === 'forgot_password' && 'Reset Your Password'}
           </h2>
@@ -121,20 +146,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {authMode === 'login' && (
-          <div className="p-4 rounded-xl bg-[#022c22] border border-[#34d399]/30 space-y-3">
-            <span className="block text-xs font-bold text-[#34d399] text-center uppercase tracking-widest font-mono">
+          <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10 space-y-3">
+            <span className="block text-xs font-semibold text-slate-300 text-center uppercase tracking-widest font-mono">
               ⚡ 1-Click Demo Account Sign In
             </span>
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => { onQuickDemo('candidate'); onClose(); }}
-                className="px-4 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#34d399] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="btn-luma-primary !min-h-[40px] !text-xs !py-2 !px-3"
               >
-                <User className="w-4 h-4 text-white" /> Candidate Demo
+                <User className="w-4 h-4 text-black" /> Candidate Demo
               </button>
               <button
                 onClick={() => { onQuickDemo('recruiter'); onClose(); }}
-                className="px-4 py-2.5 rounded-xl bg-[#0ea5e9] hover:bg-[#38bdf8] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="btn-luma-glass !min-h-[40px] !text-xs !py-2 !px-3"
               >
                 <Briefcase className="w-4 h-4 text-white" /> Recruiter Demo
               </button>
@@ -144,7 +169,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Error Banner with Direct "Forgot Password?" Action Link */}
         {error && (
-          <div className="p-3.5 text-xs font-bold rounded-xl bg-rose-950/90 border border-rose-500/60 text-rose-200 space-y-1.5 text-center shadow-lg animate-fade-in">
+          <div className="p-3.5 text-xs font-semibold rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-200 space-y-1.5 text-center shadow-lg animate-fade-in">
             <div>{error}</div>
             {authMode === 'login' && (
               <div className="pt-1 border-t border-rose-500/30">
@@ -163,8 +188,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Success Banner */}
         {successMsg && (
-          <div className="p-3.5 text-xs font-bold rounded-xl bg-emerald-950/90 border border-emerald-500/60 text-emerald-200 flex items-center justify-center gap-2 shadow-lg animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="p-3.5 text-xs font-semibold rounded-xl bg-white/10 border border-white/20 text-white flex items-center justify-center gap-2 shadow-lg animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -174,13 +199,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           
           {authMode === 'register' && (
             <div>
-              <label className="block text-xs font-bold text-emerald-100/90 mb-1">Select Role</label>
-              <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[#022c22] border border-[#34d399]/30">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Select Role</label>
+              <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10">
                 <button
                   type="button"
                   onClick={() => setRole('candidate')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
-                    role === 'candidate' ? 'bg-[#10b981] text-white shadow-sm' : 'text-emerald-100/70'
+                    role === 'candidate' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Candidate
@@ -189,7 +214,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="button"
                   onClick={() => setRole('recruiter')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
-                    role === 'recruiter' ? 'bg-[#0ea5e9] text-white shadow-sm' : 'text-emerald-100/70'
+                    role === 'recruiter' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Recruiter
@@ -200,7 +225,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {authMode === 'register' && (
             <div>
-              <label className="block text-xs font-bold text-emerald-100/90 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 {role === 'candidate' ? 'Full Name' : 'Company Name'}
               </label>
               <input
@@ -209,35 +234,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={role === 'candidate' ? 'Alex Chen' : 'Tech Innovations Inc.'}
-                className="w-full px-4 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white placeholder-emerald-100/40 focus:outline-none focus:border-[#34d399]"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
               />
             </div>
           )}
 
           {/* Email Address */}
           <div>
-            <label className="block text-xs font-bold text-emerald-100/90 mb-1">Email Address</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@example.com"
-              className="w-full px-4 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white placeholder-emerald-100/40 focus:outline-none focus:border-[#34d399]"
+              className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
             />
           </div>
 
           {/* Password Field */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-bold text-emerald-100/90">
+              <label className="block text-xs font-semibold text-slate-300">
                 {authMode === 'forgot_password' ? 'New Password' : 'Password'}
               </label>
               {authMode === 'login' && (
                 <button
                   type="button"
                   onClick={handleSwitchToForgot}
-                  className="text-[11px] text-[#34d399] hover:underline font-bold"
+                  className="text-[11px] text-cyan-300 hover:underline font-medium"
                 >
                   Forgot Password?
                 </button>
@@ -249,14 +274,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={authMode === 'forgot_password' ? 'Enter new password' : '••••••••'}
-              className="w-full px-4 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white placeholder-emerald-100/40 focus:outline-none focus:border-[#34d399]"
+              className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
             />
           </div>
 
           {/* Confirm Password Field (Only in Forgot Password Mode) */}
           {authMode === 'forgot_password' && (
             <div>
-              <label className="block text-xs font-bold text-emerald-100/90 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Confirm New Password
               </label>
               <input
@@ -265,7 +290,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter new password"
-                className="w-full px-4 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white placeholder-emerald-100/40 focus:outline-none focus:border-[#34d399]"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
               />
             </div>
           )}
@@ -274,7 +299,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-sky-blue !h-12 !text-sm !w-full"
+            className="btn-luma-primary !h-12 !text-sm !w-full"
           >
             {loading
               ? 'Processing...'
@@ -293,7 +318,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={handleSwitchToLogin}
-                className="text-[#34d399] hover:underline font-bold inline-flex items-center gap-1"
+                className="text-cyan-300 hover:underline font-semibold inline-flex items-center gap-1"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Sign In</span>
@@ -301,7 +326,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={handleSwitchToRegister}
-                className="text-emerald-100/70 hover:text-white font-bold"
+                className="text-slate-400 hover:text-white font-medium"
               >
                 Create Account
               </button>
@@ -310,7 +335,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="button"
               onClick={handleSwitchToLogin}
-              className="text-[#34d399] hover:underline font-bold"
+              className="text-cyan-300 hover:underline font-semibold"
             >
               Already have an account? Sign In
             </button>
@@ -319,7 +344,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={handleSwitchToRegister}
-                className="text-[#34d399] hover:underline font-bold block mx-auto"
+                className="text-cyan-300 hover:underline font-semibold block mx-auto"
               >
                 Don't have an account? Register Now
               </button>

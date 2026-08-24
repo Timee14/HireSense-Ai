@@ -261,7 +261,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
 
-              <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-[#064e3b] border border-[#34d399]/40 text-[#6ee7b7] text-xs font-bold font-mono whitespace-nowrap">
+              <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-white/10 border border-white/15 text-slate-300 text-xs font-mono font-semibold whitespace-nowrap">
                 {user.role.toUpperCase()}
               </span>
 
@@ -285,9 +285,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               onClick={onOpenAuth}
-              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white text-xs sm:text-sm font-black shadow-lg shadow-[#10b981]/30 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 border border-white/20"
+              className="btn-luma-primary !min-h-[40px] !text-xs !py-2 !px-4"
             >
-              <UserIcon className="w-4 h-4 text-white shrink-0" />
+              <UserIcon className="w-4 h-4 text-black shrink-0" />
               <span>Sign In / Demo</span>
             </button>
           )}
@@ -297,10 +297,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Navigation Drawer */}
       {user && mobileMenuOpen && (
-        <div className="lg:hidden mt-2 p-3 bg-[#042f26]/95 backdrop-blur-xl rounded-2xl border border-[#34d399]/40 shadow-2xl space-y-1.5 animate-in slide-in-from-top-2">
-          <div className="px-2 py-1 flex items-center justify-between text-xs text-[#6ee7b7] font-mono font-bold uppercase tracking-wider border-b border-[#34d399]/20 pb-2 mb-1">
+        <div className="lg:hidden mt-2 p-3 bg-[#0c0e14]/95 backdrop-blur-2xl rounded-2xl border border-white/15 shadow-2xl space-y-1.5 animate-in slide-in-from-top-2">
+          <div className="px-2 py-1 flex items-center justify-between text-xs text-slate-400 font-mono font-bold uppercase tracking-wider border-b border-white/10 pb-2 mb-1">
             <span>Navigation Menu</span>
-            <span className="px-2 py-0.5 rounded bg-[#064e3b] text-[#34d399]">{user.role}</span>
+            <span className="px-2 py-0.5 rounded bg-white/10 text-white">{user.role}</span>
           </div>
 
           {(user.role === 'candidate' ? candidateTabItems : recruiterTabItems).map((tab) => {
@@ -315,11 +315,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive
-                    ? 'bg-[#10b981] text-white font-bold shadow-md'
-                    : 'text-emerald-100/90 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white text-slate-950 font-bold shadow-md'
+                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#34d399]'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                 <span>{tab.title}</span>
               </button>
             );

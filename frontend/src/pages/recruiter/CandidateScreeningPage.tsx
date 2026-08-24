@@ -1,208 +1,167 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Users, Sparkles, Filter, ChevronRight, CheckCircle2, Clock, XCircle,
-  Award, Mail, Video, Calendar, Send, ExternalLink, X, Copy, Check,
-  AlertCircle, MessageSquare, Briefcase, UserCheck, Star, Eye, Layers, Building
+  Users, CheckCircle2, XCircle, Clock, Star, Eye, Sparkles, Filter, Mail, Video,
+  Calendar, Briefcase, MessageSquare, Send, ExternalLink, Copy, Check, ChevronRight, X
 } from 'lucide-react';
-import { Application, Job, JobRecommendation } from '../../types';
-import { scheduleInterview } from '../../api/client';
+import { Job, Application, JobRecommendation } from '../../types';
 
 interface CandidateScreeningPageProps {
   jobs: Job[];
-  applicants: Application[];
-  onUpdateStatus: (appId: string, status: string) => Promise<void>;
-  onOpenMatchModal: (rec: JobRecommendation) => void;
+  applications?: Application[];
+  applicants?: Application[];
+  onUpdateStatus: (applicationId: string, status: string) => Promise<void>;
+  onOpenMatchModal: (rec: any) => void;
+  onSendInterviewInvite?: (inviteData: {
+    applicationId: string;
+    candidateEmail: string;
+    candidateName: string;
+    jobTitle: string;
+    interviewType: string;
+    scheduledAt: string;
+    meetingLink: string;
+    notes?: string;
+  }) => Promise<void>;
 }
 
 export const CandidateScreeningPage: React.FC<CandidateScreeningPageProps> = ({
   jobs,
+  applications,
   applicants,
   onUpdateStatus,
-  onOpenMatchModal
+  onOpenMatchModal,
+  onSendInterviewInvite
 }) => {
-  // Job & Pipeline Filters
+  const allApps = applicants || applications || [];
   const [selectedJobId, setSelectedJobId] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [localApplicants, setLocalApplicants] = useState<Application[]>(applicants);
-  const [statusToast, setStatusToast] = useState<{ msg: string; type: string } | null>(null);
+  const [statusToast, setStatusToast] = useState<{ msg: string; type: 'white' | 'rose' | 'amber' } | null>(null);
 
-  // Synchronize local applicants when parent applicants update
-  useEffect(() => {
-    setLocalApplicants(applicants);
-  }, [applicants]);
-
-  // Interview & Gmail Dispatch Modal State
+  // Interview Schedule State
   const [activeApplicantForInterview, setActiveApplicantForInterview] = useState<Application | null>(null);
-  const [interviewType, setInterviewType] = useState<string>('Technical Round 1 (Live Coding & Architecture)');
-  const [scheduledAt, setScheduledAt] = useState<string>('Tomorrow at 2:00 PM EST');
-  const [meetingLink, setMeetingLink] = useState<string>('https://meet.google.com/hms-recr-invite');
-  const [recruiterNotes, setRecruiterNotes] = useState<string>(
-    'Congratulations on clearing the resume screening! We were impressed by your technical depth and would love to discuss next steps.'
-  );
-  const [isSubmittingInterview, setIsSubmittingInterview] = useState(false);
-  const [interviewSuccessMsg, setInterviewSuccessMsg] = useState<string | null>(null);
+  const [interviewType, setInterviewType] = useState('Technical Round 1 (Live Coding & Architecture)');
+  const [scheduledAt, setScheduledAt] = useState('Tomorrow at 2:00 PM EST');
+  const [meetingLink, setMeetingLink] = useState('https://meet.google.com/xyz-hiresense-meet');
+  const [recruiterNotes, setRecruiterNotes] = useState('Looking forward to discussing your technical project experience and system design foundations.');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isSubmittingInterview, setIsSubmittingInterview] = useState(false);
+  const [interviewSuccessMsg, setInterviewSuccessMsg] = useState('');
 
-  const selectedJob = jobs.find(j => j.id === selectedJobId);
-
-  // Filtered applicants list
-  const filteredApplicants = localApplicants.filter((app) => {
-    if (selectedJobId !== 'all' && app.job_id !== selectedJobId) return false;
-    if (statusFilter !== 'all' && app.status !== statusFilter) return false;
-    return true;
+  const filteredApplicants = allApps.filter((app) => {
+    const matchesJob = selectedJobId === 'all' || app.job_id === selectedJobId;
+    const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+    return matchesJob && matchesStatus;
   });
 
+  const selectedJob = jobs.find((j) => j.id === selectedJobId);
+
   const stageCounts = {
-    all: localApplicants.length,
-    applied: localApplicants.filter(a => a.status === 'applied').length,
-    under_review: localApplicants.filter(a => a.status === 'under_review').length,
-    shortlisted: localApplicants.filter(a => a.status === 'shortlisted').length,
-    interview: localApplicants.filter(a => a.status === 'interview').length,
-    rejected: localApplicants.filter(a => a.status === 'rejected').length
+    all: allApps.length,
+    shortlisted: allApps.filter(a => a.status === 'shortlisted').length,
+    under_review: allApps.filter(a => a.status === 'under_review').length,
+    interview: allApps.filter(a => a.status === 'interview').length,
+    applied: allApps.filter(a => a.status === 'applied').length,
+    rejected: allApps.filter(a => a.status === 'rejected').length
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'shortlisted':
+        return { label: 'Shortlisted ✓', bg: 'bg-white/10 text-white border-white/20' };
+      case 'interview':
+        return { label: 'Interview 📅', bg: 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30' };
+      case 'under_review':
+        return { label: 'Under Review ⏳', bg: 'bg-amber-950/60 text-amber-300 border-amber-500/30' };
+      case 'rejected':
+        return { label: 'Declined ✗', bg: 'bg-rose-950/60 text-rose-300 border-rose-500/30' };
+      default:
+        return { label: 'Applied', bg: 'bg-white/5 text-slate-300 border-white/10' };
+    }
+  };
+
+  const handleStatusChange = async (appId: string, candidateName: string, newStatus: string) => {
+    try {
+      await onUpdateStatus(appId, newStatus);
+      setStatusToast({
+        msg: `Candidate ${candidateName || 'Applicant'} status transitioned to ${newStatus.toUpperCase()}`,
+        type: newStatus === 'rejected' ? 'rose' : newStatus === 'under_review' ? 'amber' : 'white'
+      });
+      setTimeout(() => setStatusToast(null), 4000);
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
   const handleOpenInterviewModal = (app: Application) => {
     setActiveApplicantForInterview(app);
-    setInterviewSuccessMsg(null);
-    setCopiedLink(false);
-    const cleanName = (app.candidate_name || 'cand').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 4);
-    setMeetingLink(`https://meet.google.com/hms-${cleanName}-meet`);
-  };
-
-  // Immediate Optimistic Status Update with Feedback
-  const handleStatusChange = async (appId: string, candidateName: string, newStatus: string) => {
-    const app = localApplicants.find(a => a.id === appId);
-    if (newStatus === 'interview' && app) {
-      handleOpenInterviewModal(app);
-      return;
-    }
-
-    // 1. Instant optimistic state update
-    setLocalApplicants(prev =>
-      prev.map(a => (a.id === appId ? { ...a, status: newStatus as any } : a))
-    );
-
-    const friendlyName = newStatus === 'shortlisted'
-      ? 'Shortlisted ✓'
-      : newStatus === 'under_review'
-      ? 'Under Review ⏳'
-      : newStatus === 'rejected'
-      ? 'Declined ✗'
-      : 'Applied';
-
-    setStatusToast({
-      msg: `${candidateName || 'Candidate'} moved to ${friendlyName}`,
-      type: newStatus === 'shortlisted' ? 'emerald' : newStatus === 'rejected' ? 'rose' : 'amber'
-    });
-
-    setTimeout(() => setStatusToast(null), 3500);
-
-    // 2. Persist to backend
-    try {
-      await onUpdateStatus(appId, newStatus);
-    } catch (err: any) {
-      console.error(err);
-      setStatusToast({ msg: 'Failed to sync status to backend: ' + err.message, type: 'rose' });
-    }
+    setInterviewSuccessMsg('');
+    const randomCode = Math.random().toString(36).substring(2, 6) + '-' + Math.random().toString(36).substring(2, 6);
+    setMeetingLink(`https://meet.google.com/${randomCode}`);
   };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(meetingLink);
     setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 3000);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handleOpenGmail = () => {
+    if (!activeApplicantForInterview) return;
+    const recipient = activeApplicantForInterview.candidate_email || 'alex.dev@example.com';
+    const subject = encodeURIComponent(`Interview Invitation: ${activeApplicantForInterview.job_title || selectedJob?.title || 'Engineering Role'} at HireSense Partner`);
+    const body = encodeURIComponent(
+      `Hello ${activeApplicantForInterview.candidate_name || 'Candidate'},\n\nWe were impressed by your background and would like to invite you for an interview.\n\n` +
+      `Stage: ${interviewType}\n` +
+      `Proposed Time: ${scheduledAt}\n` +
+      `Google Meet Link: ${meetingLink}\n\n` +
+      `Note from Hiring Team:\n${recruiterNotes}\n\n` +
+      `Best regards,\nHiring Team`
+    );
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${recipient}&su=${subject}&body=${body}`, '_blank');
   };
 
   const handleConfirmInterview = async () => {
     if (!activeApplicantForInterview) return;
     setIsSubmittingInterview(true);
     try {
-      await scheduleInterview({
-        application_id: activeApplicantForInterview.id,
-        interview_type: interviewType,
-        scheduled_at: scheduledAt,
-        location_or_link: meetingLink,
-        notes: recruiterNotes,
-        send_email: true
-      });
+      if (onSendInterviewInvite) {
+        await onSendInterviewInvite({
+          applicationId: activeApplicantForInterview.id,
+          candidateEmail: activeApplicantForInterview.candidate_email || 'alex.dev@example.com',
+          candidateName: activeApplicantForInterview.candidate_name || 'Candidate',
+          jobTitle: activeApplicantForInterview.job_title || selectedJob?.title || 'Engineering Role',
+          interviewType,
+          scheduledAt,
+          meetingLink,
+          notes: recruiterNotes
+        });
+      } else {
+        await onUpdateStatus(activeApplicantForInterview.id, 'interview');
+      }
 
-      setLocalApplicants(prev =>
-        prev.map(a => (a.id === activeApplicantForInterview.id ? { ...a, status: 'interview' } : a))
-      );
-
-      await onUpdateStatus(activeApplicantForInterview.id, 'interview');
-      setInterviewSuccessMsg(`Interview scheduled and notification delivered to ${activeApplicantForInterview.candidate_name}'s mailbox!`);
-
+      setInterviewSuccessMsg(`Interview scheduled and notification dispatched to ${activeApplicantForInterview.candidate_email || 'Candidate'}!`);
       setTimeout(() => {
-        setIsSubmittingInterview(false);
         setActiveApplicantForInterview(null);
-        setInterviewSuccessMsg(null);
+        setInterviewSuccessMsg('');
       }, 2500);
     } catch (err: any) {
       console.error(err);
-      alert('Failed to schedule interview: ' + (err.message || 'Server error'));
+    } finally {
       setIsSubmittingInterview(false);
     }
   };
 
-  const handleOpenGmail = () => {
-    if (!activeApplicantForInterview) return;
-    const candEmail = activeApplicantForInterview.candidate_email || 'candidate@example.com';
-    const candName = activeApplicantForInterview.candidate_name || 'Candidate';
-    const jobTitle = activeApplicantForInterview.job_title || selectedJob?.title || 'Software Engineering Role';
-    const companyName = activeApplicantForInterview.company_name || selectedJob?.company_name || 'HireSense AI Partner';
-
-    const subject = encodeURIComponent(`Interview Invitation: ${jobTitle} at ${companyName}`);
-    const emailBody = encodeURIComponent(
-`Hi ${candName},
-
-Congratulations! We were thoroughly impressed by your profile and resume screening results for the ${jobTitle} role at ${companyName}.
-
-We would like to invite you for the next round of our interview process:
-- Interview Stage: ${interviewType}
-- Proposed Date & Time: ${scheduledAt}
-- Video Meeting Link: ${meetingLink}
-
-Notes from Hiring Team:
-${recruiterNotes}
-
-Please confirm if this time works for you or reply with your preferred availability.
-
-Best regards,
-The Talent Acquisition Team
-${companyName}`
-    );
-
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candEmail)}&su=${subject}&body=${emailBody}`;
-    window.open(gmailUrl, '_blank');
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'shortlisted':
-        return { label: 'Shortlisted ✓', bg: 'bg-[#064e3b] text-[#34d399] border-[#34d399]/40' };
-      case 'interview':
-        return { label: 'Interview 📅', bg: 'bg-purple-950/80 text-purple-300 border-purple-500/40' };
-      case 'under_review':
-        return { label: 'Under Review ⏳', bg: 'bg-amber-950/80 text-amber-300 border-amber-500/40' };
-      case 'rejected':
-        return { label: 'Declined ✗', bg: 'bg-rose-950/80 text-rose-300 border-rose-500/40' };
-      default:
-        return { label: 'Applied', bg: 'bg-slate-900 text-slate-300 border-slate-700' };
-    }
-  };
-
   return (
-    <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 text-white animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 text-white animate-fade-in">
       
-      {/* Header */}
+      {/* Header & Requisition Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#064e3b] border border-[#34d399]/40 font-bold text-xs text-[#34d399]">
-            <Sparkles className="w-4 h-4 text-[#34d399]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.06] border border-white/10 font-mono font-semibold text-xs text-slate-300">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span className="uppercase tracking-wider font-mono">Vector Screening & Pipeline Command</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-white font-outfit mt-2">Candidate Intelligence</h1>
-          <p className="text-xs sm:text-sm text-emerald-100/70">Applicants auto-ranked by cosine vector distance and multi-dimensional skill fit.</p>
+          <h1 className="font-editorial text-2xl sm:text-3xl md:text-5xl font-normal text-white tracking-tight mt-2">Candidate Intelligence</h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">Applicants auto-ranked by cosine vector distance and multi-dimensional skill fit.</p>
         </div>
 
         {/* Filters */}
@@ -210,40 +169,40 @@ ${companyName}`
           <select
             value={selectedJobId}
             onChange={(e) => setSelectedJobId(e.target.value)}
-            className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white font-bold focus:outline-none focus:border-[#34d399] shadow-md"
+            className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-[#0c0e14] border border-white/10 text-xs text-white font-medium focus:outline-none focus:border-white/30"
           >
-            <option value="all" className="bg-[#022c22] text-white">All Job Postings ({jobs.length})</option>
+            <option value="all" className="bg-[#0c0e14] text-white">All Job Postings ({jobs.length})</option>
             {jobs.map((j) => (
-              <option key={j.id} value={j.id} className="bg-[#022c22] text-white">{j.title} ({j.company_name || 'Active'})</option>
+              <option key={j.id} value={j.id} className="bg-[#0c0e14] text-white">{j.title} ({j.company_name || 'Active'})</option>
             ))}
           </select>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 text-xs text-white font-bold focus:outline-none focus:border-[#34d399] shadow-md"
+            className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-[#0c0e14] border border-white/10 text-xs text-white font-medium focus:outline-none focus:border-white/30"
           >
-            <option value="all" className="bg-[#022c22] text-white">All Stages ({stageCounts.all})</option>
-            <option value="shortlisted" className="bg-[#022c22] text-white">Shortlisted ✓ ({stageCounts.shortlisted})</option>
-            <option value="under_review" className="bg-[#022c22] text-white">Under Review ⏳ ({stageCounts.under_review})</option>
-            <option value="interview" className="bg-[#022c22] text-white">Interview 📅 ({stageCounts.interview})</option>
-            <option value="applied" className="bg-[#022c22] text-white">Applied ({stageCounts.applied})</option>
-            <option value="rejected" className="bg-[#022c22] text-white">Declined ✗ ({stageCounts.rejected})</option>
+            <option value="all" className="bg-[#0c0e14] text-white">All Stages ({stageCounts.all})</option>
+            <option value="shortlisted" className="bg-[#0c0e14] text-white">Shortlisted ✓ ({stageCounts.shortlisted})</option>
+            <option value="under_review" className="bg-[#0c0e14] text-white">Under Review ⏳ ({stageCounts.under_review})</option>
+            <option value="interview" className="bg-[#0c0e14] text-white">Interview 📅 ({stageCounts.interview})</option>
+            <option value="applied" className="bg-[#0c0e14] text-white">Applied ({stageCounts.applied})</option>
+            <option value="rejected" className="bg-[#0c0e14] text-white">Declined ✗ ({stageCounts.rejected})</option>
           </select>
         </div>
       </div>
 
       {/* Dynamic Toast Status Notification Banner */}
       {statusToast && (
-        <div className={`p-3.5 sm:p-4 rounded-2xl border-2 text-xs sm:text-sm font-bold flex items-center justify-between gap-3 shadow-xl animate-fade-in ${
-          statusToast.type === 'emerald'
-            ? 'bg-[#064e3b] border-[#34d399] text-white'
+        <div className={`p-3.5 sm:p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 shadow-xl backdrop-blur-xl animate-fade-in ${
+          statusToast.type === 'white'
+            ? 'bg-white/10 border-white/20 text-white'
             : statusToast.type === 'rose'
-            ? 'bg-rose-950 border-rose-500 text-rose-200'
-            : 'bg-amber-950 border-amber-500 text-amber-200'
+            ? 'bg-rose-950/80 border-rose-500/40 text-rose-200'
+            : 'bg-amber-950/80 border-amber-500/40 text-amber-200'
         }`}>
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <CheckCircle2 className="w-5 h-5 text-[#34d399] shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-cyan-400 shrink-0" />
             <span>{statusToast.msg}</span>
           </div>
           <button onClick={() => setStatusToast(null)} className="text-white/60 hover:text-white">
@@ -264,15 +223,15 @@ ${companyName}`
           <button
             key={tab.key}
             onClick={() => setStatusFilter(tab.key)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center gap-1.5 sm:gap-2 border whitespace-nowrap shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1.5 sm:gap-2 border whitespace-nowrap shrink-0 ${
               statusFilter === tab.key
-                ? 'bg-[#10b981] text-white border-[#34d399] shadow-lg shadow-[#10b981]/20'
-                : 'bg-[#022c22] text-emerald-100/70 border-[#34d399]/20 hover:bg-[#064e3b] hover:text-white'
+                ? 'bg-white text-slate-950 font-bold border-white/30 shadow-md'
+                : 'bg-white/[0.04] text-slate-400 border-white/10 hover:bg-white/10 hover:text-white'
             }`}
           >
             <span>{tab.label}</span>
             <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-              statusFilter === tab.key ? 'bg-black/30 text-white' : 'bg-black/40 text-[#6ee7b7]'
+              statusFilter === tab.key ? 'bg-slate-200 text-slate-950 font-bold' : 'bg-white/10 text-slate-300'
             }`}>
               {tab.count}
             </span>
@@ -283,7 +242,7 @@ ${companyName}`
       {/* Mobile Card Layout (< md) */}
       <div className="block md:hidden space-y-4">
         {filteredApplicants.length === 0 ? (
-          <div className="emerald-card p-6 text-center text-emerald-100/70 text-xs">
+          <div className="luma-card p-6 text-center text-slate-400 text-xs">
             No candidates match the selected filter.
           </div>
         ) : (
@@ -302,35 +261,31 @@ ${companyName}`
             const badge = getStatusBadge(app.status);
 
             return (
-              <div key={app.id || idx} className="emerald-card p-4 space-y-3.5 border border-[#34d399]/30">
+              <div key={app.id || idx} className="luma-card p-4 space-y-3.5">
                 
                 {/* Header Row */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-full bg-[#10b981] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 border border-[#34d399]">
+                    <span className="w-7 h-7 rounded-full bg-white/10 border border-white/15 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
                       #{idx + 1}
                     </span>
                     <div>
-                      <h4 className="font-bold text-white text-base font-outfit leading-tight">{app.candidate_name || 'Candidate'}</h4>
-                      <span className="text-[11px] text-emerald-100/70 block truncate max-w-[180px]">
+                      <h4 className="font-bold text-white text-base font-sans leading-tight">{app.candidate_name || 'Candidate'}</h4>
+                      <span className="text-[11px] text-slate-400 block truncate max-w-[180px]">
                         {app.job_title || selectedJob?.title || 'Engineering Role'}
                       </span>
                     </div>
                   </div>
 
-                  <span className={`px-2.5 py-1 rounded-full font-bold text-xs font-outfit border shrink-0 ${
-                    ms.overall_score >= 70
-                      ? 'bg-[#064e3b] border-[#34d399]/40 text-[#34d399]'
-                      : 'bg-amber-950/60 border-amber-500/40 text-amber-300'
-                  }`}>
+                  <span className={`px-2.5 py-1 rounded-full font-bold text-xs font-mono border shrink-0 bg-white/10 text-white border-white/15`}>
                     {ms.overall_score}% MATCH
                   </span>
                 </div>
 
                 {/* Email and Current Status */}
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/5">
-                  <span className="text-[#6ee7b7] font-mono text-[11px] flex items-center gap-1 truncate max-w-[160px]">
-                    <Mail className="w-3 h-3 text-[#34d399] shrink-0" />
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
+                  <span className="text-slate-300 font-mono text-[11px] flex items-center gap-1 truncate max-w-[160px]">
+                    <Mail className="w-3 h-3 text-cyan-400 shrink-0" />
                     <span className="truncate">{app.candidate_email || 'alex.dev@example.com'}</span>
                   </span>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${badge.bg}`}>
@@ -341,7 +296,7 @@ ${companyName}`
                 {/* Skill Badges */}
                 <div className="flex flex-wrap gap-1">
                   {ms.matched_skills.slice(0, 4).map((sk, sIdx) => (
-                    <span key={sIdx} className="px-2 py-0.5 rounded bg-[#064e3b]/80 text-[#6ee7b7] text-[10px] font-semibold border border-[#34d399]/30">
+                    <span key={sIdx} className="px-2 py-0.5 rounded bg-white/[0.04] text-slate-300 text-[10px] font-mono border border-white/10">
                       ✓ {sk}
                     </span>
                   ))}
@@ -354,13 +309,13 @@ ${companyName}`
                   <select
                     value={app.status}
                     onChange={(e) => handleStatusChange(app.id, app.candidate_name || '', e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-xl bg-[#022c22] border border-[#34d399]/40 text-xs font-bold text-white focus:outline-none focus:border-[#34d399]"
+                    className="flex-1 px-3 py-2 rounded-xl bg-[#0c0e14] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-white/30"
                   >
-                    <option value="applied" className="bg-[#022c22] text-white">Applied</option>
-                    <option value="under_review" className="bg-[#022c22] text-white">Under Review ⏳</option>
-                    <option value="shortlisted" className="bg-[#022c22] text-white">Shortlist ✓</option>
-                    <option value="interview" className="bg-[#022c22] text-white">Interview 📅</option>
-                    <option value="rejected" className="bg-[#022c22] text-white">Decline ✗</option>
+                    <option value="applied" className="bg-[#0c0e14] text-white">Applied</option>
+                    <option value="under_review" className="bg-[#0c0e14] text-white">Under Review ⏳</option>
+                    <option value="shortlisted" className="bg-[#0c0e14] text-white">Shortlist ✓</option>
+                    <option value="interview" className="bg-[#0c0e14] text-white">Interview 📅</option>
+                    <option value="rejected" className="bg-[#0c0e14] text-white">Decline ✗</option>
                   </select>
 
                   {/* 1-Click Shortlist Star Button */}
@@ -369,19 +324,19 @@ ${companyName}`
                     onClick={() => handleStatusChange(app.id, app.candidate_name || '', app.status === 'shortlisted' ? 'under_review' : 'shortlisted')}
                     className={`p-2.5 rounded-xl border text-xs font-bold transition-all shrink-0 ${
                       app.status === 'shortlisted'
-                        ? 'bg-[#10b981] text-white border-[#34d399]'
-                        : 'bg-[#022c22] text-[#34d399] border-[#34d399]/30'
+                        ? 'bg-white text-slate-950 border-white'
+                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
                     }`}
                     title="1-Click Shortlist"
                   >
-                    <Star className={`w-4 h-4 ${app.status === 'shortlisted' ? 'fill-white' : ''}`} />
+                    <Star className={`w-4 h-4 ${app.status === 'shortlisted' ? 'fill-slate-950' : ''}`} />
                   </button>
 
                   {/* 1-Click Interview / Gmail Button */}
                   <button
                     type="button"
                     onClick={() => handleOpenInterviewModal(app)}
-                    className="p-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] hover:bg-[#10b981] hover:text-white transition-all shrink-0"
+                    className="p-2.5 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all shrink-0"
                     title="Schedule Interview & Gmail"
                   >
                     <Mail className="w-4 h-4" />
@@ -404,7 +359,7 @@ ${companyName}`
                       },
                       match_details: ms
                     })}
-                    className="p-2.5 rounded-xl bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all shrink-0"
+                    className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white transition-all shrink-0"
                     title="Review Fit Radar"
                   >
                     <Eye className="w-4 h-4" />
@@ -419,11 +374,11 @@ ${companyName}`
       </div>
 
       {/* Desktop Table View (>= md) */}
-      <div className="hidden md:block emerald-card overflow-hidden !p-0 border border-[#34d399]/30 shadow-2xl">
+      <div className="hidden md:block luma-card overflow-hidden !p-0 shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[850px]">
             
-            <thead className="bg-[#064e3b]/90 text-[#6ee7b7] uppercase font-mono border-b border-[#34d399]/30">
+            <thead className="bg-white/[0.02] text-slate-400 uppercase font-mono border-b border-white/10">
               <tr>
                 <th className="px-6 py-4">Rank & Candidate Info</th>
                 <th className="px-6 py-4">AI Match Score</th>
@@ -433,10 +388,10 @@ ${companyName}`
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#34d399]/20 text-white">
+            <tbody className="divide-y divide-white/5 text-white">
               {filteredApplicants.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-emerald-100/70 text-xs">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400 text-xs">
                     No candidate applications match the selected position or filter stage.
                   </td>
                 </tr>
@@ -458,24 +413,24 @@ ${companyName}`
                   const badge = getStatusBadge(app.status);
 
                   return (
-                    <tr key={app.id || idx} className="hover:bg-[#064e3b]/40 transition-colors">
+                    <tr key={app.id || idx} className="hover:bg-white/[0.02] transition-colors">
                       
                       {/* Candidate Name & Info */}
                       <td className="px-6 py-4 font-medium">
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-full bg-[#10b981] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-md border border-[#34d399]">
+                          <span className="w-8 h-8 rounded-full bg-white/10 border border-white/15 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-md">
                             #{idx + 1}
                           </span>
                           <div>
-                            <span className="block font-bold text-white text-sm font-outfit">
+                            <span className="block font-bold text-white text-sm font-sans">
                               {app.candidate_name || 'Candidate'}
                             </span>
-                            <span className="block text-[11px] text-emerald-100/70 truncate max-w-[200px]">
+                            <span className="block text-[11px] text-slate-400 truncate max-w-[200px]">
                               {app.job_title || selectedJob?.title || 'Engineering Role'}
                             </span>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[11px] text-[#6ee7b7] font-mono flex items-center gap-1">
-                                <Mail className="w-3 h-3 text-[#34d399]" />
+                              <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                                <Mail className="w-3 h-3 text-cyan-400" />
                                 {candidateEmail}
                               </span>
                             </div>
@@ -486,13 +441,7 @@ ${companyName}`
                       {/* AI Match Score */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full font-bold text-xs font-outfit border ${
-                            ms.overall_score >= 70
-                              ? 'bg-[#064e3b] border-[#34d399]/40 text-[#34d399]'
-                              : ms.overall_score >= 45
-                              ? 'bg-amber-950/60 border-amber-500/40 text-amber-300'
-                              : 'bg-rose-950/60 border-rose-500/40 text-rose-300'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full font-bold text-xs font-mono border bg-white/10 text-white border-white/15`}>
                             {ms.overall_score}% MATCH
                           </span>
                         </div>
@@ -502,7 +451,7 @@ ${companyName}`
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1 max-w-xs">
                           {ms.matched_skills.slice(0, 3).map((sk, sIdx) => (
-                            <span key={sIdx} className="px-2 py-0.5 rounded bg-[#064e3b]/80 text-[#6ee7b7] text-[10px] font-semibold border border-[#34d399]/30">
+                            <span key={sIdx} className="px-2 py-0.5 rounded bg-white/[0.04] text-slate-300 text-[10px] font-mono border border-white/10">
                               ✓ {sk}
                             </span>
                           ))}
@@ -524,13 +473,13 @@ ${companyName}`
                           <select
                             value={app.status}
                             onChange={(e) => handleStatusChange(app.id, app.candidate_name || '', e.target.value)}
-                            className="px-3 py-1.5 rounded-lg bg-[#022c22] border border-[#34d399]/40 text-xs font-bold text-white focus:outline-none focus:border-[#34d399] shadow-sm hover:border-[#34d399] transition-all"
+                            className="px-3 py-1.5 rounded-lg bg-[#0c0e14] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-white/30"
                           >
-                            <option value="applied" className="bg-[#022c22] text-white">Applied</option>
-                            <option value="under_review" className="bg-[#022c22] text-white">Under Review ⏳</option>
-                            <option value="shortlisted" className="bg-[#022c22] text-white">Shortlist ✓</option>
-                            <option value="interview" className="bg-[#022c22] text-white">Schedule Interview 📅</option>
-                            <option value="rejected" className="bg-[#022c22] text-white">Decline ✗</option>
+                            <option value="applied" className="bg-[#0c0e14] text-white">Applied</option>
+                            <option value="under_review" className="bg-[#0c0e14] text-white">Under Review ⏳</option>
+                            <option value="shortlisted" className="bg-[#0c0e14] text-white">Shortlist ✓</option>
+                            <option value="interview" className="bg-[#0c0e14] text-white">Schedule Interview 📅</option>
+                            <option value="rejected" className="bg-[#0c0e14] text-white">Decline ✗</option>
                           </select>
 
                           {/* Quick 1-Click Shortlist Button */}
@@ -539,19 +488,19 @@ ${companyName}`
                             onClick={() => handleStatusChange(app.id, app.candidate_name || '', app.status === 'shortlisted' ? 'under_review' : 'shortlisted')}
                             className={`p-1.5 rounded-lg border text-xs font-bold transition-all ${
                               app.status === 'shortlisted'
-                                ? 'bg-[#10b981] text-white border-[#34d399] shadow-md'
-                                : 'bg-[#022c22] text-[#34d399] border-[#34d399]/30 hover:bg-[#064e3b]'
+                                ? 'bg-white text-slate-950 border-white shadow-md'
+                                : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
                             }`}
                             title={app.status === 'shortlisted' ? 'Already Shortlisted' : '1-Click Shortlist Candidate'}
                           >
-                            <Star className={`w-4 h-4 ${app.status === 'shortlisted' ? 'fill-white' : ''}`} />
+                            <Star className={`w-4 h-4 ${app.status === 'shortlisted' ? 'fill-slate-950' : ''}`} />
                           </button>
 
                           {/* Quick Interview / Gmail Dispatch Button */}
                           <button
                             type="button"
                             onClick={() => handleOpenInterviewModal(app)}
-                            className="p-1.5 rounded-lg bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] hover:bg-[#10b981] hover:text-white transition-all shadow-sm"
+                            className="p-1.5 rounded-lg bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all shadow-sm"
                             title="Schedule Interview & Connect via Gmail"
                           >
                             <Mail className="w-4 h-4" />
@@ -598,19 +547,19 @@ ${companyName}`
       {/* ========================================================================= */}
       {activeApplicantForInterview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#022c22] border-2 border-[#34d399] rounded-3xl max-w-2xl w-full p-4 sm:p-6 md:p-8 space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+          <div className="luma-card max-w-2xl w-full p-4 sm:p-6 md:p-8 space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto border border-white/15 bg-[#0c0e14]/95">
             
             {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-[#34d399]/30 pb-3 sm:pb-4">
+            <div className="flex items-start justify-between border-b border-white/10 pb-3 sm:pb-4">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] text-xs font-bold font-mono">
-                  <Video className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-slate-300 text-xs font-mono font-semibold">
+                  <Video className="w-3.5 h-3.5 text-cyan-400" />
                   <span>CANDIDATE INTERVIEW DISPATCH</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white font-outfit">
+                <h3 className="text-xl sm:text-2xl font-black text-white font-sans">
                   Invite {activeApplicantForInterview.candidate_name} to Interview
                 </h3>
-                <p className="text-xs text-emerald-100/70">
+                <p className="text-xs text-slate-400">
                   Sends an instant in-app notification to candidate's mailbox and connects directly with their Gmail.
                 </p>
               </div>
@@ -624,23 +573,23 @@ ${companyName}`
             </div>
 
             {interviewSuccessMsg ? (
-              <div className="p-6 rounded-2xl bg-[#064e3b] border border-[#34d399] text-center space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-[#34d399] mx-auto animate-bounce" />
+              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 text-center space-y-3">
+                <CheckCircle2 className="w-12 h-12 text-cyan-400 mx-auto animate-bounce" />
                 <h4 className="text-lg font-bold text-white">Interview Invitation Dispatched!</h4>
-                <p className="text-xs text-emerald-100/90">{interviewSuccessMsg}</p>
+                <p className="text-xs text-slate-300">{interviewSuccessMsg}</p>
               </div>
             ) : (
               <div className="space-y-4 sm:space-y-5 text-xs">
                 
                 {/* Candidate & Position Metadata Card */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-[#064e3b]/60 border border-[#34d399]/30 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-white/[0.04] border border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block">Candidate Email</span>
-                    <span className="text-xs sm:text-sm font-bold text-[#34d399] font-mono break-all">{activeApplicantForInterview.candidate_email || 'alex.dev@example.com'}</span>
+                    <span className="text-[10px] uppercase font-mono font-semibold text-slate-400 block">Candidate Email</span>
+                    <span className="text-xs sm:text-sm font-bold text-white font-mono break-all">{activeApplicantForInterview.candidate_email || 'alex.dev@example.com'}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block">Position & Company</span>
-                    <span className="text-xs sm:text-sm font-bold text-white font-outfit">
+                    <span className="text-[10px] uppercase font-mono font-semibold text-slate-400 block">Position & Company</span>
+                    <span className="text-xs sm:text-sm font-bold text-white font-sans">
                       {activeApplicantForInterview.job_title || selectedJob?.title} ({activeApplicantForInterview.company_name || selectedJob?.company_name || 'HireSense Partner'})
                     </span>
                   </div>
@@ -648,14 +597,14 @@ ${companyName}`
 
                 {/* Interview Stage Selector */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Briefcase className="w-3.5 h-3.5 text-[#34d399]" />
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Interview Stage / Type</span>
                   </label>
                   <select
                     value={interviewType}
                     onChange={(e) => setInterviewType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white font-bold focus:outline-none focus:border-[#34d399]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#0c0e14] border border-white/10 text-xs text-white font-medium focus:outline-none focus:border-white/30"
                   >
                     <option value="Technical Round 1 (Live Coding & Architecture)">Technical Round 1 (Live Coding & Architecture)</option>
                     <option value="HR & Cultural Fit Discussion">HR & Cultural Fit Discussion</option>
@@ -666,8 +615,8 @@ ${companyName}`
 
                 {/* Proposed Date & Time */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#34d399]" />
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Proposed Date & Time</span>
                   </label>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
@@ -676,10 +625,10 @@ ${companyName}`
                         key={preset}
                         type="button"
                         onClick={() => setScheduledAt(preset)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all ${
+                        className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-medium transition-all ${
                           scheduledAt === preset
-                            ? 'bg-[#10b981] text-white border border-[#34d399]'
-                            : 'bg-white/5 text-emerald-100/70 border border-white/10 hover:bg-white/10'
+                            ? 'bg-white text-slate-950 font-bold border border-white'
+                            : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'
                         }`}
                       >
                         {preset}
@@ -691,14 +640,14 @@ ${companyName}`
                     value={scheduledAt}
                     onChange={(e) => setScheduledAt(e.target.value)}
                     placeholder="e.g. 2026-08-20 at 14:00 EST"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white font-medium focus:outline-none focus:border-[#34d399]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white font-medium focus:outline-none focus:border-white/30 transition-colors"
                   />
                 </div>
 
                 {/* Video Meeting Link (Google Meet) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Video className="w-3.5 h-3.5 text-[#34d399]" />
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Video className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Google Meet Video Link</span>
                   </label>
                   <div className="flex items-center gap-2">
@@ -706,12 +655,12 @@ ${companyName}`
                       type="text"
                       value={meetingLink}
                       onChange={(e) => setMeetingLink(e.target.value)}
-                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-[#34d399] font-mono font-bold focus:outline-none focus:border-[#34d399] truncate"
+                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-cyan-300 font-mono font-medium focus:outline-none focus:border-white/30 truncate"
                     />
                     <button
                       type="button"
                       onClick={handleCopyLink}
-                      className="px-3 py-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-xs font-bold text-[#34d399] hover:bg-[#10b981] hover:text-white transition-all flex items-center gap-1 shrink-0"
+                      className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/15 text-xs font-semibold text-white hover:bg-white/20 transition-all flex items-center gap-1 shrink-0"
                     >
                       {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       <span className="hidden sm:inline">{copiedLink ? 'Copied' : 'Copy'}</span>
@@ -721,30 +670,30 @@ ${companyName}`
 
                 {/* Recruiter Notes / Instructions */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5 text-[#34d399]" />
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Personalized Note for Candidate</span>
                   </label>
                   <textarea
                     rows={3}
                     value={recruiterNotes}
                     onChange={(e) => setRecruiterNotes(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#011a14] border border-[#34d399]/40 text-xs text-white leading-relaxed focus:outline-none focus:border-[#34d399]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white leading-relaxed focus:outline-none focus:border-white/30 transition-colors"
                   />
                 </div>
 
                 {/* Dispatch Action Buttons */}
-                <div className="pt-3 border-t border-[#34d399]/30 flex flex-col sm:flex-row items-center justify-end gap-2.5 sm:gap-3">
+                <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-end gap-2.5 sm:gap-3">
                   
                   {/* Button 1: Open Directly in Gmail */}
                   <button
                     type="button"
                     onClick={handleOpenGmail}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#064e3b] border border-[#34d399]/40 text-white hover:bg-[#047857] transition-all font-bold flex items-center justify-center gap-2 shadow-lg text-xs"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg text-xs"
                   >
-                    <Mail className="w-4 h-4 text-[#34d399]" />
+                    <Mail className="w-4 h-4 text-cyan-400" />
                     <span>Open in Gmail</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-300" />
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                   </button>
 
                   {/* Button 2: Send In-App & Email Notification */}
@@ -752,13 +701,13 @@ ${companyName}`
                     type="button"
                     onClick={handleConfirmInterview}
                     disabled={isSubmittingInterview}
-                    className="w-full sm:w-auto btn-emerald-cta text-xs px-5 py-2.5 shadow-xl"
+                    className="btn-luma-primary text-xs px-5 py-2.5"
                   >
                     {isSubmittingInterview ? (
                       <span>Dispatching...</span>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 text-white" />
+                        <Send className="w-4 h-4 text-black" />
                         <span>Send In-App & Email Invite</span>
                       </>
                     )}

@@ -422,28 +422,25 @@ export const AIInterviewStudioPage: React.FC<AIInterviewStudioPageProps> = ({ re
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 font-sans text-slate-100">
       
       {/* Studio Header & Hero Section */}
-      <div className="bg-gradient-to-r from-[#022c22] via-[#064e3b] to-[#042f26] border border-[#34d399]/40 rounded-3xl p-6 sm:p-8 shadow-2xl mb-8 relative overflow-hidden">
-        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-[#10b981]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-0 right-1/4 w-40 h-40 bg-[#34d399]/10 rounded-full blur-2xl pointer-events-none" />
-
+      <div className="luma-card p-6 sm:p-8 mb-8 border border-white/15 bg-gradient-to-r from-[#12141d]/90 via-[#0e1018]/90 to-[#12141d]/90 relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#10b981]/20 border border-[#34d399]/50 flex items-center justify-center shadow-xl shrink-0 group">
-              <BrainCircuit className="w-6 h-6 sm:w-8 sm:h-8 text-[#34d399] animate-pulse" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center shadow-xl shrink-0 text-cyan-300">
+              <BrainCircuit className="w-6 h-6 sm:w-8 sm:h-8 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#10b981]/20 border border-[#34d399]/40 text-[#6ee7b7] text-[10px] sm:text-xs font-semibold uppercase tracking-wider font-mono">
-                  Emerald AI Studio
+                <span className="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-slate-300 text-[10px] sm:text-xs font-semibold uppercase tracking-wider font-mono">
+                  AI Mock Studio
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-[10px] sm:text-xs font-medium">
+                <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-300 text-[10px] sm:text-xs font-mono">
                   Multi-AI Evaluator (ChatGPT • Claude • Gemini)
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1 font-outfit">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1 font-sans">
                 AI Interview Practice & Upskilling Studio
               </h1>
-              <p className="text-slate-300 text-xs sm:text-sm md:text-base mt-1 max-w-2xl">
+              <p className="text-slate-400 text-xs sm:text-sm md:text-base mt-1 max-w-2xl">
                 Simulate realistic job interviews with live speech-to-text, 30s inactivity auto-guidance, STAR framework sample responses, and multi-model feedback.
               </p>
             </div>

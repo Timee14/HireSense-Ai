@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Upload, CheckCircle2, AlertCircle, Sparkles, Cpu, Check, FileText,
   Award, Briefcase, FileCheck, ArrowRight, Layers, Eye, EyeOff, Send,
-  AlertTriangle, TrendingUp, Zap, HelpCircle, ShieldAlert, Target, BookOpen, Clock
+  AlertTriangle, TrendingUp, Zap, HelpCircle, ShieldAlert, Target, BookOpen, Clock, ArrowUpRight
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
 
@@ -144,12 +144,12 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
   const roleRatings = analysis.role_ratings || [];
   const extractedSkills = analysis.extracted_skills || ["Python", "JavaScript", "React", "TypeScript", "SQL"];
 
-  // Score Color Mapping
+  // Score Color Mapping (Sleek Luma icy blue / gold / rose)
   const getScoreColor = (val: number) => {
-    if (val >= 80) return { stroke: '#10b981', text: 'text-emerald-400', bg: 'bg-emerald-950/60', border: 'border-emerald-500/40' };
-    if (val >= 65) return { stroke: '#14b8a6', text: 'text-teal-400', bg: 'bg-teal-950/60', border: 'border-teal-500/40' };
-    if (val >= 40) return { stroke: '#f59e0b', text: 'text-amber-400', bg: 'bg-amber-950/60', border: 'border-amber-500/40' };
-    return { stroke: '#f43f5e', text: 'text-rose-400', bg: 'bg-rose-950/60', border: 'border-rose-500/40' };
+    if (val >= 80) return { stroke: '#38bdf8', text: 'text-cyan-300', bg: 'bg-white/[0.04]', border: 'border-white/20' };
+    if (val >= 65) return { stroke: '#60a5fa', text: 'text-blue-300', bg: 'bg-white/[0.04]', border: 'border-white/15' };
+    if (val >= 40) return { stroke: '#f59e0b', text: 'text-amber-400', bg: 'bg-white/[0.04]', border: 'border-white/15' };
+    return { stroke: '#f43f5e', text: 'text-rose-400', bg: 'bg-white/[0.04]', border: 'border-white/15' };
   };
 
   const scoreStyle = getScoreColor(score);
@@ -158,37 +158,37 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
     <div className="space-y-8 max-w-7xl mx-auto px-4 py-6 text-white animate-fade-in">
       
       {/* Hero Header Card with Dynamic Benchmark & Prominent Upload Dropzone */}
-      <div className="emerald-card p-8 md:p-10 relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-2 border-[#34d399]/40 bg-gradient-to-br from-[#064e3b]/80 via-[#022c22] to-[#011a14]">
+      <div className="luma-card p-8 md:p-10 relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border border-white/15 bg-gradient-to-br from-[#131620]/90 via-[#0d0f16]/90 to-[#0a0c12]/95">
         <div className="space-y-3 max-w-2xl">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#064e3b] border border-[#34d399]/40 text-[#34d399] font-bold text-xs">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse text-[#34d399]" />
-              <span>ResumeWorded & ATS Screening Calibration</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-slate-300 font-mono font-semibold text-xs">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>ATS Screening & Rubric Calibration</span>
             </span>
-            <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-200 border border-slate-700 text-xs font-mono font-bold">
+            <span className="px-3 py-1 rounded-full bg-white/10 text-slate-300 border border-white/10 text-xs font-mono">
               Level: {careerLevel}
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-black font-outfit text-white tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-editorial font-normal text-white tracking-tight">
             Resume Intelligence Breakdown
           </h1>
-          <p className="text-emerald-100/80 text-sm md:text-base font-medium leading-relaxed">
+          <p className="text-slate-400 text-sm md:text-base font-normal leading-relaxed">
             Benchmarked against 1M+ resumes, real recruiter screening rubrics, and ATS parse algorithms (Quantified Impact, Action Verbs, and Seniority Depth).
           </p>
 
           {resume && (
             <div className="pt-2 flex flex-wrap items-center gap-3">
-              <span className="px-3.5 py-1.5 rounded-lg bg-[#10b981] text-white text-xs font-black font-mono shadow-md border border-[#34d399]">
+              <span className="px-3.5 py-1.5 rounded-lg bg-white/10 text-white text-xs font-mono font-bold shadow-md border border-white/15">
                 ACTIVE FILE: {resume.file_name}
               </span>
-              <span className="text-xs text-[#6ee7b7] font-bold font-mono">
+              <span className="text-xs text-slate-400 font-mono">
                 Parsed: {resume.uploaded_at || 'Recently'} • {resume.status?.toUpperCase() || 'COMPLETE'}
               </span>
               {resume.raw_text && (
                 <button
                   onClick={() => setShowRawText(!showRawText)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#022c22] border border-[#34d399]/40 text-xs font-bold text-[#34d399] hover:bg-[#064e3b] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 transition-colors"
                 >
                   {showRawText ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   <span>{showRawText ? 'Hide Text Stream' : 'View Text Stream'}</span>
@@ -199,13 +199,15 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
         </div>
 
         {/* Upload & Re-Score Button */}
-        <label className="cursor-pointer border-2 border-dashed border-[#34d399] bg-[#064e3b]/90 hover:bg-[#047857] px-6 py-6 rounded-2xl text-base sm:text-lg font-black flex flex-col sm:flex-row items-center justify-center gap-4 shadow-2xl shadow-[#34d399]/30 transition-all w-full md:w-auto shrink-0 text-white hover:scale-105">
-          <Upload className={`w-8 h-8 text-[#34d399] shrink-0 ${uploading ? 'animate-spin' : 'animate-bounce'}`} />
+        <label className="cursor-pointer border border-white/20 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/40 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 shadow-xl transition-all w-full md:w-auto shrink-0 text-white group">
+          <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white group-hover:scale-105 transition-transform shrink-0">
+            <Upload className={`w-6 h-6 ${uploading ? 'animate-spin' : ''}`} />
+          </div>
           <div className="text-center sm:text-left">
-            <span className="block text-base sm:text-lg font-black">
+            <span className="block text-base font-bold text-white font-sans">
               {uploading ? 'Analyzing Resume Stream...' : 'Re-Score / Upload Resume'}
             </span>
-            <span className="block text-xs text-[#6ee7b7] font-mono font-normal">
+            <span className="block text-xs text-slate-400 font-mono font-normal">
               Accepts .pdf, .docx, .doc, .txt
             </span>
           </div>
@@ -214,50 +216,50 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
       </div>
 
       {uploadSuccess && (
-        <div className="p-4 rounded-2xl bg-[#064e3b] border-2 border-[#34d399] text-white text-sm font-bold flex items-center gap-3 shadow-xl">
-          <CheckCircle2 className="w-6 h-6 text-[#34d399] shrink-0" />
+        <div className="p-4 rounded-2xl bg-white/10 border border-white/20 text-white text-sm font-bold flex items-center gap-3 shadow-xl backdrop-blur-xl">
+          <CheckCircle2 className="w-5 h-5 text-cyan-400 shrink-0" />
           <span>Resume successfully scanned & calibrated! ATS score, recruiter checks, and role suitability have been recalculated.</span>
         </div>
       )}
 
       {uploadError && (
-        <div className="p-4 rounded-2xl bg-rose-950/80 border-2 border-rose-500 text-rose-200 text-sm font-bold flex items-center gap-3 shadow-xl">
-          <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
+        <div className="p-4 rounded-2xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-sm font-bold flex items-center gap-3 shadow-xl backdrop-blur-xl">
+          <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
           <span>{uploadError}</span>
         </div>
       )}
 
       {/* Raw Extracted Text Viewer (Collapsible) */}
       {showRawText && resume?.raw_text && (
-        <div className="emerald-card p-6 space-y-3 border border-[#34d399]/40 bg-[#022c22]/95">
+        <div className="luma-card p-6 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white font-outfit uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#34d399]" />
-              <span>Extracted Plaintext Stream (PyMuPDF / python-docx)</span>
+            <h3 className="text-sm font-bold text-white font-sans uppercase tracking-wider flex items-center gap-2">
+              <FileText className="w-4 h-4 text-cyan-400" />
+              <span>Extracted Plaintext Stream (PyMuPDF)</span>
             </h3>
-            <button onClick={() => setShowRawText(false)} className="text-xs text-[#6ee7b7] hover:underline">
+            <button onClick={() => setShowRawText(false)} className="text-xs text-slate-400 hover:text-white">
               Close
             </button>
           </div>
-          <pre className="p-4 rounded-xl bg-black/60 text-emerald-200/90 font-mono text-xs max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-[#34d399]/20">
+          <pre className="p-4 rounded-xl bg-black/60 text-slate-300 font-mono text-xs max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-white/10">
             {resume.raw_text}
           </pre>
         </div>
       )}
 
-      {/* Primary Score & Benchmark Comparison Banner (ResumeWorded Style) */}
-      <div className={`p-6 md:p-8 rounded-3xl border-2 ${scoreStyle.border} ${scoreStyle.bg} flex flex-col md:flex-row items-center gap-8 shadow-2xl`}>
+      {/* Primary Score & Benchmark Comparison Banner */}
+      <div className={`luma-card p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl`}>
         
         {/* Score Ring */}
         <div className="relative inline-flex items-center justify-center w-36 h-36 shrink-0">
           <svg className="w-full h-full transform -rotate-90">
-            <circle cx="72" cy="72" r="58" stroke="rgba(255,255,255,0.1)" strokeWidth="12" fill="transparent" />
+            <circle cx="72" cy="72" r="58" stroke="rgba(255,255,255,0.08)" strokeWidth="10" fill="transparent" />
             <circle
               cx="72"
               cy="72"
               r="58"
               stroke={scoreStyle.stroke}
-              strokeWidth="12"
+              strokeWidth="10"
               fill="transparent"
               strokeDasharray="364"
               strokeDashoffset={364 - (364 * score) / 100}
@@ -266,22 +268,22 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
           </svg>
           <div className="absolute flex flex-col items-center">
             <span className="text-4xl md:text-5xl font-black text-white font-outfit">{score}</span>
-            <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">OVERALL</span>
+            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider">OVERALL</span>
           </div>
         </div>
 
         {/* Score Context & Feedback */}
         <div className="space-y-3 flex-1 text-center md:text-left">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-            <h2 className="text-2xl md:text-3xl font-black text-white font-outfit">
+            <h2 className="text-2xl md:text-3xl font-bold text-white font-sans">
               Your resume scored {score} out of 100.
             </h2>
-            <span className={`px-3 py-1 rounded-full text-xs font-black uppercase font-mono border ${scoreStyle.text} ${scoreStyle.border} bg-black/40`}>
+            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase font-mono border border-white/20 bg-white/10 text-white`}>
               {scoreTier}
             </span>
           </div>
 
-          <p className="text-sm text-slate-200/90 leading-relaxed max-w-3xl">
+          <p className="text-sm text-slate-300 leading-relaxed max-w-3xl">
             {score < 45 ? (
               <>It seems like your resume scored poorly on key checks that hiring managers and ATS screening software scan for (such as <strong>quantified metrics</strong>, <strong>full-time work tenure</strong>, and <strong>power action verbs</strong>). With the simple fixes below, you can raise your score by <strong>+40 points</strong>.</>
             ) : score < 70 ? (
@@ -293,18 +295,15 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
 
           {/* Benchmark Slider Bar */}
           <div className="pt-2 max-w-xl">
-            <div className="flex justify-between text-xs font-bold font-mono text-slate-300 mb-1">
+            <div className="flex justify-between text-xs font-medium font-mono text-slate-400 mb-1.5">
               <span>0 (Needs Work)</span>
-              <span className={scoreStyle.text}>YOUR SCORE: {score}</span>
-              <span className="text-emerald-400">85+ (Top 5% Resumes)</span>
+              <span className="text-white font-bold">YOUR SCORE: {score}</span>
+              <span className="text-slate-300">85+ (Top 5%)</span>
             </div>
-            <div className="h-3 w-full rounded-full bg-slate-900 overflow-hidden border border-slate-700 relative">
+            <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden relative">
               <div
-                className="h-full rounded-full transition-all duration-1000"
-                style={{
-                  width: `${score}%`,
-                  backgroundColor: scoreStyle.stroke
-                }}
+                className="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-blue-500 to-cyan-400"
+                style={{ width: `${score}%` }}
               />
             </div>
           </div>
@@ -312,17 +311,17 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
 
       </div>
 
-      {/* Top Fixes & Recruiter Checks (ResumeWorded Core Feature) */}
-      <div className="emerald-card p-6 md:p-8 space-y-6 border border-[#34d399]/30">
+      {/* Top Fixes & Recruiter Checks */}
+      <div className="luma-card p-6 md:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-[#34d399]" />
-              <span className="text-xs font-mono font-bold text-[#34d399] uppercase tracking-wider">Top Recruiter Checks & Fixes</span>
+              <Target className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Top Recruiter Checks & Fixes</span>
             </div>
-            <h3 className="text-2xl font-black text-white font-outfit mt-1">Key Issues Identified on Your Resume</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-white font-sans mt-1">Key Issues Identified on Your Resume</h3>
           </div>
-          <span className="px-3.5 py-1.5 rounded-full bg-[#064e3b] text-[#34d399] text-xs font-mono font-bold border border-[#34d399]/40 w-fit">
+          <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-white text-xs font-mono font-bold border border-white/15 w-fit">
             {recruiterChecks.filter(c => c.status !== 'passed').length} ACTIONABLE FIXES
           </span>
         </div>
@@ -337,29 +336,29 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                 onClick={() => setActiveFixTab(activeFixTab === check.id ? null : check.id)}
                 className={`p-5 rounded-2xl border transition-all cursor-pointer ${
                   isPassed
-                    ? 'bg-[#022c22]/80 border-emerald-500/40 hover:border-emerald-400'
+                    ? 'bg-white/[0.035] border-white/10 hover:border-white/25'
                     : isCritical
-                    ? 'bg-rose-950/40 border-rose-500/40 hover:border-rose-400'
-                    : 'bg-amber-950/40 border-amber-500/40 hover:border-amber-400'
+                    ? 'bg-rose-950/20 border-rose-500/30 hover:border-rose-500/50'
+                    : 'bg-amber-950/20 border-amber-500/30 hover:border-amber-500/50'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     {isPassed ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-cyan-400 shrink-0" />
                     ) : isCritical ? (
                       <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
                     ) : (
                       <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
                     )}
                     <div>
-                      <span className="text-[11px] font-mono font-bold uppercase text-slate-400 block">{check.category}</span>
-                      <h4 className="text-base font-bold text-white font-outfit">{check.title}</h4>
+                      <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block">{check.category}</span>
+                      <h4 className="text-base font-bold text-white font-sans">{check.title}</h4>
                     </div>
                   </div>
 
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-bold ${
-                    isPassed ? 'bg-emerald-900 text-emerald-300' : isCritical ? 'bg-rose-900 text-rose-300' : 'bg-amber-900 text-amber-300'
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
+                    isPassed ? 'bg-white/10 text-white border-white/15' : isCritical ? 'bg-rose-900/40 text-rose-300 border-rose-500/30' : 'bg-amber-900/40 text-amber-300 border-amber-500/30'
                   }`}>
                     {isPassed ? 'PASSED' : `${check.issue_count} ISSUES`}
                   </span>
@@ -370,8 +369,8 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                 </p>
 
                 {/* Expanded Fix Recommendation */}
-                <div className="mt-3 pt-3 border-t border-white/10 flex items-start gap-2 text-xs font-medium text-emerald-200">
-                  <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="mt-3 pt-3 border-t border-white/10 flex items-start gap-2 text-xs font-medium text-slate-200">
+                  <Zap className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
                   <span><strong>Fix:</strong> {check.fix}</span>
                 </div>
               </div>
@@ -385,10 +384,10 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
         
         {/* Left Col: 5 Core ATS Sub-Scores */}
         <div className="space-y-6">
-          <div className="emerald-card p-6 space-y-5 border border-[#34d399]/30">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-outfit flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#34d399]" />
-              <span>5 Core ATS Screening Dimensions</span>
+          <div className="luma-card p-6 space-y-5">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans flex items-center gap-2">
+              <Layers className="w-4 h-4 text-cyan-400" />
+              <span>5 Core ATS Dimensions</span>
             </h3>
 
             <div className="space-y-4 text-xs">
@@ -399,16 +398,16 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                 { label: 'Action Verbs & Style Strength', score: analysis.action_verb_score || 25, desc: 'Punchy action verbs vs passive language' },
                 { label: 'ATS Format & Structure Compliance', score: analysis.formatting_score || 75, desc: 'Section headers, contact info & length' }
               ].map((sub, idx) => {
-                const subColor = sub.score >= 70 ? 'bg-[#34d399]' : sub.score >= 45 ? 'bg-amber-400' : 'bg-rose-500';
+                const subColor = sub.score >= 70 ? 'bg-gradient-to-r from-blue-500 to-cyan-400' : sub.score >= 45 ? 'bg-amber-400' : 'bg-rose-500';
                 return (
-                  <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-[#022c22]/80 border border-[#34d399]/20">
+                  <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/10">
                     <div className="flex justify-between items-center font-bold">
                       <span className="text-white text-xs">{sub.label}</span>
-                      <span className={`font-mono text-xs ${sub.score >= 70 ? 'text-emerald-400' : sub.score >= 45 ? 'text-amber-400' : 'text-rose-400'}`}>
+                      <span className={`font-mono text-xs text-white`}>
                         {sub.score}%
                       </span>
                     </div>
-                    <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-white/10">
+                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className={`${subColor} h-full rounded-full transition-all duration-700`} style={{ width: `${sub.score}%` }} />
                     </div>
                     <p className="text-[10px] text-slate-400">{sub.desc}</p>
@@ -419,21 +418,21 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
           </div>
 
           {/* +40 Points Score Boost Roadmap */}
-          <div className="emerald-card p-6 space-y-4 border border-[#34d399]/30 bg-gradient-to-b from-[#064e3b]/90 to-[#022c22]">
+          <div className="luma-card p-6 space-y-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#34d399]" />
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider font-outfit">How to Gain +40 Points</h3>
+              <TrendingUp className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans">How to Gain +40 Points</h3>
             </div>
 
             <div className="space-y-3 text-xs">
               {scoreRoadmap.map((item, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-[#022c22] border border-[#34d399]/30 flex items-start gap-3">
-                  <span className="px-2 py-1 rounded-md bg-[#10b981] text-white font-mono font-bold text-[10px] shrink-0">
+                <div key={idx} className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-start gap-3">
+                  <span className="px-2 py-1 rounded-md bg-white/10 text-white font-mono font-bold text-[10px] shrink-0 border border-white/15">
                     {item.points}
                   </span>
                   <div>
                     <h5 className="font-bold text-white text-xs">{item.action}</h5>
-                    <p className="text-[11px] text-emerald-100/70 mt-0.5">{item.detail}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{item.detail}</p>
                   </div>
                 </div>
               ))}
@@ -446,13 +445,13 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
         <div className="lg:col-span-2 space-y-6">
           
           {/* Role Suitability Rating Matrix */}
-          <div className="emerald-card p-8 space-y-6 border border-[#34d399]/30">
+          <div className="luma-card p-6 md:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-xs font-mono font-bold text-[#34d399] uppercase tracking-wider">AI Evaluation Matrix</span>
-                <h3 className="text-2xl font-black text-white font-outfit">Role Suitability & Seniority Alignment</h3>
+                <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">AI Evaluation Matrix</span>
+                <h3 className="text-2xl font-bold text-white font-sans">Role Suitability & Seniority Alignment</h3>
               </div>
-              <span className="px-3.5 py-1.5 rounded-full bg-[#064e3b] text-[#34d399] text-xs font-mono font-bold border border-[#34d399]/30 w-fit">
+              <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-white text-xs font-mono font-bold border border-white/15 w-fit">
                 {roleRatings.length} ROLES EVALUATED
               </span>
             </div>
@@ -463,21 +462,21 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                 const isMid = rr.rating >= 40 && rr.rating < 70;
                 return (
                   <div key={idx} className={`p-5 rounded-2xl border space-y-2 flex flex-col justify-between transition-all ${
-                    isLow ? 'bg-slate-900/80 border-slate-700/60' : isMid ? 'bg-[#022c22] border-[#34d399]/30 hover:border-[#34d399]' : 'bg-[#064e3b]/80 border-emerald-400/50 hover:border-emerald-300'
+                    isLow ? 'bg-slate-900/50 border-white/5' : isMid ? 'bg-white/[0.03] border-white/10 hover:border-white/20' : 'bg-white/[0.05] border-white/15 hover:border-white/30'
                   }`}>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-base font-bold text-white font-outfit">{rr.role}</h4>
+                        <h4 className="text-base font-bold text-white font-sans">{rr.role}</h4>
                         <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-bold ${
-                          isLow ? 'bg-slate-800 text-slate-400 border border-slate-700' : isMid ? 'bg-amber-900 text-amber-300' : 'bg-[#10b981] text-white'
+                          isLow ? 'bg-slate-800 text-slate-400 border border-slate-700' : isMid ? 'bg-amber-900/40 text-amber-300 border border-amber-500/30' : 'bg-white/10 text-white border border-white/20'
                         }`}>
                           {rr.rating}%
                         </span>
                       </div>
-                      <span className={`text-xs font-bold block ${isLow ? 'text-rose-400' : isMid ? 'text-amber-300' : 'text-[#34d399]'}`}>
+                      <span className={`text-xs font-bold block ${isLow ? 'text-rose-400' : isMid ? 'text-amber-300' : 'text-cyan-300'}`}>
                         {rr.match_level || rr.level || 'Strong Fit'}
                       </span>
-                      <p className="text-xs text-slate-300 leading-relaxed pt-1">{rr.key_fit || rr.fit}</p>
+                      <p className="text-xs text-slate-400 leading-relaxed pt-1">{rr.key_fit || rr.fit}</p>
                     </div>
                   </div>
                 );
@@ -486,13 +485,13 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
           </div>
 
           {/* Extracted Skills Cloud */}
-          <div className="emerald-card p-6 md:p-8 space-y-4 border border-[#34d399]/30">
+          <div className="luma-card p-6 md:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-xs font-mono font-bold text-[#34d399] uppercase tracking-wider">Semantic NLP Detection</span>
-                <h3 className="text-xl font-bold text-white font-outfit">Identified Technical Competencies</h3>
+                <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Semantic NLP Detection</span>
+                <h3 className="text-xl font-bold text-white font-sans">Identified Technical Competencies</h3>
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#064e3b] text-[#34d399] text-xs font-mono font-bold border border-[#34d399]/40 w-fit">
+              <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-mono font-bold border border-white/15 w-fit">
                 {extractedSkills.length} SKILLS FOUND
               </span>
             </div>
@@ -501,9 +500,9 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
               {extractedSkills.map((sk, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1.5 rounded-xl bg-[#064e3b]/90 border border-[#34d399]/40 text-emerald-100 font-semibold text-xs flex items-center gap-1.5 shadow-sm"
+                  className="px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 text-slate-200 font-medium text-xs flex items-center gap-1.5 shadow-sm"
                 >
-                  <Check className="w-3.5 h-3.5 text-[#34d399]" />
+                  <Check className="w-3.5 h-3.5 text-cyan-400" />
                   <span>{sk}</span>
                 </span>
               ))}
@@ -512,14 +511,14 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
 
           {/* Best-Fit Open Positions */}
           {recommendations.length > 0 && (
-            <div className="emerald-card p-8 space-y-6 border border-[#34d399]/30">
+            <div className="luma-card p-6 md:p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-mono font-bold text-[#34d399] uppercase tracking-wider">Automated Candidate-Job Match</span>
-                  <h3 className="text-2xl font-black text-white font-outfit">Best-Fit Open Positions</h3>
+                  <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Automated Candidate-Job Match</span>
+                  <h3 className="text-2xl font-bold text-white font-sans">Best-Fit Open Positions</h3>
                 </div>
                 {onNavigate && (
-                  <button onClick={() => onNavigate('job_recs')} className="text-xs font-bold text-[#34d399] hover:underline flex items-center gap-1">
+                  <button onClick={() => onNavigate('job_recs')} className="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1">
                     <span>View All Jobs</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -528,18 +527,18 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
 
               <div className="space-y-4">
                 {recommendations.slice(0, 3).map((rec, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-[#022c22] border border-[#34d399]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#34d399] transition-all">
+                  <div key={idx} className="p-5 rounded-2xl bg-white/[0.035] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/20 transition-all">
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full bg-[#10b981] text-white text-xs font-mono font-bold">
+                        <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-mono font-bold border border-white/15">
                           {rec.match_details.overall_score}% MATCH
                         </span>
-                        <h4 className="text-base font-bold text-white font-outfit">{rec.job.title}</h4>
+                        <h4 className="text-base font-bold text-white font-sans">{rec.job.title}</h4>
                       </div>
-                      <p className="text-xs text-emerald-100/70">
+                      <p className="text-xs text-slate-400">
                         {rec.job.company_name} • {rec.job.location} • {rec.job.experience_level}
                       </p>
-                      <p className="text-xs text-emerald-100/90 leading-relaxed max-w-xl">
+                      <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
                         {rec.match_details.ai_explanation}
                       </p>
                     </div>
@@ -547,16 +546,16 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                     <button
                       onClick={() => handleApplyClick(rec.job.id)}
                       disabled={appliedJobIds[rec.job.id]}
-                      className={`btn-emerald-cta text-xs px-5 py-2.5 shrink-0 ${appliedJobIds[rec.job.id] ? 'opacity-70 bg-emerald-800' : ''}`}
+                      className={`btn-luma-primary text-xs px-5 py-2.5 shrink-0 ${appliedJobIds[rec.job.id] ? 'opacity-70 !bg-slate-300' : ''}`}
                     >
                       {appliedJobIds[rec.job.id] ? (
                         <>
-                          <CheckCircle2 className="w-4 h-4 text-white" />
+                          <CheckCircle2 className="w-4 h-4 text-black" />
                           <span>Applied</span>
                         </>
                       ) : (
                         <>
-                          <Send className="w-4 h-4 text-white" />
+                          <Send className="w-4 h-4 text-black" />
                           <span>1-Click Apply</span>
                         </>
                       )}
