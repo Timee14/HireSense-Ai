@@ -13,6 +13,7 @@ import { CreateJobPage } from './pages/recruiter/CreateJobPage';
 import { CandidateScreeningPage } from './pages/recruiter/CandidateScreeningPage';
 import { RecruiterAnalyticsPage } from './pages/recruiter/RecruiterAnalyticsPage';
 import { MatchRadarModal } from './components/ui/MatchRadarModal';
+import { LumaBackground } from './components/ui/LumaBackground';
 import { apiRequest, uploadFile, getToken, setToken, removeToken, getNotifications, markNotificationAsRead } from './api/client';
 import { User, CandidateProfile, RecruiterProfile, Resume, Job, JobRecommendation, Application, RecruiterAnalytics, JobCreate, NotificationItem } from './types';
 
@@ -247,28 +248,34 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#08090d] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#07080b] text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
       
-      {/* Navigation Bar (Shown when authenticated or on internal dashboard tabs) */}
-      {(user || activeTab !== 'landing') && (
-        <Navbar
-          user={user}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          onOpenAuth={() => setAuthModalOpen(true)}
-          onLogout={handleLogout}
-          notifications={notifications}
-          onMarkNotificationRead={handleMarkNotificationRead}
-        />
-      )}
+      {/* Global Moving Luma Cosmic Prism Background */}
+      <LumaBackground />
 
-      {/* Main Content Area */}
-      <main className="flex-1 pb-16">
+      {/* Main Application Container */}
+      <div className="relative z-10 flex-1 flex flex-col">
         
-        {/* Landing View */}
-        {activeTab === 'landing' && (
-          <LandingPage onSelectRoleDemo={handleQuickDemo} />
+        {/* Navigation Bar (Shown when authenticated or on internal dashboard tabs) */}
+        {(user || activeTab !== 'landing') && (
+          <Navbar
+            user={user}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            onOpenAuth={() => setAuthModalOpen(true)}
+            onLogout={handleLogout}
+            notifications={notifications}
+            onMarkNotificationRead={handleMarkNotificationRead}
+          />
         )}
+
+        {/* Main Content Area */}
+        <main className="flex-1 pb-16">
+          
+          {/* Landing View */}
+          {activeTab === 'landing' && (
+            <LandingPage onSelectRoleDemo={handleQuickDemo} />
+          )}
 
         {/* Candidate Views */}
         {user?.role === 'candidate' && (
@@ -379,6 +386,7 @@ export const App: React.FC = () => {
         onClose={() => setSelectedMatchRec(null)}
       />
 
+      </div>
     </div>
   );
 };

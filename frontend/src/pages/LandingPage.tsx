@@ -32,16 +32,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
   }, []);
 
   return (
-    <div className="min-h-screen text-slate-100 bg-[#07080b] font-sans selection:bg-white selection:text-black relative">
+    <div className="min-h-screen text-slate-100 font-sans selection:bg-white selection:text-black">
       
-      {/* Exact Luma Chromatic Prism Warp Ray Background */}
-      <LumaBackground />
-
-      {/* Content Container (Layered above background rays) */}
-      <div className="relative z-10">
-        
-        {/* 0. LUMA-INSPIRED MINIMAL HEADER */}
-        <header className="sticky top-0 z-50 backdrop-blur-md bg-[#08090d]/85 border-b border-white/[0.07] px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      {/* 0. LUMA-INSPIRED MINIMAL HEADER */}
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-[#08090d]/85 border-b border-white/[0.07] px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div 
             className="flex items-center gap-1.5 cursor-pointer group" 
@@ -529,7 +523,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
         </div>
       </footer>
 
-      </div>
     </div>
   );
 };

@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-2 sm:top-4 z-50 max-w-7xl mx-auto px-2 sm:px-4">
-      <nav className="bg-[#042f26]/95 backdrop-blur-xl rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 shadow-2xl border border-[#34d399]/40 flex-nowrap relative">
+      <nav className="bg-[#0c0e14]/85 backdrop-blur-2xl rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 shadow-2xl border border-white/10 flex-nowrap relative">
         
         {/* Brand Logo */}
         <div 
@@ -110,15 +110,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           }}
           className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group shrink-0"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#10b981]/20 border border-[#34d399]/40 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform shrink-0">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#34d399] animate-pulse" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform shrink-0">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 animate-pulse" />
           </div>
           <div className="shrink-0">
-            <span className="text-base sm:text-lg font-black tracking-tight text-white font-outfit block leading-tight">
-              HireSense <span className="text-[#34d399]">AI</span>
+            <span className="text-base sm:text-lg font-black tracking-tight text-white font-sans block leading-tight">
+              HireSense <span className="text-cyan-400">*</span>
             </span>
-            <span className="block text-[8px] sm:text-[9px] text-[#6ee7b7] font-mono tracking-wider uppercase font-bold leading-tight">
-              Emerald Intelligence
+            <span className="block text-[8px] sm:text-[9px] text-slate-400 font-mono tracking-wider uppercase font-bold leading-tight">
+              Vector Intelligence
             </span>
           </div>
         </div>
@@ -131,14 +131,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 tabs={candidateTabs} 
                 onChange={handleCandidateTabChange}
                 selectedIndex={getCandidateIndex(activeTab)}
-                activeColor="text-[#022c22]"
+                activeColor="text-white"
               />
             ) : (
               <ExpandableTabs 
                 tabs={recruiterTabs} 
                 onChange={handleRecruiterTabChange}
                 selectedIndex={getRecruiterIndex(activeTab)}
-                activeColor="text-[#022c22]"
+                activeColor="text-white"
               />
             )}
           </div>
@@ -155,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
                   className={`p-2 rounded-xl border transition-all relative ${
                     unreadCount > 0
-                      ? 'bg-[#064e3b] text-[#34d399] border-[#34d399] shadow-lg shadow-[#34d399]/20 animate-pulse'
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40 shadow-lg shadow-cyan-500/20 animate-pulse'
                       : 'bg-white/10 text-white/80 border-white/10 hover:bg-white/20'
                   }`}
                   title="Interview Notifications & Mailbox"
@@ -170,21 +170,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {/* Notifications Popover Dropdown */}
                 {notificationsOpen && (
-                  <div className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-3 w-[calc(100vw-24px)] sm:w-96 max-w-md bg-[#022c22] border-2 border-[#34d399] rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fade-in">
-                    <div className="flex items-center justify-between border-b border-[#34d399]/30 pb-2">
+                  <div className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-3 w-[calc(100vw-24px)] sm:w-96 max-w-md bg-[#0c0e14]/95 border border-white/15 rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-fade-in backdrop-blur-2xl">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
                       <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-[#34d399]" />
-                        <h4 className="text-xs font-bold text-white uppercase font-mono">Candidate Mailbox & Alerts</h4>
+                        <Mail className="w-4 h-4 text-cyan-400" />
+                        <h4 className="text-xs font-bold text-white uppercase font-mono">Mailbox & Alerts</h4>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full bg-[#064e3b] text-[#34d399] text-[10px] font-mono font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-white/10 text-cyan-300 text-[10px] font-mono font-bold">
                         {unreadCount} Unread
                       </span>
                     </div>
 
                     <div className="max-h-72 overflow-y-auto space-y-2.5 divide-y divide-white/5">
                       {notifications.length === 0 ? (
-                        <div className="py-8 text-center text-xs text-emerald-100/70">
-                          <CheckCircle2 className="w-6 h-6 text-[#34d399] mx-auto mb-1 opacity-60" />
+                        <div className="py-8 text-center text-xs text-slate-400">
+                          <CheckCircle2 className="w-6 h-6 text-slate-500 mx-auto mb-1 opacity-60" />
                           <span>No interview notifications yet.</span>
                         </div>
                       ) : (
@@ -197,22 +197,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                               onClick={() => handleNotificationClick(notif)}
                               className={`p-3 rounded-xl transition-all space-y-2 cursor-pointer ${
                                 notif.is_read === 0
-                                  ? 'bg-[#064e3b]/80 border border-[#34d399]/60'
+                                  ? 'bg-white/[0.07] border border-cyan-400/40'
                                   : 'bg-black/30 border border-white/5 opacity-80'
                               }`}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex items-center gap-1.5">
                                   {isInterview ? (
-                                    <Video className="w-4 h-4 text-[#34d399] shrink-0" />
+                                    <Video className="w-4 h-4 text-cyan-400 shrink-0" />
                                   ) : (
-                                    <Sparkles className="w-4 h-4 text-[#34d399] shrink-0" />
+                                    <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
                                   )}
-                                  <h5 className="font-bold text-white text-xs font-outfit leading-tight">
+                                  <h5 className="font-bold text-white text-xs font-sans leading-tight">
                                     {data.title || (isInterview ? 'Interview Scheduled!' : 'Shortlisted for Role!')}
                                   </h5>
                                 </div>
-                                <span className="text-[9px] font-mono text-emerald-100/60 shrink-0">
+                                <span className="text-[9px] font-mono text-slate-400 shrink-0">
                                   {notif.created_at?.slice(11, 16) || 'Today'}
                                 </span>
                               </div>

@@ -88,41 +88,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#022c22]/85 backdrop-blur-md animate-fadeIn text-white">
-      <div className="relative w-full max-w-lg bg-[#042f26] p-5 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl space-y-4 sm:space-y-6 border border-[#34d399]/40 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn text-white">
+      <div className="relative w-full max-w-lg bg-[#0c0e14]/95 p-5 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl space-y-4 sm:space-y-6 border border-white/15 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-2xl">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-emerald-100/70 hover:text-white transition-colors p-2 rounded-full bg-[#022c22] border border-[#34d399]/30"
+          className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex p-3 rounded-2xl bg-[#064e3b] border border-[#34d399]/40 text-[#34d399]">
+        {/* Modal Header */}
+        <div className="text-center space-y-1 sm:space-y-2 pr-6">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center mx-auto shadow-md">
             {authMode === 'forgot_password' ? (
-              <KeyRound className="w-7 h-7" />
+              <KeyRound className="w-6 h-6 text-cyan-400" />
             ) : (
-              <Sparkles className="w-7 h-7" />
+              <Sparkles className="w-6 h-6 text-cyan-400 animate-pulse" />
             )}
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white font-outfit">
-            {authMode === 'forgot_password'
-              ? 'Reset Your Password'
-              : authMode === 'register'
-              ? 'Create Account'
-              : 'Sign In to HireSense'}
+          <h2 className="text-2xl sm:text-3xl font-black text-white font-sans tracking-tight">
+            {authMode === 'login' && 'Sign in to HireSense AI'}
+            {authMode === 'register' && 'Create Your Account'}
+            {authMode === 'forgot_password' && 'Reset Your Password'}
           </h2>
-          <p className="text-xs text-emerald-100/70 font-medium">
-            {authMode === 'forgot_password'
-              ? 'Enter your email and create a new password to restore instant access.'
-              : 'AI-Powered Resume Analysis & Talent Screening Command Center'}
+          <p className="text-xs sm:text-sm text-slate-400">
+            {authMode === 'login' && 'Access precision candidate rankings & ATS intelligence'}
+            {authMode === 'register' && 'Join candidates and engineering recruiters'}
+            {authMode === 'forgot_password' && 'Enter your email and create a new secure password'}
           </p>
         </div>
 
-        {/* Quick Demo Presets (Only in Login Mode) */}
         {authMode === 'login' && (
           <div className="p-4 rounded-xl bg-[#022c22] border border-[#34d399]/30 space-y-3">
             <span className="block text-xs font-bold text-[#34d399] text-center uppercase tracking-widest font-mono">
