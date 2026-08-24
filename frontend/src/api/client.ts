@@ -242,7 +242,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   return {} as any;
 }
 
-const DEFAULT_RESUME = {
+export const DEFAULT_RESUME = {
   id: "resume-01",
   candidate_id: "cand-demo-01",
   file_name: "Alex_Chen_Resume.pdf",

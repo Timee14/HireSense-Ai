@@ -5,11 +5,12 @@ import {
   AlertTriangle, TrendingUp, Zap, HelpCircle, ShieldAlert, Target, BookOpen, Clock, ArrowUpRight
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
+import { DEFAULT_RESUME } from '../../api/client';
 
 interface ResumeAnalyzerPageProps {
   resume: Resume | null;
   recommendations?: JobRecommendation[];
-  onUploadResume: (file: File) => Promise<void>;
+  onUploadResume: (file: File) => Promise<any>;
   onApply?: (jobId: string) => void;
   onNavigate?: (tab: string) => void;
 }
@@ -21,6 +22,7 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
   onApply,
   onNavigate
 }) => {
+  const [activeResume, setActiveResume] = useState<Resume>(resume || (DEFAULT_RESUME as any));
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -30,12 +32,21 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
   const [appliedJobIds, setAppliedJobIds] = useState<Record<string, boolean>>({});
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  React.useEffect(() => {
+    if (resume && resume.analysis) {
+      setActiveResume(resume);
+    }
+  }, [resume]);
+
   const processFile = async (file: File) => {
     setUploading(true);
     setUploadError('');
     setUploadSuccess(false);
     try {
-      await onUploadResume(file);
+      const result = await onUploadResume(file);
+      if (result && result.analysis) {
+        setActiveResume(result);
+      }
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 5000);
     } catch (err: any) {
@@ -83,96 +94,16 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
     }
   };
 
-  const analysis = resume?.analysis || {
-    overall_score: 35,
-    score_tier: "Needs Significant Work",
-    tier_color: "rose",
-    career_level: "Student / Entry-Level (0-1 yrs)",
-    ats_score: 40,
-    impact_score: 15,
-    experience_score: 20,
-    skills_score: 85,
-    action_verb_score: 25,
-    formatting_score: 75,
-    extracted_skills: ["Python", "JavaScript", "React", "TypeScript", "SQL", "Git", "Next.js", "Tailwind CSS"],
-    recruiter_checks: [
-      {
-        id: "impact",
-        category: "Quantify Impact",
-        title: "Measurable Metrics & Business Impact",
-        status: "critical" as const,
-        score: 15,
-        issue_count: 3,
-        summary: "0 measurable metrics found in project bullets. Top resumes include 5+ quantified outcomes (%, $, scale).",
-        fix: "Rewrite project bullets to quantify results (e.g. 'Optimized API query latency by 35% on 10,000+ data records')."
-      },
-      {
-        id: "experience",
-        category: "Experience Depth",
-        title: "Professional Tenure & Seniority Calibration",
-        status: "critical" as const,
-        score: 20,
-        issue_count: 2,
-        summary: "Detected career level: Student / Entry-Level. Academic projects detected without verified company roles.",
-        fix: "Highlight high-impact internship modules, open-source maintainership, or production deployments to bridge professional experience."
-      },
-      {
-        id: "verbs",
-        category: "Action Verbs",
-        title: "Power Action Verbs vs Passive Phrases",
-        status: "warning" as const,
-        score: 25,
-        issue_count: 2,
-        summary: "Passive phrases found ('hands on experience', 'worked on').",
-        fix: "Replace passive phrases with punchy power verbs ('Architected', 'Engineered', 'Orchestrated')."
-      },
-      {
-        id: "skills",
-        category: "Skills Breadth",
-        title: "Core Technical Stack & Tooling Coverage",
-        status: "passed" as const,
-        score: 85,
-        issue_count: 0,
-        summary: "Strong coverage in frontend and backend programming languages.",
-        fix: "Demonstrate listed skills in project context rather than only in a standalone list."
-      },
-      {
-        id: "formatting",
-        category: "Length & Structure",
-        title: "ATS Parsing & Section Completeness",
-        status: "passed" as const,
-        score: 75,
-        issue_count: 1,
-        summary: "Word count is slightly brief (under 250 words). All core contact channels detected.",
-        fix: "Expand project descriptions to 2-3 structured bullets each to achieve optimal 350-500 word single-page density."
-      }
-    ],
-    role_ratings: [
-      { role: "SDE Intern / Graduate Engineer", rating: 68, match_level: "Strong Starter Fit", key_fit: "Good academic CS foundations in DSA, Python, React." },
-      { role: "Entry-Level Frontend Developer", rating: 62, match_level: "Good Foundation", key_fit: "Familiarity with React, JavaScript, Next.js, and modern UI toolchains." },
-      { role: "Junior Python / ML Associate", rating: 58, match_level: "Promising Potential", key_fit: "Foundational knowledge in Python data processing." },
-      { role: "Senior Full-Stack Engineer", rating: 22, match_level: "Seniority Gap (5+ Yrs Req)", key_fit: "Requires 5+ years of full-time production engineering and system design track record." }
-    ],
-    score_boost_roadmap: [
-      { points: "+15 Points", action: "Quantify 3 Project Bullets", detail: "Add specific metrics (e.g. 'Handled 500+ requests', 'Reduced page load time by 30%')." },
-      { points: "+12 Points", action: "Replace Passive Phrases with Power Verbs", detail: "Swap 'hands on experience with' for 'Engineered', 'Built', 'Architected'." },
-      { points: "+10 Points", action: "Expand Word Depth to 350+ Words", detail: "Add 2-3 bullet points per project explaining technical challenges and solutions." },
-      { points: "+8 Points", action: "Highlight Production Deployment Tools", detail: "Include Docker, AWS/Vercel CI/CD, and unit tests in your project toolchains." }
-    ],
-    suggestions: [
-      "Quantify your project outcomes. Recruiters and ATS scanners look for numbers, percentages, and scale.",
-      "Eliminate weak phrases like 'hands on experience' or 'worked on'. Start every bullet with a strong action verb.",
-      "Expand project bullet points to achieve standard single-page depth (350+ words)."
-    ]
-  };
+  const currentResume = activeResume || resume || (DEFAULT_RESUME as any);
+  const analysis = currentResume?.analysis || DEFAULT_RESUME.analysis;
 
-  const score = analysis.overall_score || 35;
+  const score = analysis.overall_score || 87;
   const scoreTier = analysis.score_tier || (score >= 80 ? "Elite Candidate" : score >= 65 ? "Competitive Match" : score >= 40 ? "Developing Potential" : "Needs Significant Work");
-  const careerLevel = analysis.career_level || "Student / Entry-Level";
-  const recruiterChecks = analysis.recruiter_checks || [];
-  const scoreRoadmap = analysis.score_boost_roadmap || [];
-  const roleRatings = analysis.role_ratings || [];
-  const extractedSkills = analysis.extracted_skills || ["Python", "JavaScript", "React", "TypeScript", "SQL"];
+  const careerLevel = analysis.career_level || "Senior Full-Stack Engineer (4+ yrs)";
+  const recruiterChecks = analysis.recruiter_checks || DEFAULT_RESUME.analysis.recruiter_checks;
+  const scoreRoadmap = analysis.score_boost_roadmap || DEFAULT_RESUME.analysis.score_boost_roadmap;
+  const roleRatings = analysis.role_ratings || DEFAULT_RESUME.analysis.role_ratings;
+  const extractedSkills = analysis.extracted_skills || DEFAULT_RESUME.analysis.extracted_skills;
 
   // Score Color Mapping (Sleek Luma icy blue / gold / rose)
   const getScoreColor = (val: number) => {
@@ -207,15 +138,15 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
             Benchmarked against 1M+ resumes, real recruiter screening rubrics, and ATS parse algorithms (Quantified Impact, Action Verbs, and Seniority Depth).
           </p>
 
-          {resume && (
+          {currentResume && (
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <span className="px-3.5 py-1.5 rounded-lg bg-white/10 text-white text-xs font-mono font-bold shadow-md border border-white/15">
-                ACTIVE FILE: {resume.file_name}
+                ACTIVE FILE: {currentResume.file_name || 'Alex_Chen_Resume.pdf'}
               </span>
               <span className="text-xs text-slate-400 font-mono">
-                Parsed: {resume.uploaded_at || 'Recently'} • {resume.status?.toUpperCase() || 'COMPLETE'}
+                Parsed: {currentResume.uploaded_at || 'Recently'} • {currentResume.status?.toUpperCase() || 'COMPLETE'}
               </span>
-              {resume.raw_text && (
+              {currentResume.raw_text && (
                 <button
                   onClick={() => setShowRawText(!showRawText)}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 transition-colors"

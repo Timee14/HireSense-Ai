@@ -219,10 +219,11 @@ export const App: React.FC = () => {
       await handleQuickDemo('candidate');
     }
     const uploaded = await uploadFile<Resume>('/resumes/upload', file);
-    if (uploaded) {
+    if (uploaded && uploaded.analysis) {
       setResume(uploaded);
     }
     await loadCandidateData();
+    return uploaded;
   };
 
   const handleApplyJob = async (jobId: string) => {
