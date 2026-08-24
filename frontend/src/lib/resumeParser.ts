@@ -47,61 +47,83 @@ const WEAK_PASSIVE_PHRASES = [
   "KNOWLEDGE OF", "FAMILIAR WITH", "GAINED EXPERIENCE", "TRIED TO", "PARTICIPATED IN", "INVOLVED IN"
 ];
 
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Configure PDF.js worker
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+}
+
 /**
- * Robust Client-Side Text Extractor for PDF, DOCX, and TXT files
+ * Robust Client-Side Text Extractor for PDF, DOCX, and TXT files using PDF.js
  */
 export async function extractTextFromFile(file: File): Promise<string> {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
+  // 1. Text or Markdown files
+  if (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.type.includes('text')) {
+    try {
+      return await file.text();
+    } catch (e) {
+      // continue
+    }
+  }
 
-    if (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.type.includes('text')) {
-      reader.onload = () => resolve(reader.result as string || file.name);
-      reader.onerror = () => resolve(`Parsed resume for ${file.name}`);
-      reader.readAsText(file);
-      return;
+  // 2. PDF extraction using PDF.js
+  if (file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf') {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        useSystemFonts: true,
+        isEvalSupported: false
+      });
+      const pdf = await loadingTask.promise;
+      let fullText = '';
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str || '')
+          .join(' ');
+        fullText += pageText + '\n';
+      }
+
+      const cleanText = fullText.replace(/\s+/g, ' ').trim();
+      if (cleanText.length > 20) {
+        return cleanText;
+      }
+    } catch (pdfErr) {
+      console.warn('PDF.js text parsing encountered an error, falling back to binary scan:', pdfErr);
+    }
+  }
+
+  // 3. Fallback binary / ASCII scanner for DOCX or raw byte streams
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    let extracted = '';
+    let currentWord = '';
+
+    for (let i = 0; i < bytes.length; i++) {
+      const charCode = bytes[i];
+      if ((charCode >= 32 && charCode <= 126) || charCode === 10 || charCode === 13) {
+        currentWord += String.fromCharCode(charCode);
+      } else {
+        if (currentWord.length > 2 && /^[A-Za-z0-9@\.\+\-\/:,\(\)\s%]+$/.test(currentWord)) {
+          extracted += currentWord + ' ';
+        }
+        currentWord = '';
+      }
     }
 
-    // Binary PDF or DOCX parser: Extract ASCII text streams & printable word tokens
-    reader.onload = () => {
-      const buffer = reader.result as ArrayBuffer;
-      const bytes = new Uint8Array(buffer);
-      let extracted = '';
-      let currentWord = '';
+    if (extracted.trim().length > 40) {
+      return extracted.replace(/\s+/g, ' ').trim();
+    }
+  } catch (err) {
+    // continue
+  }
 
-      for (let i = 0; i < bytes.length; i++) {
-        const charCode = bytes[i];
-        // Printable ASCII characters (letters, digits, basic punctuation)
-        if ((charCode >= 32 && charCode <= 126) || charCode === 10 || charCode === 13) {
-          const char = String.fromCharCode(charCode);
-          currentWord += char;
-        } else {
-          if (currentWord.length > 2) {
-            // Keep meaningful text chunks and words
-            if (/^[A-Za-z0-9@\.\+\-\/:,\(\)\s%]+$/.test(currentWord)) {
-              extracted += currentWord + ' ';
-            }
-          }
-          currentWord = '';
-        }
-      }
-
-      if (extracted.trim().length > 50) {
-        // Clean up common PDF formatting artifacts
-        const cleanText = extracted
-          .replace(/\s+/g, ' ')
-          .replace(/stream.*?endstream/gi, '')
-          .replace(/obj.*?endobj/gi, '')
-          .replace(/<<.*?>>/g, '')
-          .trim();
-        resolve(cleanText.length > 50 ? cleanText : generateSimulatedText(file.name));
-      } else {
-        resolve(generateSimulatedText(file.name));
-      }
-    };
-
-    reader.onerror = () => resolve(generateSimulatedText(file.name));
-    reader.readAsArrayBuffer(file);
-  });
+  return generateSimulatedText(file.name);
 }
 
 function generateSimulatedText(filename: string): string {
