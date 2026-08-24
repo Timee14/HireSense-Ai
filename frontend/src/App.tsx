@@ -247,18 +247,20 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#08090d] text-slate-100 flex flex-col font-sans">
       
-      {/* Navigation Bar */}
-      <Navbar
-        user={user}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenAuth={() => setAuthModalOpen(true)}
-        onLogout={handleLogout}
-        notifications={notifications}
-        onMarkNotificationRead={handleMarkNotificationRead}
-      />
+      {/* Navigation Bar (Shown when authenticated or on internal dashboard tabs) */}
+      {(user || activeTab !== 'landing') && (
+        <Navbar
+          user={user}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenAuth={() => setAuthModalOpen(true)}
+          onLogout={handleLogout}
+          notifications={notifications}
+          onMarkNotificationRead={handleMarkNotificationRead}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 pb-16">

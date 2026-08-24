@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,12 +12,13 @@
   }
 
   body {
-    @apply text-emerald-50 font-sans antialiased selection:bg-emerald-500 selection:text-white min-h-screen relative overflow-x-hidden text-sm sm:text-base;
-    background-color: #022c22;
+    @apply text-slate-100 font-sans antialiased selection:bg-white selection:text-black min-h-screen relative overflow-x-hidden text-sm sm:text-base;
+    background-color: #08090c;
     background-image: 
-      radial-gradient(at 20% 15%, rgba(16, 185, 129, 0.25) 0px, transparent 50%),
-      radial-gradient(at 80% 25%, rgba(5, 150, 105, 0.30) 0px, transparent 50%),
-      radial-gradient(at 50% 85%, rgba(4, 120, 87, 0.20) 0px, transparent 60%);
+      radial-gradient(at 50% 0%, rgba(30, 41, 59, 0.4) 0px, transparent 60%),
+      radial-gradient(at 10% 20%, rgba(14, 165, 233, 0.08) 0px, transparent 40%),
+      radial-gradient(at 90% 30%, rgba(244, 63, 94, 0.06) 0px, transparent 40%),
+      radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.6) 0px, transparent 70%);
     background-attachment: fixed;
     /* iOS Safe Area Padding Support */
     padding-top: env(safe-area-inset-top, 0px);
@@ -27,7 +28,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     color: #ffffff;
     word-break: break-word;
   }
@@ -41,6 +42,108 @@
       font-size: inherit !important;
     }
   }
+}
+
+/* Luma Cosmic Warp Ray Background */
+.luma-warp-bg {
+  background-color: #08090d;
+  background-image: 
+    /* Central radiant warp streak rays */
+    repeating-conic-gradient(
+      from 0deg at 50% 32%,
+      rgba(255, 255, 255, 0.04) 0deg 0.8deg,
+      transparent 0.8deg 6deg,
+      rgba(56, 189, 248, 0.06) 6deg 6.8deg,
+      transparent 6.8deg 13deg,
+      rgba(251, 146, 60, 0.05) 13deg 13.7deg,
+      transparent 13.7deg 21deg,
+      rgba(232, 121, 249, 0.06) 21deg 21.8deg,
+      transparent 21.8deg 29deg,
+      rgba(52, 211, 153, 0.05) 29deg 29.8deg,
+      transparent 29.8deg 38deg
+    ),
+    /* Soft focal radial lens flare behind left poster & right header */
+    radial-gradient(ellipse 900px 500px at 45% 30%, rgba(30, 58, 138, 0.22) 0%, rgba(15, 23, 42, 0.1) 50%, transparent 80%),
+    radial-gradient(ellipse 600px 400px at 25% 25%, rgba(14, 165, 233, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 450px at 75% 35%, rgba(244, 63, 94, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #090a0f 0%, #08090d 40%, #06070a 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Luma Editorial Serif Typography */
+.font-editorial {
+  font-family: 'Newsreader', 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+
+/* Luma Glass Cards */
+.luma-card {
+  background: rgba(18, 20, 26, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 
+    0 24px 60px -12px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+}
+
+.luma-card-subtle {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Luma High Contrast Buttons */
+.btn-luma-primary {
+  background: #ffffff;
+  color: #0a0b10;
+  font-weight: 700;
+  border-radius: 12px;
+  min-height: 46px;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  touch-action: manipulation;
+}
+
+.btn-luma-primary:hover {
+  background: #f1f5f9;
+  transform: translateY(-1.5px);
+  box-shadow: 0 10px 28px rgba(255, 255, 255, 0.3);
+}
+
+.btn-luma-glass {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 12px;
+  min-height: 46px;
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  transition: all 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  touch-action: manipulation;
+}
+
+.btn-luma-glass:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 /* Emerald Green Gradient Hero Section */

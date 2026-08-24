@@ -17,14 +17,19 @@ export default {
           900: '#1e3a8a',
         },
         dark: {
+          950: '#060709',
           900: '#0b0f19',
+          850: '#0f1117',
           800: '#111827',
           700: '#1f2937',
           600: '#374151'
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        serif: ['Newsreader', 'Georgia', 'serif'],
+        outfit: ['Outfit', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       }
     },
   },
