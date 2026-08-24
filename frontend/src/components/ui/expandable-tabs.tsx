@@ -82,7 +82,7 @@ export function ExpandableTabs({
     <div
       ref={outsideClickRef}
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-2xl border border-[#34d399]/30 bg-[#022c22]/80 p-1.5 shadow-xl backdrop-blur-2xl",
+        "flex flex-wrap items-center gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5 shadow-xl backdrop-blur-2xl",
         className
       )}
     >
@@ -104,13 +104,13 @@ export function ExpandableTabs({
             onClick={() => handleSelect(index)}
             transition={transition}
             className={cn(
-              "relative flex items-center rounded-xl px-4 py-2 text-xs font-bold transition-colors duration-300",
+              "relative flex items-center rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200",
               isSelected
-                ? cn("bg-[#34d399] text-[#022c22] font-black shadow-lg border border-[#6ee7b7]", activeColor)
-                : "text-emerald-100/90 hover:bg-[#064e3b] hover:text-white"
+                ? "bg-white text-slate-950 font-bold shadow-md shadow-white/10 border border-white/30"
+                : "text-slate-400 hover:bg-white/10 hover:text-white"
             )}
           >
-            <Icon size={18} />
+            <Icon size={16} />
             <AnimatePresence initial={false}>
               {isSelected && (
                 <motion.span
@@ -119,7 +119,7 @@ export function ExpandableTabs({
                   animate="animate"
                   exit="exit"
                   transition={transition}
-                  className="overflow-hidden whitespace-nowrap font-outfit ml-2"
+                  className="overflow-hidden whitespace-nowrap ml-1.5 font-medium"
                 >
                   {item.title}
                 </motion.span>

@@ -87,39 +87,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
           <div className="lg:col-span-5 space-y-6">
             
             {/* Product Showcase Flyer Card (Luma Card Aesthetic) */}
-            <div className="w-full rounded-2xl overflow-hidden border border-white/15 bg-gradient-to-b from-[#131722] via-[#0e111a] to-[#0a0c12] shadow-2xl relative group">
+            <div className="w-full rounded-2xl overflow-hidden border border-white/15 bg-gradient-to-b from-[#131722]/90 via-[#0e111a]/90 to-[#0a0c12]/95 shadow-2xl relative group backdrop-blur-2xl">
               
               {/* Top Engine Banner */}
               <div className="px-4 py-2.5 bg-black/60 backdrop-blur-md border-b border-white/10 flex items-center justify-between text-[11px] font-semibold text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-mono text-[9px] uppercase tracking-wider">POWERED BY</span>
                   <span className="text-white font-bold tracking-wide flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block animate-pulse"></span>
                     PyMuPDF + pgvector
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-mono text-[9px] uppercase tracking-wider">LATENCY</span>
-                  <span className="text-emerald-400 font-mono font-bold">&lt; 30ms</span>
+                  <span className="text-slate-200 font-mono font-bold">&lt; 30ms</span>
                 </div>
               </div>
 
               {/* Poster Body */}
               <div className="p-5 sm:p-6 relative overflow-hidden space-y-5">
                 {/* Radiant Cosmic Lens Flares */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-1/4 right-0 w-48 h-48 bg-blue-600/25 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-1/4 right-0 w-48 h-48 bg-blue-600/15 rounded-full blur-2xl pointer-events-none" />
 
                 {/* Poster Title */}
                 <div className="relative z-10 space-y-1">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[10px] font-mono font-bold tracking-wider uppercase mb-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-slate-300 text-[10px] font-mono font-semibold tracking-wider uppercase mb-1">
                     <Sparkles className="w-3 h-3 text-cyan-400" />
                     Autonomous Talent Screening
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white font-outfit tracking-tight leading-tight">
+                  <h2 className="text-2xl sm:text-3xl font-black text-white font-sans tracking-tight leading-tight">
                     HireSense AI
                   </h2>
-                  <p className="text-[11px] sm:text-xs font-mono font-bold text-slate-300 tracking-wider uppercase">
+                  <p className="text-[11px] sm:text-xs font-mono font-medium text-slate-400 tracking-wider uppercase">
                     HIGH-DIMENSIONAL CANDIDATE & RESUME MATCHING
                   </p>
                 </div>
@@ -128,15 +128,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 <div className="relative z-10 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-black text-xs shadow-md">
+                      <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center font-bold text-xs shadow-md">
                         AC
                       </div>
                       <div>
                         <div className="text-xs font-bold text-white">Alex Chen</div>
-                        <div className="text-[10px] text-cyan-300 font-mono">Senior Full-Stack Engineer</div>
+                        <div className="text-[10px] text-slate-400 font-mono">Senior Full-Stack Engineer</div>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black font-mono">
+                    <span className="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-white text-[10px] font-bold font-mono">
                       94% MATCH
                     </span>
                   </div>
@@ -147,7 +147,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                       <div className="text-xl font-black text-white font-outfit">87 / 100</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[9px] font-mono text-emerald-400 font-bold">TOP 3% MATCH</div>
+                      <div className="text-[9px] font-mono text-slate-300 font-semibold">TOP 3% MATCH</div>
                       <div className="text-[10px] text-slate-400">Python • FastAPI • React</div>
                     </div>
                   </div>
@@ -156,28 +156,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 {/* Performance Metrics Pill Grid */}
                 <div className="relative z-10 space-y-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-slate-900 to-black border border-white/15 flex flex-col justify-between">
+                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 flex flex-col justify-between">
                       <div className="text-[9px] font-mono text-slate-400">COSINE ACCURACY</div>
-                      <div className="text-sm font-black text-emerald-400 font-mono mt-1">94.8% Match</div>
+                      <div className="text-sm font-bold text-white font-mono mt-1">94.8% Match</div>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-slate-900 to-black border border-white/15 flex flex-col justify-between">
+                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 flex flex-col justify-between">
                       <div className="text-[9px] font-mono text-slate-400">PARSING SPEED</div>
-                      <div className="text-sm font-black text-cyan-400 font-mono mt-1">&lt; 1.2s / PDF</div>
+                      <div className="text-sm font-bold text-white font-mono mt-1">&lt; 1.2s / PDF</div>
                     </div>
                   </div>
 
-                  <div className="py-1.5 px-3 rounded-lg bg-blue-500/15 border border-blue-400/30 text-center">
-                    <span className="text-[10.5px] font-bold text-blue-200 font-mono">
+                  <div className="py-1.5 px-3 rounded-lg bg-white/[0.04] border border-white/10 text-center">
+                    <span className="text-[10.5px] font-semibold text-slate-300 font-mono">
                       FULL PIPELINE: PARSE → EMBED → RANK → INTERVIEW
                     </span>
                   </div>
                 </div>
 
                 {/* Feature Chips */}
-                <div className="relative z-10 flex items-center justify-between text-[10px] font-medium text-slate-300 pt-1 border-t border-white/10">
-                  <span className="flex items-center gap-1">⚡ Vector Ranking</span>
-                  <span className="flex items-center gap-1">🎙️ AI Voice Studio</span>
-                  <span className="flex items-center gap-1">🎯 Zero Keyword Bias</span>
+                <div className="relative z-10 flex items-center justify-between text-[10px] font-medium text-slate-400 pt-1 border-t border-white/10">
+                  <span className="flex items-center gap-1 text-slate-300">⚡ Vector Ranking</span>
+                  <span className="flex items-center gap-1 text-slate-300">🎙️ AI Voice Studio</span>
+                  <span className="flex items-center gap-1 text-slate-300">🎯 Zero Keyword Bias</span>
                 </div>
 
               </div>
