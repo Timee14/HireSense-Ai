@@ -86,7 +86,9 @@ export const App: React.FC = () => {
       setCandidateProfile(prof);
       
       const r = await apiRequest<Resume>('/resumes/me').catch(() => null);
-      setResume(r);
+      if (r && r.analysis) {
+        setResume(r);
+      }
 
       const recs = await apiRequest<JobRecommendation[]>('/candidates/me/recommendations').catch(() => []);
       setRecommendations(recs);

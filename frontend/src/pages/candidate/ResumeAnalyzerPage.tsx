@@ -24,25 +24,55 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const [showRawText, setShowRawText] = useState(false);
   const [activeFixTab, setActiveFixTab] = useState<string | null>(null);
   const [appliedJobIds, setAppliedJobIds] = useState<Record<string, boolean>>({});
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const processFile = async (file: File) => {
+    setUploading(true);
+    setUploadError('');
+    setUploadSuccess(false);
+    try {
+      await onUploadResume(file);
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 5000);
+    } catch (err: any) {
+      console.error(err);
+      setUploadError(err.message || 'Failed to upload and parse resume file. Please ensure the file is a valid PDF or DOCX.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setUploading(true);
-      setUploadError('');
-      try {
-        await onUploadResume(file);
-        setUploadSuccess(true);
-        setTimeout(() => setUploadSuccess(false), 5000);
-      } catch (err: any) {
-        console.error(err);
-        setUploadError(err.message || 'Failed to upload and parse resume file. Please ensure the file is a valid PDF or DOCX.');
-      } finally {
-        setUploading(false);
-      }
+      await processFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      await processFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -198,21 +228,38 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
           )}
         </div>
 
-        {/* Upload & Re-Score Button */}
-        <label className="cursor-pointer border border-white/20 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/40 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 shadow-xl transition-all w-full md:w-auto shrink-0 text-white group">
+        {/* Upload & Re-Score Button / Dropzone */}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={`cursor-pointer border p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 shadow-xl transition-all w-full md:w-auto shrink-0 text-white group ${
+            isDragging
+              ? 'border-cyan-400 bg-cyan-500/10 scale-105 shadow-cyan-500/20'
+              : 'border-white/20 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/40'
+          }`}
+        >
           <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white group-hover:scale-105 transition-transform shrink-0">
-            <Upload className={`w-6 h-6 ${uploading ? 'animate-spin' : ''}`} />
+            <Upload className={`w-6 h-6 ${uploading ? 'animate-spin text-cyan-300' : 'text-white'}`} />
           </div>
           <div className="text-center sm:text-left">
             <span className="block text-base font-bold text-white font-sans">
-              {uploading ? 'Analyzing Resume Stream...' : 'Re-Score / Upload Resume'}
+              {uploading ? 'Analyzing Resume Stream...' : isDragging ? 'Drop Resume PDF Here' : 'Re-Score / Upload Resume'}
             </span>
             <span className="block text-xs text-slate-400 font-mono font-normal">
-              Accepts .pdf, .docx, .doc, .txt
+              Click or drag .pdf, .docx, .doc, .txt
             </span>
           </div>
-          <input type="file" accept=".pdf,.docx,.doc,.txt" onChange={handleFileChange} disabled={uploading} className="hidden" />
-        </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,.doc,.txt"
+            onChange={handleFileChange}
+            disabled={uploading}
+            className="hidden"
+          />
+        </div>
       </div>
 
       {uploadSuccess && (
