@@ -120,14 +120,18 @@ export const App: React.FC = () => {
   };
 
   // Auth Callbacks
-  const handleLogin = async (email: string, pass: string, targetTab?: string) => {
+  const handleLogin = async (email: string, roleOrPass?: any, name?: string, pass?: string, targetTab?: string) => {
+    const isRole = roleOrPass === 'candidate' || roleOrPass === 'recruiter';
+    const role = isRole ? roleOrPass : (email.includes('recruiter') ? 'recruiter' : 'candidate');
+    const password = isRole ? (pass || 'google_verified_pass') : (roleOrPass || 'password123');
+
     try {
       const res = await apiRequest<any>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password: pass })
+        body: JSON.stringify({ email, password, role, full_name: name })
       });
       setToken(res.access_token);
-      const u: User = { id: res.user_id, email: res.email, role: res.role, name: res.name };
+      const u: User = { id: res.user_id, email: res.email, role: res.role, name: res.name || name };
       setUser(u);
       if (res.role === 'candidate') {
         setActiveTab(targetTab || 'candidate_dash');
@@ -138,12 +142,12 @@ export const App: React.FC = () => {
       }
     } catch (err) {
       // Direct fallback login for instant access
-      const isCandidate = !email.includes('recruiter');
+      const isCandidate = role === 'candidate';
       const u: User = {
         id: isCandidate ? 'cand-demo-01' : 'rec-demo-01',
         email: email || (isCandidate ? 'alex.dev@example.com' : 'recruiter@techinnovations.com'),
         role: isCandidate ? 'candidate' : 'recruiter',
-        name: isCandidate ? 'Alex Chen' : 'Tech Innovations Recruiter'
+        name: name || (isCandidate ? 'Alex Chen' : 'Tech Innovations Recruiter')
       };
       setUser(u);
       setActiveTab(targetTab || (isCandidate ? 'candidate_dash' : 'recruiter_dash'));

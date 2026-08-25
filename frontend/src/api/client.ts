@@ -91,15 +91,39 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     } as any;
   }
 
-  if (endpoint.includes('/auth/login') || endpoint.includes('/auth/register') || endpoint.includes('/auth/reset-password')) {
-    const isRecruiter = endpoint.includes('recruiter') || (options.body && options.body.toString().includes('recruiter'));
+  if (endpoint.includes('/auth/send-otp')) {
+    const bodyStr = options.body?.toString() || '';
+    let email = 'user@example.com';
+    try {
+      const parsed = JSON.parse(bodyStr);
+      if (parsed.email) email = parsed.email;
+    } catch(e) {}
+    return {
+      success: true,
+      message: `Two-step verification code sent to ${email}`,
+      email: email,
+      preview_code: "849201"
+    } as any;
+  }
+
+  if (endpoint.includes('/auth/verify-otp') || endpoint.includes('/auth/google-login') || endpoint.includes('/auth/google-auth') || endpoint.includes('/auth/login') || endpoint.includes('/auth/register') || endpoint.includes('/auth/reset-password')) {
+    const bodyStr = options.body?.toString() || '';
+    const isRecruiter = endpoint.includes('recruiter') || bodyStr.includes('recruiter');
+    let email = isRecruiter ? 'recruiter@techinnovations.com' : 'alex.dev@example.com';
+    let name = isRecruiter ? 'Tech Innovations Recruiter' : 'Alex Chen';
+    try {
+      const parsed = JSON.parse(bodyStr);
+      if (parsed.email) email = parsed.email;
+      if (parsed.full_name) name = parsed.full_name;
+    } catch(e) {}
+
     return {
       access_token: 'demo-jwt-token-hiresense-2026',
       token_type: 'bearer',
       user_id: isRecruiter ? 'rec-demo-01' : 'cand-demo-01',
-      email: isRecruiter ? 'recruiter@techinnovations.com' : 'alex.dev@example.com',
+      email: email,
       role: isRecruiter ? 'recruiter' : 'candidate',
-      name: isRecruiter ? 'Tech Innovations Recruiter' : 'Alex Chen'
+      name: name
     } as any;
   }
 
@@ -415,6 +439,27 @@ export async function resetPassword(email: string, newPassword: string): Promise
   return apiRequest('/auth/reset-password', {
     method: 'POST',
     body: JSON.stringify({ email, new_password: newPassword }),
+  });
+}
+
+export async function sendAuthOtp(email: string, role: string = 'candidate', purpose: string = 'login', fullName?: string): Promise<{ success: boolean; message: string; email: string; preview_code?: string }> {
+  return apiRequest('/auth/send-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email, role, purpose, full_name: fullName }),
+  });
+}
+
+export async function verifyAuthOtp(email: string, otpCode: string, role: string = 'candidate', fullName?: string, companyName?: string): Promise<any> {
+  return apiRequest('/auth/verify-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email, otp_code: otpCode, role, full_name: fullName, company_name: companyName }),
+  });
+}
+
+export async function googleAuthLogin(email: string, role: string = 'candidate', fullName?: string, credential?: string): Promise<any> {
+  return apiRequest('/auth/google-login', {
+    method: 'POST',
+    body: JSON.stringify({ email, role, full_name: fullName, credential }),
   });
 }
 
