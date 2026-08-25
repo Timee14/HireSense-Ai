@@ -256,18 +256,91 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   if (endpoint.includes('/chat/message')) {
     const bodyStr = options.body?.toString() || '';
     let msg = '';
-    let role = 'Senior Full-Stack Engineer';
+    let role = 'Software Development Engineer (SDE)';
     try {
       const p = JSON.parse(bodyStr);
       msg = (p.message || '').toLowerCase();
       if (p.target_role) role = p.target_role;
     } catch(e) {}
 
-    let content = `### 🎯 Precision Skill Gap Breakdown for **${role}**\n\nBased on your resume profile and benchmark requirements for **${role}**, here are high-priority gaps:\n\n* **Kubernetes & Container Orchestration**: Essential for scalable cloud microservices.\n* **Redis & Distributed Caching**: Crucial for sub-10ms query read paths.\n* **System Design RFCs**: Required for Senior engineering bands.`;
-    if (msg.includes('upskill') || msg.includes('resume') || msg.includes('star')) {
-      content = `### 📝 AI STAR Resume Transformation\n\n#### ✅ Optimized STAR Bullet Point:\n> "Architected 14+ asynchronous RESTful endpoints with **FastAPI** and **PostgreSQL**, optimizing unindexed joins to reduce p99 latency by **38%** for 50,000+ daily active requests."\n\n*Formulas Applied: Power Action Verb + Tech Stack Context + Quantifiable Business Outcome.*`;
-    } else if (msg.includes('roadmap') || msg.includes('learn') || msg.includes('plan')) {
+    // Dynamic role extraction
+    if (/\b(sde|sde[- ]?[123]|software development engineer|software dev engineer)\b/.test(msg)) {
+      role = 'Software Development Engineer (SDE)';
+    } else if (/\b(frontend|front-end|react|ui engineer|ui developer)\b/.test(msg)) {
+      role = 'Frontend Engineer';
+    } else if (/\b(backend|back-end|python developer|fastapi|django|golang|java engineer)\b/.test(msg)) {
+      role = 'Backend Engineer';
+    } else if (/\b(fullstack|full-stack|full stack)\b/.test(msg)) {
+      role = 'Full-Stack Engineer';
+    } else if (/\b(devops|sre|site reliability|cloud engineer|platform engineer)\b/.test(msg)) {
+      role = 'DevOps & Cloud Engineer';
+    } else if (/\b(data engineer|etl|big data|spark|snowflake)\b/.test(msg)) {
+      role = 'Data Engineer';
+    } else if (/\b(data scientist|machine learning|ml engineer|ai engineer|nlp)\b/.test(msg)) {
+      role = 'AI & Machine Learning Engineer';
+    }
+
+    let content = '';
+
+    // 1. Role overview / "tell me about the sde role"
+    if (
+      (msg.includes('tell me about') || msg.includes('what is') || msg.includes('explain') || msg.includes('about the') || msg.includes('guide') || msg.includes('overview') || msg.includes('responsibilities') || msg.includes('how to become')) &&
+      (msg.includes('sde') || msg.includes('role') || msg.includes('engineer') || msg.includes('developer') || msg.includes('job') || msg.includes('position'))
+    ) {
+      if (role.toLowerCase().includes('sde') || role.toLowerCase().includes('software development')) {
+        content = `### 👨‍💻 Complete Guide: **Software Development Engineer (SDE)** Role
+
+A **Software Development Engineer (SDE)** is a core software engineering professional responsible for designing, developing, scaling, and maintaining software applications, robust backend microservices, and distributed cloud systems.
+
+---
+
+#### 📌 1. Core Responsibilities
+* **Architecture & Development**: Write clean, modular, high-performance code in modern languages (Python, Java, Go, TypeScript, C++).
+* **System Design (HLD/LLD)**: Architect scalable REST/gRPC APIs, database schemas (SQL/NoSQL), and caching layers.
+* **Reliability & Scalability**: Build fault-tolerant systems with high availability (99.99% uptime), idempotency, and automated CI/CD deployment pipelines.
+* **Testing & Quality Assurance**: Write rigorous unit, integration, and contract tests (Pytest, Jest, Docker testcontainers).
+
+---
+
+#### 📈 2. SDE Career Hierarchy & Levels
+| Level | Title | Primary Focus & Expectations |
+| :--- | :--- | :--- |
+| **SDE-1** | Junior / Entry-Level | Focus on task execution, bug fixes, unit testing, and mastering DSA & framework conventions. |
+| **SDE-2** | Mid-Level Engineer | Autonomous feature ownership, Low-Level Design (LLD), DB indexing, and microservice integration. |
+| **SDE-3** | Senior Engineer | Distributed High-Level Design (HLD), architectural RFCs, performance optimizations, and team mentorship. |
+| **Staff / Principal** | Technical Leader | Multi-team system architecture, cross-organizational technical roadmap, and engineering culture. |
+
+---
+
+#### 🛠️ 3. SDE Interview Assessment Rounds
+1. **Online Assessment (OA)**: 2–3 algorithmic Data Structures & Algorithms problems (LeetCode Medium-Hard).
+2. **Technical Problem Solving (DSA)**: Binary Trees, Graphs, Dynamic Programming, Heap/Two-Pointer optimization.
+3. **System Design (LLD & HLD)**: Designing a Rate Limiter, URL Shortener, Uber Matching Engine, or E-Commerce Cart.
+4. **Behavioral & Leadership (STAR Method)**: Deep-dive into technical disagreements, production outage retrospectives, and ownership.
+
+---
+
+#### 💡 4. How Your Resume Aligns with SDE:
+* **Current Core Strengths**: Python, FastAPI, React, PostgreSQL, Docker
+* **Recommended Next Step**: Practice High-Level System Design and add Redis/Kubernetes metrics to reach top candidate percentiles.`;
+      } else {
+        content = `### 🎯 Complete Overview: **${role}**
+
+A **${role}** is responsible for delivering end-to-end technical solutions, driving feature velocity, and ensuring platform reliability.
+
+#### 📌 Key Responsibilities:
+1. **Engineering Execution**: Architecting scalable components, APIs, and infrastructure.
+2. **Technical Standards**: Code reviews, automated testing, and CI/CD pipelines.
+3. **Collaboration**: Partnering with product, design, and operations teams to translate business requirements into software.`;
+      }
+    } else if (msg.includes('upskill') || msg.includes('resume') || msg.includes('star') || msg.includes('bullet') || msg.includes('rewrite')) {
+      content = `### 📝 AI STAR Resume Transformation for **${role}**\n\n#### ✅ Optimized STAR Bullet Point:\n> "Architected 14+ asynchronous RESTful endpoints with **FastAPI** and **PostgreSQL**, optimizing unindexed joins to reduce p99 latency by **38%** for 50,000+ daily active requests."\n\n*Formulas Applied: Power Action Verb + Tech Stack Context + Quantifiable Business Outcome.*`;
+    } else if (msg.includes('roadmap') || msg.includes('learn') || msg.includes('plan') || msg.includes('study')) {
       content = `### 🚀 30-Day Accelerated Upskilling Roadmap for **${role}**\n\n* **Week 1**: Advanced Redis Caching & Latency Optimization\n* **Week 2**: Docker & Kubernetes Helm Cluster Deployment\n* **Week 3**: Distributed System Architecture & Queues\n* **Week 4**: CI/CD Pipelines & Live GitHub Portfolio Polish`;
+    } else if (msg.includes('gap') || msg.includes('missing') || msg.includes('lacking')) {
+      content = `### 🎯 Precision Skill Gap Breakdown for **${role}**\n\nBased on your resume profile and benchmark requirements for **${role}**, here are high-priority gaps:\n\n* **Kubernetes & Container Orchestration**: Essential for scalable cloud microservices.\n* **Redis & Distributed Caching**: Crucial for sub-10ms query read paths.\n* **System Design (HLD/LLD)**: Required for Senior engineering bands and compensation calibrations.`;
+    } else {
+      content = `### 🤖 Aven — AI Career & Upskilling Copilot\n\nHello! I am **Aven**, your AI career copilot, powered by multi-model intelligence (**ChatGPT-4o**, **Claude 3.5 Sonnet**, and **Google Gemini**).\n\nHere are key ways I can help you secure your next role as **${role}**:\n\n1. 👨‍💻 **Role Breakdown & Career Guidance**: Ask me *"Tell me about the SDE role"* or *"What is expected of an SDE-2?"*\n2. 🎯 **Role-Specific Skill Gap Analysis**: Discover exact technical competencies required by recruiters.\n3. 📝 **STAR Resume Rewriter**: Turn generic job descriptions into high-impact metric bullets.\n4. 🚀 **Accelerated Learning Roadmap**: Personalized 30-day skill sprints to close technical gaps.\n5. 🎙️ **Live Interview Simulation**: Practice technical and behavioral questions with multi-AI scoring.`;
     }
 
     return {
@@ -277,14 +350,14 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       model_used: "consensus",
       timestamp: "Just now",
       perspectives: {
-        chatgpt: "ChatGPT-4o: Highlight quantifiable metrics (% latency reduction) in your top resume bullets.",
-        claude: "Claude 3.5 Sonnet: Emphasize trade-offs between relational DB indexing and Redis cache invalidation.",
-        gemini: "Gemini Flash / Pro: Market hiring data for " + role + " shows +34% demand for Kubernetes and async architectures."
+        chatgpt: "ChatGPT-4o: For " + role + ", recruiters look for solid DSA fundamentals and clear quantifiable STAR metrics on past software deliverables.",
+        claude: "Claude 3.5 Sonnet: For " + role + " interviews, emphasize systems architecture trade-offs and resilient design patterns.",
+        gemini: "Gemini Flash / Pro: Current industry demand for " + role + " favors engineers proficient in cloud-native microservices, async APIs, and PostgreSQL architectures."
       },
       suggested_actions: [
-        { title: `Add Kubernetes to Resume`, action: "Insert container orchestration project bullet" },
-        { title: "Practice System Design", action: "Simulate mock design interview for rate limiters" },
-        { title: "Explore Redis Mastery", action: "Build Redis caching layer on FastAPI" }
+        { title: `Analyze Gaps for ${role}`, action: `What are my exact skill gaps for the ${role} role?` },
+        { title: "Simulate System Design Question", action: "Ask me a system design interview question" },
+        { title: "Generate STAR Resume Bullets", action: "Rewrite my experience bullets using STAR metrics" }
       ],
       roadmap_items: [
         { week: "Week 1", topic: "Redis Caching & Latency", hours: "8 hrs" },
