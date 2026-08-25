@@ -21,6 +21,33 @@ class RefreshTokenInput(BaseModel):
 
 
 # Auth Schemas
+class SendOtpRequest(BaseModel):
+    email: str
+    purpose: Optional[str] = "login"  # "login", "register", "google_login", "2fa"
+    role: Optional[str] = "candidate"
+    full_name: Optional[str] = None
+
+class VerifyOtpRequest(BaseModel):
+    email: str
+    otp_code: str
+    role: Optional[str] = "candidate"
+    full_name: Optional[str] = None
+    company_name: Optional[str] = None
+
+class GoogleAuthRequest(BaseModel):
+    email: str
+    role: Optional[str] = "candidate"
+    full_name: Optional[str] = None
+    google_id: Optional[str] = None
+    avatar_url: Optional[str] = None
+    credential: Optional[str] = None
+
+class OtpResponse(BaseModel):
+    success: bool
+    message: str
+    email: str
+    preview_code: Optional[str] = None  # Returned for instant dev/demo test preview
+
 class UserRegister(BaseModel):
     email: str
     password: str
