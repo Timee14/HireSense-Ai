@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Sparkles, LogOut, User as UserIcon, Briefcase, FileText, LayoutDashboard,
   Target, Users, BarChart3, PlusCircle, Menu, X, Bell, Video, Mail,
-  CheckCircle2, ExternalLink, Calendar, MessageSquare, BrainCircuit
+  CheckCircle2, ExternalLink, Calendar, MessageSquare, BrainCircuit, Bot
 } from 'lucide-react';
 import { User, NotificationItem } from '../../types';
 import { ExpandableTabs, TabItem } from '../ui/expandable-tabs';
@@ -33,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const candidateTabs: TabItem[] = [
     { title: "Dashboard", icon: LayoutDashboard },
+    { title: "AI Chatbot", icon: Bot },
     { title: "AI Interview", icon: BrainCircuit },
     { title: "Resume Analyzer", icon: FileText },
     { title: "Job Matches", icon: Briefcase },
@@ -43,6 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const candidateTabItems = [
     { key: 'candidate_dash', title: "Dashboard", icon: LayoutDashboard },
+    { key: 'ai_chatbot', title: "AI Career Chatbot Hub", icon: Bot },
     { key: 'ai_interview', title: "AI Interview Studio", icon: BrainCircuit },
     { key: 'resume_analyzer', title: "Resume Analyzer", icon: FileText },
     { key: 'job_recs', title: "Job Matches", icon: Briefcase },
@@ -50,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { key: 'applications', title: "Applications", icon: FileText },
   ];
 
-  const candidateTabKeys = ['candidate_dash', 'ai_interview', 'resume_analyzer', 'job_recs', 'separator', 'skill_gaps', 'applications'];
+  const candidateTabKeys = ['candidate_dash', 'ai_chatbot', 'ai_interview', 'resume_analyzer', 'job_recs', 'separator', 'skill_gaps', 'applications'];
 
 
   const recruiterTabs: TabItem[] = [

@@ -245,6 +245,56 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     ] as any;
   }
 
+  if (endpoint.includes('/chat/sessions')) {
+    return [
+      { id: "sess-1", title: "🎯 Skill Gap Analysis for Senior Full-Stack", created_at: "Today", message_count: 6 },
+      { id: "sess-2", title: "📝 STAR Resume Metric Polishing", created_at: "Yesterday", message_count: 4 },
+      { id: "sess-3", title: "🚀 30-Day Kubernetes Upskilling Plan", created_at: "3 days ago", message_count: 8 }
+    ] as any;
+  }
+
+  if (endpoint.includes('/chat/message')) {
+    const bodyStr = options.body?.toString() || '';
+    let msg = '';
+    let role = 'Senior Full-Stack Engineer';
+    try {
+      const p = JSON.parse(bodyStr);
+      msg = (p.message || '').toLowerCase();
+      if (p.target_role) role = p.target_role;
+    } catch(e) {}
+
+    let content = `### 🎯 Precision Skill Gap Breakdown for **${role}**\n\nBased on your resume profile and benchmark requirements for **${role}**, here are high-priority gaps:\n\n* **Kubernetes & Container Orchestration**: Essential for scalable cloud microservices.\n* **Redis & Distributed Caching**: Crucial for sub-10ms query read paths.\n* **System Design RFCs**: Required for Senior engineering bands.`;
+    if (msg.includes('upskill') || msg.includes('resume') || msg.includes('star')) {
+      content = `### 📝 AI STAR Resume Transformation\n\n#### ✅ Optimized STAR Bullet Point:\n> "Architected 14+ asynchronous RESTful endpoints with **FastAPI** and **PostgreSQL**, optimizing unindexed joins to reduce p99 latency by **38%** for 50,000+ daily active requests."\n\n*Formulas Applied: Power Action Verb + Tech Stack Context + Quantifiable Business Outcome.*`;
+    } else if (msg.includes('roadmap') || msg.includes('learn') || msg.includes('plan')) {
+      content = `### 🚀 30-Day Accelerated Upskilling Roadmap for **${role}**\n\n* **Week 1**: Advanced Redis Caching & Latency Optimization\n* **Week 2**: Docker & Kubernetes Helm Cluster Deployment\n* **Week 3**: Distributed System Architecture & Queues\n* **Week 4**: CI/CD Pipelines & Live GitHub Portfolio Polish`;
+    }
+
+    return {
+      id: "msg-" + Date.now(),
+      role: "assistant",
+      content: content,
+      model_used: "consensus",
+      timestamp: "Just now",
+      perspectives: {
+        chatgpt: "ChatGPT-4o: Highlight quantifiable metrics (% latency reduction) in your top resume bullets.",
+        claude: "Claude 3.5 Sonnet: Emphasize trade-offs between relational DB indexing and Redis cache invalidation.",
+        gemini: "Gemini Flash / Pro: Market hiring data for " + role + " shows +34% demand for Kubernetes and async architectures."
+      },
+      suggested_actions: [
+        { title: `Add Kubernetes to Resume`, action: "Insert container orchestration project bullet" },
+        { title: "Practice System Design", action: "Simulate mock design interview for rate limiters" },
+        { title: "Explore Redis Mastery", action: "Build Redis caching layer on FastAPI" }
+      ],
+      roadmap_items: [
+        { week: "Week 1", topic: "Redis Caching & Latency", hours: "8 hrs" },
+        { week: "Week 2", topic: "Kubernetes & Helm", hours: "10 hrs" },
+        { week: "Week 3", topic: "Distributed Architecture", hours: "12 hrs" },
+        { week: "Week 4", topic: "CI/CD & Live Cloud Deploy", hours: "6 hrs" }
+      ]
+    } as any;
+  }
+
   if (endpoint.includes('/analytics/recruiter')) {
     return {
       kpis: {
@@ -621,5 +671,38 @@ export async function getMyInterviewSessions(): Promise<any[]> {
     return await apiRequest<any[]>('/interviews/my-sessions');
   } catch (err) {
     return [];
+  }
+}
+
+export async function sendChatMessage(payload: {
+  message: string;
+  model?: string;
+  target_role?: string;
+  candidate_skills?: string[];
+  missing_skills?: string[];
+  resume_summary?: string;
+  history?: any[];
+}): Promise<any> {
+  return apiRequest('/chat/message', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getChatSessions(): Promise<any[]> {
+  try {
+    return await apiRequest<any[]>('/chat/sessions');
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function clearChatHistory(): Promise<any> {
+  try {
+    return await apiRequest('/chat/clear', {
+      method: 'POST',
+    });
+  } catch (err) {
+    return { success: true };
   }
 }

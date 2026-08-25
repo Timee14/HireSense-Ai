@@ -8,11 +8,13 @@ import { JobRecommendationsPage } from './pages/candidate/JobRecommendationsPage
 import { ApplicationsPage } from './pages/candidate/ApplicationsPage';
 import { SkillGapsPage } from './pages/candidate/SkillGapsPage';
 import { AIInterviewStudioPage } from './pages/candidate/AIInterviewStudioPage';
+import { AIChatbotHubPage } from './pages/candidate/AIChatbotHubPage';
 import { RecruiterDashboard } from './pages/recruiter/RecruiterDashboard';
 import { CreateJobPage } from './pages/recruiter/CreateJobPage';
 import { CandidateScreeningPage } from './pages/recruiter/CandidateScreeningPage';
 import { RecruiterAnalyticsPage } from './pages/recruiter/RecruiterAnalyticsPage';
 import { MatchRadarModal } from './components/ui/MatchRadarModal';
+import { FloatingAIChatWidget } from './components/ui/FloatingAIChatWidget';
 import { LumaBackground } from './components/ui/LumaBackground';
 import { apiRequest, uploadFile, getToken, setToken, removeToken, getNotifications, markNotificationAsRead } from './api/client';
 import { User, CandidateProfile, RecruiterProfile, Resume, Job, JobRecommendation, Application, RecruiterAnalytics, JobCreate, NotificationItem } from './types';
@@ -297,6 +299,14 @@ export const App: React.FC = () => {
               />
             )}
 
+            {activeTab === 'ai_chatbot' && (
+              <AIChatbotHubPage
+                resume={resume}
+                recommendations={recommendations}
+                onNavigateToTab={setActiveTab}
+              />
+            )}
+
             {activeTab === 'ai_interview' && (
               <AIInterviewStudioPage
                 resume={resume}
@@ -392,6 +402,14 @@ export const App: React.FC = () => {
         rec={selectedMatchRec}
         onClose={() => setSelectedMatchRec(null)}
       />
+
+      {/* Floating AI Career Assistant (Visible across Candidate views) */}
+      {user?.role === 'candidate' && activeTab !== 'ai_chatbot' && (
+        <FloatingAIChatWidget
+          resume={resume}
+          onOpenFullHub={() => setActiveTab('ai_chatbot')}
+        />
+      )}
 
       </div>
     </div>
