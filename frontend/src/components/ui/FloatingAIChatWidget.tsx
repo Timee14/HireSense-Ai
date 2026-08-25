@@ -49,27 +49,41 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
     setAttachedDoc(null);
     setLoading(true);
 
+    // Infer role from message or resume headline
+    let inferredRole = 'Software Development Engineer (SDE)';
+    const qLower = query.toLowerCase();
+    if (/\b(sde|sde[- ]?[123]|software development engineer|software dev engineer)\b/.test(qLower)) {
+      inferredRole = 'Software Development Engineer (SDE)';
+    } else if (/\b(frontend|front-end|react|ui engineer)\b/.test(qLower)) {
+      inferredRole = 'Frontend Engineer';
+    } else if (/\b(backend|back-end|python developer|fastapi)\b/.test(qLower)) {
+      inferredRole = 'Backend Engineer';
+    } else if (resume?.analysis?.career_level) {
+      inferredRole = resume.analysis.career_level;
+    }
+
     try {
       const res = await sendChatMessage({
         message: query + (currentDoc ? ` [Document: ${currentDoc}]` : '') + (webSearch ? ' [Web Search: Active]' : ''),
-        candidate_skills: resume?.analysis?.extracted_skills || ['Python', 'FastAPI', 'React'],
-        target_role: 'Senior Full-Stack Engineer'
+        candidate_skills: resume?.analysis?.extracted_skills || ['Python', 'FastAPI', 'React', 'PostgreSQL', 'Docker'],
+        target_role: inferredRole
       });
 
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          text: res.content || 'Here are targeted recommendations from Aven.',
-          perspectives: res.perspectives
+          text: res?.content || 'Here are targeted recommendations from Aven.',
+          perspectives: res?.perspectives
         }
       ]);
     } catch (e) {
+      // Fallback
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          text: `### 🎯 Aven Quick Recommendation\n* Focus on **Redis caching** and **Kubernetes containerization** to reach top 5% candidate tier.`
+          text: `### 👨‍💻 Software Development Engineer (SDE) Role Guide\n\nAn **SDE** designs and scales core software applications, backend services, and APIs.\n\n* **Core Focus**: Data Structures & Algorithms, System Design (HLD/LLD), and Microservices.\n* **Career Tiers**: SDE-1 (Execution) ➔ SDE-2 (Ownership & LLD) ➔ SDE-3 (Distributed HLD).\n* **Interview Stages**: DSA Problem Solving (LeetCode) ➔ System Design ➔ STAR Behavioral.`
         }
       ]);
     } finally {

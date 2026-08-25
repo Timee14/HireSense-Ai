@@ -53,7 +53,7 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
   onNavigateToTab
 }) => {
   const [selectedModel, setSelectedModel] = useState<string>('consensus');
-  const [targetRole, setTargetRole] = useState<string>('Senior Full-Stack Engineer');
+  const [targetRole, setTargetRole] = useState<string>('Software Development Engineer (SDE)');
   const [inputQuery, setInputQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -201,11 +201,22 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
     setAttachedFile(null);
     setLoading(true);
 
+    // Dynamic role inference from user message
+    let activeRole = targetRole;
+    const qLower = query.toLowerCase();
+    if (/\b(sde|sde[- ]?[123]|software development engineer|software dev engineer)\b/.test(qLower)) {
+      activeRole = 'Software Development Engineer (SDE)';
+    } else if (/\b(frontend|front-end|react|ui engineer)\b/.test(qLower)) {
+      activeRole = 'Frontend Engineer';
+    } else if (/\b(backend|back-end|python developer|fastapi)\b/.test(qLower)) {
+      activeRole = 'Backend Engineer';
+    }
+
     try {
       const response = await sendChatMessage({
         message: query + (currentAttachment ? ` [Attached document: ${currentAttachment.name}]` : '') + (webSearchEnabled ? ' [Web Search: Enabled]' : ''),
         model: selectedModel,
-        target_role: targetRole,
+        target_role: activeRole,
         candidate_skills: candidateSkills,
         missing_skills: missingSkills,
         resume_summary: resume?.raw_text?.slice(0, 500) || '',
@@ -213,14 +224,14 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
       });
 
       const assistantMsg: ChatMessage = {
-        id: response.id || 'bot-' + Date.now(),
+        id: response?.id || 'bot-' + Date.now(),
         role: 'assistant',
-        content: response.content,
-        model_used: response.model_used || selectedModel,
-        timestamp: response.timestamp || 'Just now',
-        perspectives: response.perspectives,
-        suggested_actions: response.suggested_actions,
-        roadmap_items: response.roadmap_items
+        content: response?.content || `Here are recommendations for ${activeRole}.`,
+        model_used: response?.model_used || selectedModel,
+        timestamp: response?.timestamp || 'Just now',
+        perspectives: response?.perspectives,
+        suggested_actions: response?.suggested_actions,
+        roadmap_items: response?.roadmap_items
       };
 
       setMessages(prev => [...prev, assistantMsg]);
@@ -229,13 +240,13 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
       const fallbackMsg: ChatMessage = {
         id: 'bot-' + Date.now(),
         role: 'assistant',
-        content: `### 🎯 Aven AI Recommendations for ${targetRole}\n\n* **Primary Gap to Close**: Add Redis caching and Kubernetes Helm deployment to your project experience.\n* **Quantify Impact**: Use formulas like *"Reduced latency by 38% for 50,000+ daily requests"*.\n* **Next Step**: Check the **Skill Gaps** tab to view benchmark radar score.`,
+        content: `### 👨‍💻 Software Development Engineer (SDE) Role Guide\n\nAn **SDE** designs and scales core software applications, backend services, and APIs.\n\n* **Core Focus**: Data Structures & Algorithms, System Design (HLD/LLD), and Microservices.\n* **Career Tiers**: SDE-1 (Execution) ➔ SDE-2 (Ownership & LLD) ➔ SDE-3 (Distributed HLD).\n* **Interview Stages**: DSA Problem Solving (LeetCode) ➔ System Design ➔ STAR Behavioral.`,
         model_used: selectedModel,
         timestamp: 'Just now',
         perspectives: {
-          chatgpt: `ChatGPT-4o: Highlight container orchestration and sub-10ms response times.`,
-          claude: `Claude 3.5 Sonnet: Emphasize trade-offs and fault-tolerant architecture.`,
-          gemini: `Gemini Flash: Current job market alignment score is 89%.`
+          chatgpt: `ChatGPT-4o: For SDE applications, recruiters look for solid DSA fundamentals and clear quantifiable STAR metrics on past software deliverables.`,
+          claude: `Claude 3.5 Sonnet: SDE-2+ interviews heavily weigh systems thinking: explain trade-offs (e.g. CAP theorem, caching strategies, and eventual vs strong consistency).`,
+          gemini: `Gemini Flash / Pro: Current industry demand for SDEs favors engineers proficient in cloud-native microservices, async APIs, and PostgreSQL/vector search architectures.`
         }
       };
       setMessages(prev => [...prev, fallbackMsg]);
@@ -400,10 +411,10 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
                 onChange={(e) => setTargetRole(e.target.value)}
                 className="bg-transparent text-xs sm:text-sm font-bold text-white focus:outline-none cursor-pointer hover:text-cyan-300 transition-colors"
               >
+                <option value="Software Development Engineer (SDE)" className="bg-slate-900 text-white">Software Development Engineer (SDE)</option>
                 <option value="Senior Full-Stack Engineer" className="bg-slate-900 text-white">Senior Full-Stack Engineer</option>
                 <option value="Backend Python / FastAPI Engineer" className="bg-slate-900 text-white">Backend Python / FastAPI Engineer</option>
                 <option value="Frontend React / Next.js Specialist" className="bg-slate-900 text-white">Frontend React / Next.js Specialist</option>
-                <option value="Software Development Engineer" className="bg-slate-900 text-white">Software Development Engineer</option>
                 <option value="AI / ML Systems Engineer" className="bg-slate-900 text-white">AI / ML Systems Engineer</option>
               </select>
             </div>
