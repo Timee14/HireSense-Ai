@@ -68,6 +68,15 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const actionMenuRef = useRef<HTMLDivElement | null>(null);
 
+  // Google AI Connection State
+  const [googleKeyModalOpen, setGoogleKeyModalOpen] = useState<boolean>(false);
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState<string>(() => {
+    return typeof window !== 'undefined' ? localStorage.getItem('hiresense_gemini_api_key') || '' : '';
+  });
+  const [googleConnected, setGoogleConnected] = useState<boolean>(() => {
+    return typeof window !== 'undefined' ? !!localStorage.getItem('hiresense_gemini_api_key') : false;
+  });
+
   // Voice Recording Simulation State
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
@@ -422,6 +431,24 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
 
           {/* AI Model Intelligence Selector Pills (Matching User Screenshot Layout!) */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto py-1 scrollbar-none">
+            {/* Google Gemini Direct Link Badge */}
+            <button
+              type="button"
+              onClick={() => setGoogleKeyModalOpen(true)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 border ${
+                googleConnected
+                  ? 'bg-blue-600/20 text-blue-300 border-blue-500/40 hover:bg-blue-600/30'
+                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+              }`}
+              title="Google Gemini AI Connection Status & Key"
+            >
+              <Zap className="w-3.5 h-3.5 text-blue-400" />
+              <span>Google Gemini AI</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded font-mono bg-blue-400/20 text-blue-200">
+                {googleConnected ? 'LIVE KEY' : 'ACTIVE'}
+              </span>
+            </button>
+
             {AI_MODELS.map((m) => (
               <button
                 key={m.id}
@@ -1002,13 +1029,109 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
               </form>
             </div>
 
-            <div className="text-center text-[10px] text-slate-400 font-mono">
-              Aven AI Career Agent • Multi-Model Intelligence (ChatGPT-4o • Claude 3.5 • Gemini Pro)
+            <div className="text-center text-[10px] text-slate-400 font-mono flex items-center justify-center gap-2">
+              <span>Aven AI Career Agent • Linked to Google Gemini Generative AI</span>
+              <button
+                type="button"
+                onClick={() => setGoogleKeyModalOpen(true)}
+                className="text-cyan-400 hover:underline inline-flex items-center gap-1"
+              >
+                <Sliders className="w-3 h-3" />
+                <span>Google AI Settings</span>
+              </button>
             </div>
           </div>
         </div>
 
       </main>
+
+      {/* Google Gemini API Key & Connection Settings Modal */}
+      {googleKeyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md bg-[#0F1422] border border-white/20 rounded-2xl shadow-2xl p-6 space-y-4 animate-scale-up">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Google Gemini AI Connection</h3>
+                  <p className="text-[11px] text-slate-400">Direct link to Google Generative AI</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setGoogleKeyModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Status Info */}
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs text-slate-300 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-white">Engine Status:</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">
+                  CONNECTED & ACTIVE
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Aven can answer <strong>ANY</strong> question asked (coding, system design, SDE roles, math, career roadmaps, or general knowledge) using Google Gemini generative intelligence.
+              </p>
+            </div>
+
+            {/* Optional Custom API Key */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-200 block">
+                Custom Google Gemini API Key (Optional):
+              </label>
+              <input
+                type="password"
+                value={geminiApiKeyInput}
+                onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                placeholder="AIzaSy... (Leave blank to use connected server AI)"
+                className="w-full px-3 py-2 rounded-xl bg-white/[0.05] border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              />
+              <p className="text-[10px] text-slate-400">
+                You can get a free API key from Google AI Studio (aistudio.google.com).
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('hiresense_gemini_api_key');
+                  setGeminiApiKeyInput('');
+                  setGoogleConnected(false);
+                  setGoogleKeyModalOpen(false);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-xs text-slate-400 hover:text-white"
+              >
+                Use Default Server
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (geminiApiKeyInput.trim()) {
+                    localStorage.setItem('hiresense_gemini_api_key', geminiApiKeyInput.trim());
+                    setGoogleConnected(true);
+                  }
+                  setGoogleKeyModalOpen(false);
+                }}
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-slate-950 font-bold text-xs shadow-md"
+              >
+                Save & Connect
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

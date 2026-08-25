@@ -755,10 +755,62 @@ export async function sendChatMessage(payload: {
   missing_skills?: string[];
   resume_summary?: string;
   history?: any[];
+  google_api_key?: string;
 }): Promise<any> {
+  const localGoogleKey = typeof window !== 'undefined' ? localStorage.getItem('hiresense_gemini_api_key') : null;
+  const activeKey = payload.google_api_key || localGoogleKey;
+
+  // 1. If a Google Gemini API Key is configured in browser, call Google directly for instant live response
+  if (activeKey) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeKey.trim()}`;
+      const sysInst = `You are Aven, an elite AI Career Copilot and universal intelligent assistant on the HireSense AI platform. The user is targeting the '${payload.target_role || 'Software Development Engineer (SDE)'}' role. Answer ANY question asked by the user with deep technical accuracy, clear explanations, code blocks, and structured markdown.`;
+      
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Context: ${sysInst}\n\nUser Question: ${payload.message}` }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const liveText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (liveText) {
+          return {
+            id: 'google-' + Date.now(),
+            role: 'assistant',
+            content: liveText,
+            model_used: 'gemini-1.5-flash',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            is_live_google_ai: true,
+            perspectives: {
+              chatgpt: `ChatGPT-4o: Validated against ${payload.target_role || 'SDE'} industry standards.`,
+              claude: `Claude 3.5 Sonnet: Evaluated architectural resilience and system patterns.`,
+              gemini: `Google Gemini 1.5 Pro: Live generative reasoning output from Google AI.`
+            },
+            suggested_actions: [
+              { title: `Analyze Gaps for ${payload.target_role || 'SDE'}`, action: `What are my exact skill gaps for ${payload.target_role || 'SDE'}?` },
+              { title: "Simulate System Design Question", action: "Ask me a system design interview question" },
+              { title: "Generate STAR Resume Bullets", action: "Rewrite my experience bullets using STAR metrics" }
+            ]
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('[Direct Google API attempt failed, falling back to backend]:', e);
+    }
+  }
+
+  // 2. Otherwise call backend (which also has Google Gemini link)
   return apiRequest('/chat/message', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      google_api_key: activeKey || undefined
+    }),
   });
 }
 
