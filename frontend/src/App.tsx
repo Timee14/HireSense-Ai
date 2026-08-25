@@ -16,7 +16,7 @@ import { RecruiterAnalyticsPage } from './pages/recruiter/RecruiterAnalyticsPage
 import { MatchRadarModal } from './components/ui/MatchRadarModal';
 import { FloatingAIChatWidget } from './components/ui/FloatingAIChatWidget';
 import { LumaBackground } from './components/ui/LumaBackground';
-import { apiRequest, uploadFile, getToken, setToken, removeToken, getNotifications, markNotificationAsRead } from './api/client';
+import { apiRequest, uploadFile, getToken, setToken, removeToken, getNotifications, markNotificationAsRead, DEFAULT_RESUME } from './api/client';
 import { User, CandidateProfile, RecruiterProfile, Resume, Job, JobRecommendation, Application, RecruiterAnalytics, JobCreate, NotificationItem } from './types';
 
 export const App: React.FC = () => {
@@ -84,36 +84,41 @@ export const App: React.FC = () => {
 
   const loadCandidateData = async () => {
     try {
-      const prof = await apiRequest<CandidateProfile>('/candidates/me');
-      setCandidateProfile(prof);
+      const prof = await apiRequest<CandidateProfile>('/candidates/me').catch(() => null);
+      if (prof) setCandidateProfile(prof);
       
       const r = await apiRequest<Resume>('/resumes/me').catch(() => null);
       if (r && r.analysis) {
         setResume(r);
+      } else {
+        setResume(DEFAULT_RESUME as any);
       }
 
       const recs = await apiRequest<JobRecommendation[]>('/candidates/me/recommendations').catch(() => []);
-      setRecommendations(recs);
+      if (recs && recs.length > 0) {
+        setRecommendations(recs);
+      }
 
       const apps = await apiRequest<Application[]>('/applications/candidate/my-applications').catch(() => []);
-      setCandidateApplications(apps);
+      if (apps) setCandidateApplications(apps);
 
       await loadNotifications();
     } catch (err) {
       console.error(err);
+      setResume(DEFAULT_RESUME as any);
     }
   };
 
   const loadRecruiterData = async () => {
     try {
       const jobs = await apiRequest<Job[]>('/jobs/recruiter/my-jobs').catch(() => []);
-      setRecruiterJobs(jobs);
+      if (jobs && jobs.length > 0) setRecruiterJobs(jobs);
 
       const analytics = await apiRequest<RecruiterAnalytics>('/analytics/recruiter').catch(() => null);
-      setRecruiterAnalytics(analytics);
+      if (analytics) setRecruiterAnalytics(analytics);
 
       const apps = await apiRequest<Application[]>('/applications/recruiter/all').catch(() => []);
-      setAllApplicants(apps);
+      if (apps) setAllApplicants(apps);
 
       await loadNotifications();
     } catch (err) {
@@ -153,6 +158,11 @@ export const App: React.FC = () => {
       };
       setUser(u);
       setActiveTab(targetTab || (isCandidate ? 'candidate_dash' : 'recruiter_dash'));
+      if (isCandidate) {
+        loadCandidateData();
+      } else {
+        loadRecruiterData();
+      }
     }
   };
 
@@ -182,6 +192,11 @@ export const App: React.FC = () => {
       const u: User = { id: 'user-01', email, role, name };
       setUser(u);
       setActiveTab(role === 'candidate' ? 'candidate_dash' : 'recruiter_dash');
+      if (role === 'candidate') {
+        loadCandidateData();
+      } else {
+        loadRecruiterData();
+      }
     }
   };
 
@@ -205,6 +220,7 @@ export const App: React.FC = () => {
       const u: User = { id: 'cand-demo-01', email, role: 'candidate', name: 'Alex Chen' };
       setUser(u);
       setActiveTab('candidate_dash');
+      loadCandidateData();
     }
   };
 

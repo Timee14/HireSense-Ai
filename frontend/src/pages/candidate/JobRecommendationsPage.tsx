@@ -8,23 +8,109 @@ interface JobRecommendationsPageProps {
   onOpenMatchModal: (rec: JobRecommendation) => void;
 }
 
+const DEFAULT_JOBS: JobRecommendation[] = [
+  {
+    job: {
+      id: "job-01",
+      recruiter_id: "rec-01",
+      company_name: "Tech Innovations Inc.",
+      title: "Senior Full-Stack Engineer",
+      location: "Bengaluru / Remote",
+      employment_type: "Full-time",
+      experience_level: "Senior (4+ yrs)",
+      salary_range: "₹28,00,000 - ₹34,00,000",
+      description: "Seeking an experienced Full-Stack Engineer skilled in Python, FastAPI, React, and PostgreSQL vector search architectures to lead scalable cloud services.",
+      status: "active",
+      required_skills: ["Python", "FastAPI", "React", "PostgreSQL", "Docker", "Redis"],
+      created_at: new Date().toISOString()
+    },
+    match_details: {
+      overall_score: 94,
+      skills_score: 95,
+      experience_score: 88,
+      projects_score: 90,
+      education_score: 92,
+      certifications_score: 85,
+      matched_skills: ["Python", "FastAPI", "React", "PostgreSQL", "Docker"],
+      missing_skills: ["Kubernetes"],
+      ai_explanation: "Exceptional match (94%) with your verified Python, FastAPI, and React experience. Highly recommended for 1-click apply."
+    }
+  },
+  {
+    job: {
+      id: "job-02",
+      recruiter_id: "rec-01",
+      company_name: "CloudScale Systems",
+      title: "Software Development Engineer (SDE-2)",
+      location: "Hyderabad / Hybrid",
+      employment_type: "Full-time",
+      experience_level: "Mid-Level (2-5 yrs)",
+      salary_range: "₹22,00,000 - ₹28,00,000",
+      description: "Core backend & microservice API development in Python, asynchronous worker queues, and distributed data pipelines.",
+      status: "active",
+      required_skills: ["Python", "FastAPI", "PostgreSQL", "System Design", "AWS"],
+      created_at: new Date().toISOString()
+    },
+    match_details: {
+      overall_score: 89,
+      skills_score: 92,
+      experience_score: 86,
+      projects_score: 88,
+      education_score: 90,
+      certifications_score: 80,
+      matched_skills: ["Python", "FastAPI", "PostgreSQL", "AWS"],
+      missing_skills: ["Kafka"],
+      ai_explanation: "Strong alignment with core backend engineering and API design requirements."
+    }
+  },
+  {
+    job: {
+      id: "job-03",
+      recruiter_id: "rec-02",
+      company_name: "NexusAI Labs",
+      title: "AI / ML Systems Engineer",
+      location: "San Francisco / Remote",
+      employment_type: "Full-time",
+      experience_level: "Mid-Senior",
+      salary_range: "$140,000 - $175,000",
+      description: "Building production LLM orchestration layers, pgvector embeddings search, and low-latency inference pipelines.",
+      status: "active",
+      required_skills: ["Python", "PyTorch", "pgvector", "FastAPI", "Docker"],
+      created_at: new Date().toISOString()
+    },
+    match_details: {
+      overall_score: 86,
+      skills_score: 88,
+      experience_score: 84,
+      projects_score: 87,
+      education_score: 85,
+      certifications_score: 80,
+      matched_skills: ["Python", "FastAPI", "pgvector", "Docker"],
+      missing_skills: ["PyTorch"],
+      ai_explanation: "Great potential match for generative AI and vector search infrastructure."
+    }
+  }
+];
+
 export const JobRecommendationsPage: React.FC<JobRecommendationsPageProps> = ({
-  recommendations,
+  recommendations = [],
   onApply,
   onOpenMatchModal,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [appliedMap, setAppliedMap] = useState<Record<string, boolean>>({});
 
+  const activeRecs = recommendations && recommendations.length > 0 ? recommendations : DEFAULT_JOBS;
+
   const handleApplyClick = (jobId: string) => {
     onApply(jobId);
     setAppliedMap((prev) => ({ ...prev, [jobId]: true }));
   };
 
-  const filtered = recommendations.filter((r) =>
-    r.job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.job.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.job.required_skills.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filtered = activeRecs.filter((r) =>
+    (r.job.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.job.company_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.job.required_skills || []).some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const featured = filtered[0];
@@ -171,6 +257,25 @@ export const JobRecommendationsPage: React.FC<JobRecommendationsPageProps> = ({
           </div>
         ))}
       </div>
+
+      {/* When no jobs match search */}
+      {filtered.length === 0 && (
+        <div className="luma-card p-12 text-center space-y-4 border border-white/15 shadow-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center mx-auto text-cyan-400">
+            <Search className="w-6 h-6" />
+          </div>
+          <h3 className="text-xl font-bold text-white">No Matching Openings Found</h3>
+          <p className="text-slate-400 text-xs max-w-md mx-auto">
+            Try searching for a different skill, title, or click reset to view all top-ranked recommendations.
+          </p>
+          <button
+            onClick={() => setSearchTerm('')}
+            className="btn-luma-primary text-xs px-5 py-2 !inline-flex"
+          >
+            Reset Search Filter
+          </button>
+        </div>
+      )}
 
     </div>
   );
