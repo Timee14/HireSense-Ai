@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles, Send, Bot, User, BrainCircuit, Target, BookOpen, FileText,
-  Copy, Check, RefreshCw, Trash2, Plus, Search, ChevronDown, CheckCircle2,
-  ArrowRight, ShieldCheck, Zap, MessageSquare, Terminal, Lightbulb, Compass,
-  Sliders, Mic, MicOff, ExternalLink, HelpCircle, Code, Layers
+  Copy, Check, RefreshCw, Trash2, Plus, Search, ChevronDown, ChevronRight,
+  CheckCircle2, ArrowRight, ShieldCheck, Zap, MessageSquare, Terminal, Lightbulb,
+  Compass, Sliders, Mic, MicOff, ExternalLink, HelpCircle, Code, Layers,
+  Paperclip, FolderPlus, Award, Network, Puzzle, Globe, X, Upload
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
 import { sendChatMessage, getChatSessions, clearChatHistory } from '../../api/client';
@@ -20,6 +21,8 @@ interface ChatMessage {
   content: string;
   model_used?: string;
   timestamp: string;
+  attached_file?: string;
+  web_search_enabled?: boolean;
   perspectives?: {
     chatgpt?: string;
     claude?: string;
@@ -37,7 +40,7 @@ interface ChatSession {
 }
 
 const AI_MODELS = [
-  { id: 'consensus', name: 'HireSense Consensus', badge: 'Multi-AI', desc: 'Synthesizes ChatGPT, Claude & Gemini', color: 'from-cyan-500 to-emerald-500' },
+  { id: 'consensus', name: 'Aven Consensus', badge: 'Multi-AI', desc: 'Synthesizes ChatGPT, Claude & Gemini', color: 'from-cyan-500 to-emerald-500' },
   { id: 'chatgpt-4o', name: 'ChatGPT-4o', badge: 'OpenAI', desc: 'ATS resume formatting & STAR metrics', color: 'from-emerald-500 to-teal-500' },
   { id: 'claude-3-5', name: 'Claude 3.5 Sonnet', badge: 'Anthropic', desc: 'Deep systems design & architecture', color: 'from-amber-500 to-orange-500' },
   { id: 'gemini-pro', name: 'Gemini 1.5 Pro', badge: 'Google DeepMind', desc: 'Market tech trends & keyword calibration', color: 'from-blue-500 to-indigo-500' },
@@ -54,8 +57,17 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
   const [inputQuery, setInputQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activePerspectiveTab, setActivePerspectiveTab] = useState<Record<string, 'chatgpt' | 'claude' | 'gemini'>>({});
   
+  // + Action Menu State & Attachment Controls
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
+  const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
+  const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(true);
+  const [attachedFile, setAttachedFile] = useState<{ name: string; size: string } | null>(null);
+  const [activeProjectContext, setActiveProjectContext] = useState<string | null>(null);
+  const [activePlugin, setActivePlugin] = useState<string | null>('ATS Calibrator');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const actionMenuRef = useRef<HTMLDivElement | null>(null);
+
   // Voice Recording Simulation State
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
@@ -69,6 +81,30 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Close + Action Menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
+        setIsActionMenuOpen(false);
+        setActiveSubMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Keyboard shortcut Ctrl+U for file upload
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+        fileInputRef.current?.click();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Extract skills from resume
   const candidateSkills = resume?.analysis?.extracted_skills || [
@@ -99,24 +135,24 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
     const welcomeMsg: ChatMessage = {
       id: 'welcome-msg',
       role: 'assistant',
-      content: `### 🤖 Welcome to HireSense AI Career & Upskilling Copilot!
+      content: `### 🤖 Hello! I am Aven, your AI Career & Upskilling Copilot.
 
-I am your multi-model career coach combining insights from **OpenAI ChatGPT-4o**, **Anthropic Claude 3.5 Sonnet**, and **Google Gemini Pro**.
+I combine deep multi-model intelligence (**ChatGPT-4o**, **Claude 3.5 Sonnet**, and **Google Gemini Pro**) to help you analyze skill gaps, optimize your resume for ATS filters, and prepare for top engineering interviews.
 
-I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**) and calibrated your profile against the **${targetRole}** role.
+I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**) against **${targetRole}**.
 
-#### 💡 How I can help you accelerate your hiring readiness:
-* 🎯 **Skill Gap Analysis**: Identify exact missing technologies and frameworks required by recruiters.
-* 📝 **STAR Metric Optimization**: Transform passive bullet points into high-impact quantifiable outcomes.
-* 🚀 **30-Day Upskilling Roadmap**: Structured study plan and mini-projects to reach candidate shortlist tier.
-* 🎙️ **Multi-AI Mock Interviews**: Practice role-specific technical and behavioral questions.
+#### 💡 Here is what we can do:
+* 🎯 **Skill Gap Analysis**: Discover missing technologies required by hiring managers.
+* 📝 **STAR Metric Optimization**: Transform passive bullet points into high-impact quantified achievements.
+* 🚀 **30-Day Learning Roadmap**: Structured study plan and mini-projects to reach candidate shortlist tier.
+* 📎 **Attach Resumes & Files**: Use the **\`+\` menu** below to add documents, inject skills, or enable live Web search.
 
-*Click one of the prompt shortcuts below or ask any question to get started!*`,
+*Click one of the prompt shortcuts below or write a message to begin!*`,
       model_used: 'consensus',
       timestamp: 'Just now',
       perspectives: {
-        chatgpt: `ChatGPT-4o: Ask me to re-craft your experience section to achieve 95+ ATS pass rate.`,
-        claude: `Claude 3.5 Sonnet: Let's explore system design trade-offs and microservice failure patterns.`,
+        chatgpt: `ChatGPT-4o: Ask Aven to rewrite your experience bullets to achieve a 95+ ATS score.`,
+        claude: `Claude 3.5 Sonnet: Let's analyze system design trade-offs and microservice architecture.`,
         gemini: `Gemini Flash: I will cross-reference your skills with live market compensation and job demand indexes.`
       },
       suggested_actions: [
@@ -133,6 +169,19 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      setAttachedFile({
+        name: file.name,
+        size: `${sizeMb} MB`
+      });
+      setIsActionMenuOpen(false);
+      setActiveSubMenu(null);
+    }
+  };
+
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || inputQuery).trim();
     if (!query || loading) return;
@@ -141,16 +190,20 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
       id: 'user-' + Date.now(),
       role: 'user',
       content: query,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      attached_file: attachedFile ? attachedFile.name : undefined,
+      web_search_enabled: webSearchEnabled
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputQuery('');
+    const currentAttachment = attachedFile;
+    setAttachedFile(null);
     setLoading(true);
 
     try {
       const response = await sendChatMessage({
-        message: query,
+        message: query + (currentAttachment ? ` [Attached document: ${currentAttachment.name}]` : '') + (webSearchEnabled ? ' [Web Search: Enabled]' : ''),
         model: selectedModel,
         target_role: targetRole,
         candidate_skills: candidateSkills,
@@ -176,7 +229,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
       const fallbackMsg: ChatMessage = {
         id: 'bot-' + Date.now(),
         role: 'assistant',
-        content: `### 🎯 AI Recommendations for ${targetRole}\n\n* **Primary Gap to Close**: Add Redis caching and Kubernetes Helm deployment to your project experience.\n* **Quantify Impact**: Use formulas like *"Reduced latency by 38% for 50,000+ daily requests"*.\n* **Next Step**: Check the **Skill Gaps** tab to view benchmark radar score.`,
+        content: `### 🎯 Aven AI Recommendations for ${targetRole}\n\n* **Primary Gap to Close**: Add Redis caching and Kubernetes Helm deployment to your project experience.\n* **Quantify Impact**: Use formulas like *"Reduced latency by 38% for 50,000+ daily requests"*.\n* **Next Step**: Check the **Skill Gaps** tab to view benchmark radar score.`,
         model_used: selectedModel,
         timestamp: 'Just now',
         perspectives: {
@@ -195,7 +248,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
     const newSessId = 'sess-' + Date.now();
     const newSession: ChatSession = {
       id: newSessId,
-      title: `💬 New Consultation (${targetRole.split(' ')[0]})`,
+      title: `💬 Consultation with Aven (${targetRole.split(' ')[0]})`,
       created_at: 'Just now',
       message_count: 1
     };
@@ -205,7 +258,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
   };
 
   const handleClearHistory = async () => {
-    if (window.confirm('Are you sure you want to clear all chat conversations?')) {
+    if (window.confirm('Are you sure you want to clear all Aven chat conversations?')) {
       await clearChatHistory();
       setSessions([]);
       initializeWelcome();
@@ -220,9 +273,9 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
 
   const handleEnhancePrompt = () => {
     if (!inputQuery.trim()) {
-      setInputQuery(`Analyze my resume against the ${targetRole} job requirements, identify missing keywords, and suggest 3 high-impact STAR bullet points.`);
+      setInputQuery(`Aven, analyze my resume against the ${targetRole} job requirements, identify missing keywords, and suggest 3 high-impact STAR bullet points.`);
     } else {
-      setInputQuery(`Act as a Senior Principal Engineering Hiring Manager. For the role of ${targetRole}, analyze: "${inputQuery}". Provide multi-AI feedback with quantified metrics and system design trade-offs.`);
+      setInputQuery(`Act as a Principal Engineering Hiring Manager. For the role of ${targetRole}, analyze: "${inputQuery}". Provide multi-AI feedback with quantified metrics and system design trade-offs.`);
     }
   };
 
@@ -231,7 +284,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
       setIsRecording(false);
     } else {
       setIsRecording(true);
-      setInputQuery('How can I optimize my backend FastAPI project to impress recruiters hiring for Senior roles?');
+      setInputQuery('Aven, how can I optimize my backend FastAPI project to impress recruiters hiring for Senior roles?');
       setTimeout(() => {
         setIsRecording(false);
       }, 2500);
@@ -245,7 +298,16 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
   return (
     <div className="min-h-[calc(100vh-80px)] flex flex-col lg:flex-row bg-[#080B11] text-slate-100 relative overflow-hidden">
       
-      {/* SIDEBAR: CHAT HISTORY & AGENT SETTINGS */}
+      {/* Hidden File Input for Attachments */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.json"
+        className="hidden"
+      />
+
+      {/* SIDEBAR: CHAT HISTORY & AVEN SETTINGS */}
       <aside className={`w-full lg:w-72 shrink-0 border-r border-white/10 bg-[#0B0F19]/90 backdrop-blur-xl flex flex-col transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden lg:flex'}`}>
         
         {/* Sidebar Header */}
@@ -255,7 +317,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-[0.99]"
           >
             <Plus className="w-4 h-4" />
-            <span>New Career Consultation</span>
+            <span>New Chat with Aven</span>
           </button>
 
           {/* Search History */}
@@ -299,14 +361,14 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
         <div className="p-3 border-t border-white/10 space-y-2 bg-black/20">
           <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <Bot className="w-4 h-4 text-cyan-400" />
               <div>
-                <div className="text-[11px] font-bold text-white">HireSense Pro AI</div>
+                <div className="text-[11px] font-bold text-white">Aven AI Career Agent</div>
                 <div className="text-[9px] text-slate-400 font-mono">Consensus Multi-Engine</div>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">
-              ACTIVE
+              ONLINE
             </span>
           </div>
 
@@ -315,7 +377,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
             className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 text-xs transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear Chat History</span>
+            <span>Delete Chat History</span>
           </button>
         </div>
       </aside>
@@ -377,21 +439,21 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
             <div className="max-w-3xl mx-auto space-y-4 pt-2">
               <div className="text-center space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-mono text-xs font-semibold">
-                  <BrainCircuit className="w-3.5 h-3.5" />
-                  <span>Interactive Career Intelligence Hub</span>
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>Aven Career & Upskilling Hub</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
-                  How can I help you upskill today?
+                  What can Aven help you accomplish?
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-400">
-                  Select a targeted prompt below or ask custom questions regarding your resume & skill gaps.
+                  Select a targeted prompt below or write a custom query to start your AI coaching session.
                 </p>
               </div>
 
               {/* Prompt Suggestion Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <button
-                  onClick={() => handleSendMessage(`What are my exact skill gaps for ${targetRole} and what projects should I build to bridge them?`)}
+                  onClick={() => handleSendMessage(`Aven, what are my exact skill gaps for ${targetRole} and what projects should I build to bridge them?`)}
                   className="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-cyan-500/40 text-left transition-all group space-y-1"
                 >
                   <div className="flex items-center justify-between text-cyan-400 font-bold text-xs">
@@ -406,7 +468,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
                 </button>
 
                 <button
-                  onClick={() => handleSendMessage(`Rewrite my top software experience bullets using the STAR method and strong action verbs with quantified numbers.`)}
+                  onClick={() => handleSendMessage(`Aven, rewrite my top software experience bullets using the STAR method and strong action verbs with quantified numbers.`)}
                   className="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-emerald-500/40 text-left transition-all group space-y-1"
                 >
                   <div className="flex items-center justify-between text-emerald-400 font-bold text-xs">
@@ -421,7 +483,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
                 </button>
 
                 <button
-                  onClick={() => handleSendMessage(`Create a 30-day accelerated learning roadmap for ${targetRole} with weekly milestones.`)}
+                  onClick={() => handleSendMessage(`Aven, create a 30-day accelerated learning roadmap for ${targetRole} with weekly milestones.`)}
                   className="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-purple-500/40 text-left transition-all group space-y-1"
                 >
                   <div className="flex items-center justify-between text-purple-400 font-bold text-xs">
@@ -436,7 +498,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
                 </button>
 
                 <button
-                  onClick={() => handleSendMessage(`Simulate a senior technical interview for ${targetRole}. Ask me a difficult system design question.`)}
+                  onClick={() => handleSendMessage(`Aven, simulate a senior technical interview for ${targetRole}. Ask me a difficult system design question.`)}
                   className="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-amber-500/40 text-left transition-all group space-y-1"
                 >
                   <div className="flex items-center justify-between text-amber-400 font-bold text-xs">
@@ -479,15 +541,28 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
                 {/* Header info */}
                 <div className="flex items-center justify-between text-xs pb-1 border-b border-white/10">
                   <span className="font-bold flex items-center gap-1.5 font-sans">
-                    {msg.role === 'user' ? 'You' : 'HireSense AI Career Intelligence'}
+                    {msg.role === 'user' ? 'You' : 'Aven AI Assistant'}
                     {msg.model_used && (
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-cyan-300 font-normal">
                         {msg.model_used.toUpperCase()}
                       </span>
                     )}
+                    {msg.web_search_enabled && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 flex items-center gap-1">
+                        <Globe className="w-3 h-3" /> Web
+                      </span>
+                    )}
                   </span>
                   <span className="text-[11px] opacity-60 font-mono">{msg.timestamp}</span>
                 </div>
+
+                {/* Attached Document Pill (If user attached file) */}
+                {msg.attached_file && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 border border-white/20 text-xs text-slate-200">
+                    <Paperclip className="w-3.5 h-3.5 text-cyan-300" />
+                    <span>Attached: {msg.attached_file}</span>
+                  </div>
+                )}
 
                 {/* Main Text Content */}
                 <div className="prose prose-invert prose-sm max-w-none text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
@@ -596,7 +671,7 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
               </div>
               <div className="p-4 rounded-2xl bg-white/[0.05] border border-white/10 text-xs text-cyan-300 flex items-center gap-2">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Consulting multi-AI models (ChatGPT-4o, Claude 3.5, Gemini Pro)...</span>
+                <span>Aven is consulting multi-AI models (ChatGPT-4o, Claude 3.5, Gemini Pro)...</span>
               </div>
             </div>
           )}
@@ -604,80 +679,320 @@ I have reviewed your resume (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}**)
           <div ref={chatEndRef} />
         </div>
 
-        {/* BOTTOM INPUT BAR (Styled like DeepAI/ChatGPT in user's screenshot) */}
-        <div className="p-4 border-t border-white/10 bg-[#0B0F19]/95 backdrop-blur-xl shrink-0">
+        {/* BOTTOM INPUT BAR WITH '+' ACTION MENU (Exactly matching user screenshot!) */}
+        <div className="p-4 border-t border-white/10 bg-[#0B0F19]/95 backdrop-blur-xl shrink-0 relative">
           <div className="max-w-4xl mx-auto space-y-2">
             
-            {/* Quick Context Pill Banner */}
+            {/* Quick Context Banner & Attached File Chip */}
             <div className="flex items-center justify-between text-[11px] px-1 text-slate-400">
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-slate-300">
-                  <FileText className="w-3 h-3 text-cyan-400" />
-                  <span>Resume: {resume?.file_name || 'Active Resume'}</span>
-                </span>
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-slate-300">
-                  <Target className="w-3 h-3 text-emerald-400" />
-                  <span>Target: {targetRole}</span>
-                </span>
+                {attachedFile ? (
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-semibold animate-scale-up">
+                    <Paperclip className="w-3.5 h-3.5" />
+                    <span>{attachedFile.name} ({attachedFile.size})</span>
+                    <button
+                      type="button"
+                      onClick={() => setAttachedFile(null)}
+                      className="p-0.5 hover:text-white rounded-full hover:bg-cyan-500/40"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-slate-300">
+                    <FileText className="w-3 h-3 text-cyan-400" />
+                    <span>Resume: {resume?.file_name || 'Active Resume'}</span>
+                  </span>
+                )}
+
+                {activeProjectContext && (
+                  <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-semibold">
+                    <FolderPlus className="w-3 h-3" />
+                    <span>Project: {activeProjectContext}</span>
+                  </span>
+                )}
+
+                {webSearchEnabled && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 font-mono text-[10px]">
+                    <Globe className="w-3 h-3" />
+                    <span>Web Search: ON</span>
+                  </span>
+                )}
               </div>
 
               <button
                 type="button"
                 onClick={handleEnhancePrompt}
-                className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-1 hover:underline"
+                className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-1 hover:underline shrink-0"
               >
                 <Sparkles className="w-3 h-3" />
                 <span>Enhance Prompt</span>
               </button>
             </div>
 
-            {/* Input Box and Action Controls */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendMessage();
-              }}
-              className="relative flex items-center gap-2 p-1.5 rounded-2xl bg-white/[0.05] border border-white/20 focus-within:border-cyan-400/60 focus-within:bg-white/[0.08] transition-all shadow-xl"
-            >
-              {/* Voice Input Toggle Button */}
-              <button
-                type="button"
-                onClick={handleToggleVoice}
-                className={`p-2.5 rounded-xl transition-all ${
-                  isRecording
-                    ? 'bg-rose-500 text-white animate-pulse'
-                    : 'text-slate-400 hover:text-white hover:bg-white/10'
-                }`}
-                title="Voice Input (Speech-to-Text)"
-              >
-                {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              </button>
+            {/* Input Form with Action Menu Trigger */}
+            <div className="relative" ref={actionMenuRef}>
+              
+              {/* '+' ATTACHMENT DROPDOWN CONTEXT MENU (Styled like user screenshot!) */}
+              {isActionMenuOpen && (
+                <div className="absolute bottom-full left-0 mb-3 w-64 sm:w-72 bg-[#121826] border border-white/15 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 space-y-0.5 animate-scale-up backdrop-blur-2xl">
+                  
+                  {/* 1. Add files or photos */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                    }}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.08] text-xs text-slate-200 transition-colors group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Paperclip className="w-4 h-4 text-cyan-400" />
+                      <span className="font-semibold text-white">Add files or photos</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400 bg-white/10 px-1.5 py-0.5 rounded">Ctrl + U</span>
+                  </button>
 
-              {/* Main Input Text Field */}
-              <input
-                type="text"
-                value={inputQuery}
-                onChange={(e) => setInputQuery(e.target.value)}
-                placeholder={`Ask AI to analyze skill gaps for ${targetRole}, rewrite resume, or explain concepts...`}
-                className="flex-1 bg-transparent px-2 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
-              />
+                  {/* 2. Add to project > */}
+                  <div className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSubMenu(activeSubMenu === 'project' ? null : 'project')}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.08] text-xs text-slate-200 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <FolderPlus className="w-4 h-4 text-purple-400" />
+                        <span className="font-semibold text-white">Add to project</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading || !inputQuery.trim()}
-                className={`p-2.5 rounded-xl transition-all ${
-                  inputQuery.trim() && !loading
-                    ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-md active:scale-95'
-                    : 'bg-white/10 text-slate-500 cursor-not-allowed'
-                }`}
+                    {/* Submenu */}
+                    {activeSubMenu === 'project' && (
+                      <div className="pl-6 pr-2 py-1.5 space-y-1 bg-black/30 rounded-xl mb-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveProjectContext('Senior Full-Stack Sprints');
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-slate-300 hover:text-cyan-300 rounded hover:bg-white/5"
+                        >
+                          📁 Senior Full-Stack Sprints
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveProjectContext('Backend API Optimization');
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-slate-300 hover:text-cyan-300 rounded hover:bg-white/5"
+                        >
+                          📁 Backend API Optimization
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Skills > */}
+                  <div className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSubMenu(activeSubMenu === 'skills' ? null : 'skills')}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.08] text-xs text-slate-200 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Award className="w-4 h-4 text-emerald-400" />
+                        <span className="font-semibold text-white">Skills</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+
+                    {/* Submenu */}
+                    {activeSubMenu === 'skills' && (
+                      <div className="pl-6 pr-2 py-1.5 space-y-1 bg-black/30 rounded-xl mb-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInputQuery(`Aven, analyze my proficiency in ${candidateSkills.slice(0, 4).join(', ')} for ${targetRole}.`);
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-emerald-300 hover:underline rounded hover:bg-white/5 font-semibold"
+                        >
+                          ⚡ Inject All Verified Resume Skills
+                        </button>
+                        <div className="flex flex-wrap gap-1 p-1">
+                          {candidateSkills.slice(0, 6).map(s => (
+                            <span key={s} className="px-2 py-0.5 rounded bg-white/10 text-[10px] text-slate-300 font-mono">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Add connector > */}
+                  <div className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSubMenu(activeSubMenu === 'connector' ? null : 'connector')}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.08] text-xs text-slate-200 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Network className="w-4 h-4 text-amber-400" />
+                        <span className="font-semibold text-white">Add connector</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+
+                    {/* Submenu */}
+                    {activeSubMenu === 'connector' && (
+                      <div className="pl-6 pr-2 py-1.5 space-y-1 bg-black/30 rounded-xl mb-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInputQuery('Aven, analyze my GitHub repository code structure and suggest improvements for technical recruiters.');
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-slate-300 hover:text-amber-300 rounded hover:bg-white/5"
+                        >
+                          🔗 GitHub Repository
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInputQuery('Aven, review my LinkedIn headline and summary for maximum recruiter reach.');
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-slate-300 hover:text-amber-300 rounded hover:bg-white/5"
+                        >
+                          🔗 LinkedIn Profile
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 5. Add plugins... */}
+                  <div className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSubMenu(activeSubMenu === 'plugins' ? null : 'plugins')}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.08] text-xs text-slate-200 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Puzzle className="w-4 h-4 text-pink-400" />
+                        <span className="font-semibold text-white">Add plugins...</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+
+                    {activeSubMenu === 'plugins' && (
+                      <div className="pl-6 pr-2 py-1.5 space-y-1 bg-black/30 rounded-xl mb-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActivePlugin('ATS Resume Calibrator');
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-slate-300 hover:text-pink-300 rounded hover:bg-white/5 flex items-center justify-between"
+                        >
+                          <span>✨ ATS Resume Calibrator</span>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActivePlugin('LeetCode Interview Grader');
+                            setIsActionMenuOpen(false);
+                          }}
+                          className="w-full text-left p-1.5 text-[11px] text-slate-300 hover:text-pink-300 rounded hover:bg-white/5"
+                        >
+                          <span>🧩 LeetCode Interview Grader</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-white/10 my-1"></div>
+
+                  {/* 6. Web search (Checkbox toggle from screenshot!) */}
+                  <button
+                    type="button"
+                    onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.08] text-xs text-slate-200 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Globe className="w-4 h-4 text-blue-400" />
+                      <span className="font-semibold text-white">Web search</span>
+                    </div>
+                    {webSearchEnabled && <Check className="w-4 h-4 text-blue-400 font-bold" />}
+                  </button>
+
+                </div>
+              )}
+
+              {/* Main Form Input Bar with '+' Button */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+                className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/[0.05] border border-white/20 focus-within:border-cyan-400/60 focus-within:bg-white/[0.08] transition-all shadow-xl"
               >
-                <Send className="w-4 h-4" />
-              </button>
-            </form>
+                {/* '+' Attachment Action Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsActionMenuOpen(!isActionMenuOpen)}
+                  className={`p-2.5 rounded-xl transition-all ${
+                    isActionMenuOpen
+                      ? 'bg-cyan-500 text-slate-950 shadow-md rotate-45'
+                      : 'text-slate-400 hover:text-white hover:bg-white/10'
+                  }`}
+                  title="Add files, project context, skills, connectors, or web search"
+                >
+                  <Plus className="w-4 h-4 transition-transform" />
+                </button>
+
+                {/* Main Input Text Field */}
+                <input
+                  type="text"
+                  value={inputQuery}
+                  onChange={(e) => setInputQuery(e.target.value)}
+                  placeholder="Write a message..."
+                  className="flex-1 bg-transparent px-2 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
+                />
+
+                {/* Voice Input Toggle Button */}
+                <button
+                  type="button"
+                  onClick={handleToggleVoice}
+                  className={`p-2.5 rounded-xl transition-all ${
+                    isRecording
+                      ? 'bg-rose-500 text-white animate-pulse'
+                      : 'text-slate-400 hover:text-white hover:bg-white/10'
+                  }`}
+                  title="Voice Input (Speech-to-Text)"
+                >
+                  {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </button>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading || !inputQuery.trim()}
+                  className={`p-2.5 rounded-xl transition-all ${
+                    inputQuery.trim() && !loading
+                      ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-md active:scale-95'
+                      : 'bg-white/10 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
 
             <div className="text-center text-[10px] text-slate-400 font-mono">
-              HireSense Multi-AI Engine calibrated against verified ATS algorithms and hiring benchmark data.
+              Aven AI Career Agent • Multi-Model Intelligence (ChatGPT-4o • Claude 3.5 • Gemini Pro)
             </div>
           </div>
         </div>

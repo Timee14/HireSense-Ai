@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const candidateTabs: TabItem[] = [
     { title: "Dashboard", icon: LayoutDashboard },
-    { title: "AI Chatbot", icon: Bot },
+    { title: "Aven AI", icon: Bot },
     { title: "AI Interview", icon: BrainCircuit },
     { title: "Resume Analyzer", icon: FileText },
     { title: "Job Matches", icon: Briefcase },
@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const candidateTabItems = [
     { key: 'candidate_dash', title: "Dashboard", icon: LayoutDashboard },
-    { key: 'ai_chatbot', title: "AI Career Chatbot Hub", icon: Bot },
+    { key: 'ai_chatbot', title: "Aven AI Career Hub", icon: Bot },
     { key: 'ai_interview', title: "AI Interview Studio", icon: BrainCircuit },
     { key: 'resume_analyzer', title: "Resume Analyzer", icon: FileText },
     { key: 'job_recs', title: "Job Matches", icon: Briefcase },
