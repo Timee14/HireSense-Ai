@@ -1627,9 +1627,9 @@ Follow this structured weekly progression to master missing skills and reach can
                     {"week": "Week 4", "topic": "CI/CD & Live Cloud Deployment", "hours": "6 hrs"}
                 ]
             else:
-                content = f"""### 🤖 HireSense AI Career Strategy Assistant
+                content = f"""### 🤖 Aven — AI Career & Upskilling Copilot
 
-Hello! I am your AI career copilot, powered by multi-model intelligence (**ChatGPT-4o**, **Claude 3.5 Sonnet**, and **Google Gemini**).
+Hello! I am **Aven**, your AI career copilot, powered by multi-model intelligence (**ChatGPT-4o**, **Claude 3.5 Sonnet**, and **Google Gemini**).
 
 Here are key ways I can help you secure your next role as **{target_role}**:
 
