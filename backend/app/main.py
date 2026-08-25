@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.session import engine, Base
 from app.db.base import *  # Ensure all models are registered
-from app.routers import auth, candidates, recruiters, resumes, jobs, applications, matching, analytics, skills
+from app.routers import auth, candidates, recruiters, resumes, jobs, applications, matching, analytics, skills, chat
 
 # Create database tables automatically
 Base.metadata.create_all(bind=engine)
@@ -32,6 +32,7 @@ app.include_router(applications.router, prefix=settings.API_V1_STR)
 app.include_router(matching.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(skills.router, prefix=settings.API_V1_STR)
+app.include_router(chat.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
