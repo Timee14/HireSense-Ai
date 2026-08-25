@@ -1541,10 +1541,29 @@ The Talent Acquisition Team
             if not msg:
                 return self._json_response({"detail": "Message cannot be empty"}, 400)
             
-            target_role = body.get("target_role") or "Senior Full-Stack Engineer"
+            raw_target_role = body.get("target_role") or "Software Development Engineer (SDE)"
+            msg_lower = msg.lower()
+            
+            # Dynamic role detection
+            if re.search(r'\b(sde|sde[- ]?[123]|software development engineer|software dev engineer)\b', msg_lower):
+                target_role = "Software Development Engineer (SDE)"
+            elif re.search(r'\b(frontend|front-end|react|ui engineer|ui developer)\b', msg_lower):
+                target_role = "Frontend Engineer"
+            elif re.search(r'\b(backend|back-end|python developer|fastapi|django|golang|java engineer)\b', msg_lower):
+                target_role = "Backend Engineer"
+            elif re.search(r'\b(fullstack|full-stack|full stack)\b', msg_lower):
+                target_role = "Full-Stack Engineer"
+            elif re.search(r'\b(devops|sre|site reliability|cloud engineer|platform engineer)\b', msg_lower):
+                target_role = "DevOps & Cloud Engineer"
+            elif re.search(r'\b(data engineer|etl|big data|spark|snowflake)\b', msg_lower):
+                target_role = "Data Engineer"
+            elif re.search(r'\b(data scientist|machine learning|ml engineer|ai engineer|nlp)\b', msg_lower):
+                target_role = "AI & Machine Learning Engineer"
+            else:
+                target_role = raw_target_role
+
             skills = body.get("candidate_skills") or ["Python", "FastAPI", "React", "TypeScript", "PostgreSQL", "Docker"]
             missing = body.get("missing_skills") or ["Kubernetes", "Redis Caching", "System Design", "AWS Lambda", "GraphQL"]
-            msg_lower = msg.lower()
             
             chatgpt_p = ""
             claude_p = ""
@@ -1553,7 +1572,74 @@ The Talent Acquisition Team
             suggested_actions = []
             roadmap_items = []
 
-            if "gap" in msg_lower or "missing" in msg_lower or "role" in msg_lower:
+            # 1. Role overview / "tell me about the sde role"
+            if any(phrase in msg_lower for phrase in ["tell me about", "what is", "explain", "about the", "role overview", "responsibilities of", "what does a", "how to become", "guide for"]) and any(w in msg_lower for w in ["sde", "role", "engineer", "developer", "job", "position"]):
+                if "sde" in target_role.lower() or "software development" in target_role.lower():
+                    content = f"""### 👨‍💻 Complete Guide: **Software Development Engineer (SDE)** Role
+
+A **Software Development Engineer (SDE)** is a core software engineering professional responsible for designing, developing, scaling, and maintaining software applications, robust backend microservices, and distributed cloud systems.
+
+---
+
+#### 📌 1. Core Responsibilities
+* **Architecture & Development**: Write clean, modular, high-performance code in modern languages (Python, Java, Go, TypeScript, C++).
+* **System Design (HLD/LLD)**: Architect scalable REST/gRPC APIs, database schemas (SQL/NoSQL), and caching layers.
+* **Reliability & Scalability**: Build fault-tolerant systems with high availability (99.99% uptime), idempotency, and automated CI/CD deployment pipelines.
+* **Testing & Quality Assurance**: Write rigorous unit, integration, and contract tests (Pytest, Jest, Docker testcontainers).
+
+---
+
+#### 📈 2. SDE Career Hierarchy & Levels
+| Level | Title | Primary Focus & Expectations |
+| :--- | :--- | :--- |
+| **SDE-1** | Junior / Entry-Level | Focus on task execution, bug fixes, unit testing, and mastering DSA & framework conventions. |
+| **SDE-2** | Mid-Level Engineer | Autonomous feature ownership, Low-Level Design (LLD), DB indexing, and microservice integration. |
+| **SDE-3** | Senior Engineer | Distributed High-Level Design (HLD), architectural RFCs, performance optimizations, and team mentorship. |
+| **Staff / Principal** | Technical Leader | Multi-team system architecture, cross-organizational technical roadmap, and engineering culture. |
+
+---
+
+#### 🛠️ 3. SDE Interview Assessment Rounds
+1. **Online Assessment (OA)**: 2–3 algorithmic Data Structures & Algorithms problems (LeetCode Medium-Hard).
+2. **Technical Problem Solving (DSA)**: Binary Trees, Graphs, Dynamic Programming, Heap/Two-Pointer optimization.
+3. **System Design (LLD & HLD)**: Designing a Rate Limiter, URL Shortener, Uber Matching Engine, or E-Commerce Cart.
+4. **Behavioral & Leadership (STAR Method)**: Deep-dive into technical disagreements, production outage retrospectives, and ownership.
+
+---
+
+#### 💡 4. How Your Resume Aligns with SDE:
+* **Current Core Strengths**: {', '.join(skills[:4])}
+* **Recommended Next Step**: Practice High-Level System Design and add Redis/Kubernetes metrics to reach top candidate percentiles.
+"""
+                    chatgpt_p = "ChatGPT-4o: For SDE applications, recruiters look for 2 things immediately: solid DSA fundamentals and clear quantifiable STAR metrics on past software deliverables."
+                    claude_p = "Claude 3.5 Sonnet: SDE-2+ interviews heavily weigh systems thinking: explain trade-offs (e.g. CAP theorem, caching strategies, and eventual vs strong consistency)."
+                    gemini_p = "Gemini Flash / Pro: Current industry demand for SDEs favors engineers proficient in cloud-native microservices, async APIs, and PostgreSQL/vector search architectures."
+                    
+                    suggested_actions = [
+                        {"title": "Analyze My Skill Gaps for SDE", "action": "What are my exact skill gaps for the SDE role?"},
+                        {"title": "Simulate SDE System Design Question", "action": "Ask me an SDE System Design interview question"},
+                        {"title": "Generate SDE STAR Resume Bullets", "action": "Rewrite my resume experience bullets for an SDE position"}
+                    ]
+                else:
+                    content = f"""### 🎯 Complete Overview: **{target_role}**
+
+A **{target_role}** is responsible for delivering end-to-end technical solutions, driving feature velocity, and ensuring platform reliability.
+
+#### 📌 Key Responsibilities:
+1. **Engineering Execution**: Architecting scalable components, APIs, and infrastructure.
+2. **Technical Standards**: Code reviews, automated testing, and CI/CD pipelines.
+3. **Collaboration**: Partnering with product, design, and operations teams to translate business requirements into software.
+"""
+                    chatgpt_p = f"ChatGPT-4o: Focus on ATS keyword alignment and quantified project outcomes for {target_role}."
+                    claude_p = f"Claude 3.5 Sonnet: Emphasize trade-offs, architecture patterns, and resilience for {target_role}."
+                    gemini_p = f"Gemini Flash: Industry demand index for {target_role} is high with top recruiter calibration scores."
+                    suggested_actions = [
+                        {"title": f"Skill Gaps for {target_role}", "action": f"What are my exact skill gaps for {target_role}?"},
+                        {"title": f"30-Day {target_role} Roadmap", "action": f"Create a 30-day learning roadmap for {target_role}"}
+                    ]
+
+            # 2. Skill Gap Analysis
+            elif any(w in msg_lower for w in ["gap", "missing", "lacking", "weakness", "how do i qualify"]):
                 content = f"""### 🎯 Precision Skill Gap Breakdown for **{target_role}**
 
 Based on your current resume profile and benchmark job requirements for **{target_role}**, here is your exact gap analysis:
@@ -1576,19 +1662,21 @@ Based on your current resume profile and benchmark job requirements for **{targe
                 gemini_p = f"Gemini Flash / Pro: Market hiring trend data for {target_role} shows a 34% increase in demand for {', '.join(missing[:3])}. Adding these will boost your ATS match score by +12 points."
                 
                 suggested_actions = [
-                    {"title": f"Add {missing[0] if missing else 'Kubernetes'} to Resume", "action": "Insert container orchestration project bullet point"},
-                    {"title": "Practice System Design", "action": "Simulate mock design interview for rate limiters"},
-                    {"title": "Explore Recommended Course", "action": "FastAPI + Redis Microservices Mastery"}
+                    {"title": f"Practice {target_role} System Design", "action": "Simulate mock design interview for rate limiters"},
+                    {"title": "Add Missing Skills to Resume", "action": "Show me how to add Redis and Kubernetes to my resume"},
+                    {"title": "Explore SDE Learning Roadmap", "action": f"Create a 30-day upskilling roadmap for {target_role}"}
                 ]
-            elif "upskill" in msg_lower or "resume" in msg_lower or "bullet" in msg_lower or "star" in msg_lower:
-                content = f"""### 📝 AI Resume Transformation & STAR Metric Optimization
+
+            # 3. Resume / STAR Bullets
+            elif any(w in msg_lower for w in ["upskill", "resume", "bullet", "star", "rewrite", "experience"]):
+                content = f"""### 📝 AI Resume Transformation & STAR Metric Optimization for **{target_role}**
 
 Here is how to rewrite your engineering bullet points to achieve an **Elite 95+ ATS Score**:
 
 #### ❌ Before (Passive / Weak):
 > "Worked on backend APIs with FastAPI and fixed database query bugs for the web application."
 
-#### ✅ After (Calibrated STAR Architecture):
+#### ✅ After (Calibrated STAR Architecture for {target_role}):
 > "Architected 14+ asynchronous RESTful endpoints with **FastAPI** and **PostgreSQL**, optimizing unindexed foreign key joins to reduce p99 latency by **38%** for 50,000+ daily active requests."
 
 #### 🚀 Key Power Formulas Applied:
@@ -1604,7 +1692,9 @@ Here is how to rewrite your engineering bullet points to achieve an **Elite 95+ 
                     {"title": "Copy Optimized STAR Bullet", "action": "Paste directly into your Experience section"},
                     {"title": "Run Full Resume Rescan", "action": "Check updated ATS score on Resume Analyzer"}
                 ]
-            elif "roadmap" in msg_lower or "learn" in msg_lower or "study" in msg_lower or "plan" in msg_lower:
+
+            # 4. Learning Roadmap
+            elif any(w in msg_lower for w in ["roadmap", "learn", "study", "plan", "curriculum", "schedule"]):
                 content = f"""### 🚀 30-Day Accelerated Upskilling Roadmap for **{target_role}**
 
 Follow this structured weekly progression to master missing skills and reach candidate shortlist tier:
@@ -1626,6 +1716,8 @@ Follow this structured weekly progression to master missing skills and reach can
                     {"week": "Week 3", "topic": "Distributed System Architecture", "hours": "12 hrs"},
                     {"week": "Week 4", "topic": "CI/CD & Live Cloud Deployment", "hours": "6 hrs"}
                 ]
+
+            # 5. Default / Conversational
             else:
                 content = f"""### 🤖 Aven — AI Career & Upskilling Copilot
 
@@ -1633,22 +1725,22 @@ Hello! I am **Aven**, your AI career copilot, powered by multi-model intelligenc
 
 Here are key ways I can help you secure your next role as **{target_role}**:
 
-1. 🎯 **Role-Specific Skill Gap Analysis**: Discover exact technical competencies required by recruiters.
-2. 📝 **STAR Resume Rewriter**: Turn generic job descriptions into high-impact metric bullets.
-3. 🚀 **Accelerated Learning Roadmap**: Personalized 30-day skill sprints to close technical gaps.
-4. 🎙️ **Live Interview Simulation**: Practice technical and behavioral questions with multi-AI scoring.
-5. 🔍 **ATS Keyword Tuning**: Calibrate your resume text against any job posting description.
+1. 👨‍💻 **Role Breakdown & Career Guidance**: Ask me *"Tell me about the SDE role"* or *"What is expected of an SDE-2?"*
+2. 🎯 **Role-Specific Skill Gap Analysis**: Discover exact technical competencies required by recruiters.
+3. 📝 **STAR Resume Rewriter**: Turn generic job descriptions into high-impact metric bullets.
+4. 🚀 **Accelerated Learning Roadmap**: Personalized 30-day skill sprints to close technical gaps.
+5. 🎙️ **Live Interview Simulation**: Practice technical and behavioral questions with multi-AI scoring.
 
-*What would you like to work on right now? Pick a suggestion below or type your custom question!*
+*What would you like to work on right now? Ask any question or select a shortcut below!*
 """
                 chatgpt_p = "ChatGPT-4o: Ask me to draft tailored cover letters or rewrite your project bullets for maximum ATS ranking."
                 claude_p = "Claude 3.5 Sonnet: Ask me for deep architectural breakdown of technical system design interview topics."
                 gemini_p = "Gemini Flash: Ask me to benchmark your current resume skills against live market hiring standards."
 
                 suggested_actions = [
+                    {"title": f"Tell Me About the {target_role} Role", "action": f"Tell me about the {target_role} role and expectations"},
                     {"title": f"Analyze Gaps for {target_role}", "action": f"What are my exact skill gaps for {target_role}?"},
-                    {"title": "Generate STAR Resume Bullets", "action": "Rewrite my software experience bullets using STAR metrics"},
-                    {"title": "Create 30-Day Learning Plan", "action": f"Create a 30-day upskilling roadmap for {target_role}"}
+                    {"title": "Generate STAR Resume Bullets", "action": "Rewrite my software experience bullets using STAR metrics"}
                 ]
 
             return self._json_response({
