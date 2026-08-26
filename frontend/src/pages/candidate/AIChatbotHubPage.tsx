@@ -4,10 +4,16 @@ import {
   Copy, Check, RefreshCw, Trash2, Plus, Search, ChevronDown, ChevronRight,
   CheckCircle2, ArrowRight, ShieldCheck, Zap, MessageSquare, Terminal, Lightbulb,
   Compass, Sliders, Mic, MicOff, ExternalLink, HelpCircle, Code, Layers,
-  Paperclip, FolderPlus, Award, Network, Puzzle, Globe, X, Upload
+  Paperclip, FolderPlus, Award, Network, Puzzle, Globe, X, Upload,
+  Image as ImageIcon, Film, Music, Eye, Play, FileCode
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
 import { sendChatMessage, getChatSessions, clearChatHistory } from '../../api/client';
+import {
+  ChatAttachmentViewerModal,
+  ChatAttachment,
+  detectAttachmentType
+} from '../../components/ui/ChatAttachmentViewerModal';
 
 interface AIChatbotHubPageProps {
   resume: Resume | null;
@@ -22,6 +28,7 @@ interface ChatMessage {
   model_used?: string;
   timestamp: string;
   attached_file?: string;
+  attached_file_info?: ChatAttachment;
   web_search_enabled?: boolean;
   perspectives?: {
     chatgpt?: string;
@@ -62,7 +69,8 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
   const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(true);
-  const [attachedFile, setAttachedFile] = useState<{ name: string; size: string } | null>(null);
+  const [attachedFile, setAttachedFile] = useState<ChatAttachment | null>(null);
+  const [selectedAttachmentForModal, setSelectedAttachmentForModal] = useState<ChatAttachment | null>(null);
   const [activeProjectContext, setActiveProjectContext] = useState<string | null>(null);
   const [activePlugin, setActivePlugin] = useState<string | null>('ATS Calibrator');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -181,13 +189,34 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-      setAttachedFile({
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+      const sizeStr = file.size > 1024 * 1024 ? `${sizeMb} MB` : `${(file.size / 1024).toFixed(1)} KB`;
+      const detectedType = detectAttachmentType(file.name, file.type);
+      const objUrl = URL.createObjectURL(file);
+
+      const newAttachment: ChatAttachment = {
         name: file.name,
-        size: `${sizeMb} MB`
-      });
+        size: sizeStr,
+        type: detectedType,
+        url: objUrl,
+        file: file
+      };
+
+      // Read text/code content if appropriate for AI context & preview
+      if (detectedType === 'code' || detectedType === 'document' || file.type.startsWith('text/') || file.name.endsWith('.json') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          newAttachment.textContent = event.target?.result as string;
+          setAttachedFile(newAttachment);
+        };
+        reader.readAsText(file);
+      } else {
+        setAttachedFile(newAttachment);
+      }
+
       setIsActionMenuOpen(false);
       setActiveSubMenu(null);
+      e.target.value = '';
     }
   };
 
@@ -195,18 +224,19 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
     const query = (textToSend || inputQuery).trim();
     if (!query || loading) return;
 
+    const currentAttachment = attachedFile;
     const userMessage: ChatMessage = {
       id: 'user-' + Date.now(),
       role: 'user',
       content: query,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      attached_file: attachedFile ? attachedFile.name : undefined,
+      attached_file: currentAttachment ? currentAttachment.name : undefined,
+      attached_file_info: currentAttachment || undefined,
       web_search_enabled: webSearchEnabled
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputQuery('');
-    const currentAttachment = attachedFile;
     setAttachedFile(null);
     setLoading(true);
 
@@ -223,7 +253,7 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
 
     try {
       const response = await sendChatMessage({
-        message: query + (currentAttachment ? ` [Attached document: ${currentAttachment.name}]` : '') + (webSearchEnabled ? ' [Web Search: Enabled]' : ''),
+        message: query + (currentAttachment ? ` [Attached ${currentAttachment.type || 'file'}: ${currentAttachment.name}${currentAttachment.textContent ? ` | Content: ${currentAttachment.textContent.slice(0, 300)}` : ''}]` : '') + (webSearchEnabled ? ' [Web Search: Enabled]' : ''),
         model: selectedModel,
         target_role: activeRole,
         candidate_skills: candidateSkills,
@@ -318,12 +348,12 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
   return (
     <div className="min-h-[calc(100vh-80px)] flex flex-col lg:flex-row bg-[#080B11] text-slate-100 relative overflow-hidden">
       
-      {/* Hidden File Input for Attachments */}
+      {/* Hidden File Input for Attachments (Accepts Photos, Videos, Audio, PDFs, Code, Documents) */}
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileUpload}
-        accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.json"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.csv,.json,.md,.js,.ts,.py,.html,.css,*"
         className="hidden"
       />
 
@@ -594,12 +624,58 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
                   <span className="text-[11px] opacity-60 font-mono">{msg.timestamp}</span>
                 </div>
 
-                {/* Attached Document Pill (If user attached file) */}
+                {/* Attached Document / Media Pill (Clickable & Interactive with Preview Modal!) */}
                 {msg.attached_file && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 border border-white/20 text-xs text-slate-200">
-                    <Paperclip className="w-3.5 h-3.5 text-cyan-300" />
-                    <span>Attached: {msg.attached_file}</span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const attachmentToView: ChatAttachment = msg.attached_file_info || {
+                        name: msg.attached_file!,
+                        type: detectAttachmentType(msg.attached_file!),
+                        size: 'Attached File'
+                      };
+                      setSelectedAttachmentForModal(attachmentToView);
+                    }}
+                    className="group/pill flex items-center justify-between gap-3 p-2.5 sm:p-3 rounded-2xl bg-white/10 hover:bg-white/[0.18] border border-white/20 hover:border-cyan-400 text-xs text-slate-100 font-medium transition-all shadow-md active:scale-[0.98] cursor-pointer text-left w-full max-w-md"
+                    title={`Click to open, preview or play ${msg.attached_file}`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 group-hover/pill:scale-105 group-hover/pill:bg-cyan-500 group-hover/pill:text-slate-950 transition-all shrink-0">
+                        {(() => {
+                          const t = msg.attached_file_info?.type || detectAttachmentType(msg.attached_file);
+                          if (t === 'image') return <ImageIcon className="w-4 h-4" />;
+                          if (t === 'video') return <Film className="w-4 h-4" />;
+                          if (t === 'audio') return <Music className="w-4 h-4" />;
+                          if (t === 'code') return <FileCode className="w-4 h-4" />;
+                          return <Paperclip className="w-4 h-4" />;
+                        })()}
+                      </div>
+                      
+                      <div className="min-w-0 flex-1">
+                        <span className="font-semibold text-white truncate block group-hover/pill:text-cyan-300 transition-colors">
+                          Attached: {msg.attached_file}
+                        </span>
+                        <span className="text-[10px] text-cyan-200/70 font-mono flex items-center gap-1 mt-0.5">
+                          <span>{msg.attached_file_info?.size || 'Click to open & view'}</span>
+                          <span>•</span>
+                          <span className="text-cyan-300 font-bold group-hover/pill:underline">
+                            {(() => {
+                              const t = msg.attached_file_info?.type || detectAttachmentType(msg.attached_file);
+                              if (t === 'image') return 'View Photo';
+                              if (t === 'video') return 'Play Video';
+                              if (t === 'audio') return 'Play Audio';
+                              return 'Preview Document';
+                            })()}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="px-2.5 py-1 rounded-xl bg-white/10 group-hover/pill:bg-cyan-500 group-hover/pill:text-slate-950 text-cyan-300 text-[11px] font-bold transition-all flex items-center gap-1 shrink-0">
+                      <Eye className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Open</span>
+                    </div>
+                  </button>
                 )}
 
                 {/* Main Text Content */}
@@ -725,17 +801,33 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
             <div className="flex items-center justify-between text-[11px] px-1 text-slate-400">
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
                 {attachedFile ? (
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-semibold animate-scale-up">
-                    <Paperclip className="w-3.5 h-3.5" />
-                    <span>{attachedFile.name} ({attachedFile.size})</span>
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-semibold animate-scale-up">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAttachmentForModal(attachedFile)}
+                      className="flex items-center gap-1.5 hover:text-white transition-colors"
+                      title="Click to preview attached media"
+                    >
+                      {attachedFile.type === 'image' && <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />}
+                      {attachedFile.type === 'video' && <Film className="w-3.5 h-3.5 text-emerald-400" />}
+                      {attachedFile.type === 'audio' && <Music className="w-3.5 h-3.5 text-purple-400" />}
+                      {attachedFile.type === 'code' && <FileCode className="w-3.5 h-3.5 text-amber-400" />}
+                      {(attachedFile.type === 'pdf' || attachedFile.type === 'document' || attachedFile.type === 'other') && (
+                        <Paperclip className="w-3.5 h-3.5 text-cyan-300" />
+                      )}
+                      <span className="truncate max-w-[180px]">{attachedFile.name}</span>
+                      <span className="text-[10px] opacity-75 font-mono">({attachedFile.size})</span>
+                      <Eye className="w-3 h-3 opacity-80" />
+                    </button>
                     <button
                       type="button"
                       onClick={() => setAttachedFile(null)}
-                      className="p-0.5 hover:text-white rounded-full hover:bg-cyan-500/40"
+                      className="p-0.5 hover:text-white rounded-full hover:bg-cyan-500/40 ml-1"
+                      title="Remove attachment"
                     >
                       <X className="w-3 h-3" />
                     </button>
-                  </span>
+                  </div>
                 ) : (
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-slate-300">
                     <FileText className="w-3 h-3 text-cyan-400" />
@@ -1130,6 +1222,18 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
 
           </div>
         </div>
+      )}
+
+      {/* Universal Media & Document Viewer Modal for Photos, Videos, Audio, PDFs, Code, Docs */}
+      {selectedAttachmentForModal && (
+        <ChatAttachmentViewerModal
+          attachment={selectedAttachmentForModal}
+          onClose={() => setSelectedAttachmentForModal(null)}
+          onNavigateToTab={onNavigateToTab}
+          onAskAvenAboutFile={(fileName) => {
+            handleSendMessage(`Aven, please analyze the attached file "${fileName}" and provide deep insights.`);
+          }}
+        />
       )}
 
     </div>

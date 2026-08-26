@@ -2,10 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   MessageSquare, X, Send, Bot, Sparkles, Target, ArrowRight,
   Maximize2, RefreshCw, CheckCircle2, ChevronRight, Layers,
-  Plus, Paperclip, Globe, Check, Award, FolderPlus
+  Plus, Paperclip, Globe, Check, Award, FolderPlus,
+  Image as ImageIcon, Film, Music, Eye, FileCode
 } from 'lucide-react';
 import { Resume } from '../../types';
 import { sendChatMessage } from '../../api/client';
+import {
+  ChatAttachmentViewerModal,
+  ChatAttachment,
+  detectAttachmentType
+} from './ChatAttachmentViewerModal';
 
 interface FloatingAIChatWidgetProps {
   resume: Resume | null;
@@ -21,10 +27,17 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
   const [loading, setLoading] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [webSearch, setWebSearch] = useState(true);
-  const [attachedDoc, setAttachedDoc] = useState<string | null>(null);
+  const [attachedDoc, setAttachedDoc] = useState<ChatAttachment | null>(null);
+  const [previewAttachment, setPreviewAttachment] = useState<ChatAttachment | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string; attached?: string; perspectives?: any }>>([
+  const [messages, setMessages] = useState<Array<{
+    role: 'user' | 'assistant';
+    text: string;
+    attached?: string;
+    attachmentInfo?: ChatAttachment;
+    perspectives?: any;
+  }>>([
     {
       role: 'assistant',
       text: `👋 Hi! I am **Aven**, your AI Career Copilot. Ask me how to upskill for Senior roles, optimize your resume for ATS algorithms, or bridge technical gaps!`
@@ -44,7 +57,15 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
     if (!query || loading) return;
 
     const currentDoc = attachedDoc;
-    setMessages(prev => [...prev, { role: 'user', text: query, attached: currentDoc || undefined }]);
+    setMessages(prev => [
+      ...prev,
+      {
+        role: 'user',
+        text: query,
+        attached: currentDoc ? currentDoc.name : undefined,
+        attachmentInfo: currentDoc || undefined
+      }
+    ]);
     setInputMsg('');
     setAttachedDoc(null);
     setLoading(true);
@@ -64,7 +85,7 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
 
     try {
       const res = await sendChatMessage({
-        message: query + (currentDoc ? ` [Document: ${currentDoc}]` : '') + (webSearch ? ' [Web Search: Active]' : ''),
+        message: query + (currentDoc ? ` [Attached ${currentDoc.type || 'file'}: ${currentDoc.name}]` : '') + (webSearch ? ' [Web Search: Active]' : ''),
         candidate_skills: resume?.analysis?.extracted_skills || ['Python', 'FastAPI', 'React', 'PostgreSQL', 'Docker'],
         target_role: inferredRole
       });
@@ -94,8 +115,32 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) {
-      setAttachedDoc(f.name);
+      const sizeMb = (f.size / (1024 * 1024)).toFixed(2);
+      const sizeStr = f.size > 1024 * 1024 ? `${sizeMb} MB` : `${(f.size / 1024).toFixed(1)} KB`;
+      const detected = detectAttachmentType(f.name, f.type);
+      const objUrl = URL.createObjectURL(f);
+
+      const newAtt: ChatAttachment = {
+        name: f.name,
+        size: sizeStr,
+        type: detected,
+        url: objUrl,
+        file: f
+      };
+
+      if (detected === 'code' || detected === 'document' || f.type.startsWith('text/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          newAtt.textContent = event.target?.result as string;
+          setAttachedDoc(newAtt);
+        };
+        reader.readAsText(f);
+      } else {
+        setAttachedDoc(newAtt);
+      }
+
       setIsMenuOpen(false);
+      e.target.value = '';
     }
   };
 
@@ -107,7 +152,7 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
         ref={fileRef}
         onChange={handleFileChange}
         className="hidden"
-        accept=".pdf,.docx,.txt,.png"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.csv,.json,.md,.js,.ts,.py,*"
       />
 
       {/* Floating Toggle Bubble */}
@@ -200,10 +245,30 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
                   }`}
                 >
                   {m.attached && (
-                    <div className="text-[10px] px-2 py-0.5 rounded bg-black/30 font-mono text-cyan-200 inline-flex items-center gap-1">
-                      <Paperclip className="w-3 h-3" />
-                      <span>{m.attached}</span>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const att: ChatAttachment = m.attachmentInfo || {
+                          name: m.attached!,
+                          type: detectAttachmentType(m.attached!),
+                          size: 'Attached File'
+                        };
+                        setPreviewAttachment(att);
+                      }}
+                      className="text-[10px] px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 border border-white/20 hover:border-cyan-300 font-mono text-cyan-200 inline-flex items-center gap-1.5 transition-all text-left group/att cursor-pointer"
+                      title="Click to open and preview file"
+                    >
+                      {(() => {
+                        const t = m.attachmentInfo?.type || detectAttachmentType(m.attached!);
+                        if (t === 'image') return <ImageIcon className="w-3 h-3 text-cyan-300" />;
+                        if (t === 'video') return <Film className="w-3 h-3 text-emerald-300" />;
+                        if (t === 'audio') return <Music className="w-3 h-3 text-purple-300" />;
+                        if (t === 'code') return <FileCode className="w-3 h-3 text-amber-300" />;
+                        return <Paperclip className="w-3 h-3 text-cyan-300" />;
+                      })()}
+                      <span className="truncate max-w-[140px] font-semibold">{m.attached}</span>
+                      <Eye className="w-2.5 h-2.5 opacity-60 group-hover/att:opacity-100" />
+                    </button>
                   )}
                   <div>{m.text}</div>
                 </div>
@@ -221,12 +286,30 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
 
           {/* Attached Document Indicator */}
           {attachedDoc && (
-            <div className="px-3 py-1 bg-cyan-950/80 border-t border-cyan-500/30 flex items-center justify-between text-[11px] text-cyan-300">
-              <span className="flex items-center gap-1 truncate">
-                <Paperclip className="w-3 h-3 shrink-0" />
-                <span className="truncate">{attachedDoc}</span>
-              </span>
-              <button onClick={() => setAttachedDoc(null)} className="hover:text-white">
+            <div className="px-3 py-1.5 bg-cyan-950/80 border-t border-cyan-500/30 flex items-center justify-between text-[11px] text-cyan-300">
+              <button
+                type="button"
+                onClick={() => setPreviewAttachment(attachedDoc)}
+                className="flex items-center gap-1.5 truncate hover:text-white transition-colors"
+                title="Click to preview file"
+              >
+                {attachedDoc.type === 'image' && <ImageIcon className="w-3 h-3 text-cyan-400 shrink-0" />}
+                {attachedDoc.type === 'video' && <Film className="w-3 h-3 text-emerald-400 shrink-0" />}
+                {attachedDoc.type === 'audio' && <Music className="w-3 h-3 text-purple-400 shrink-0" />}
+                {attachedDoc.type === 'code' && <FileCode className="w-3 h-3 text-amber-400 shrink-0" />}
+                {(attachedDoc.type === 'pdf' || attachedDoc.type === 'document' || attachedDoc.type === 'other') && (
+                  <Paperclip className="w-3 h-3 shrink-0" />
+                )}
+                <span className="truncate max-w-[200px]">{attachedDoc.name}</span>
+                <span className="text-[9px] opacity-75 font-mono">({attachedDoc.size})</span>
+                <Eye className="w-3 h-3 opacity-80" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setAttachedDoc(null)}
+                className="hover:text-white p-0.5"
+                title="Remove attachment"
+              >
                 <X className="w-3 h-3" />
               </button>
             </div>
@@ -241,7 +324,7 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
                 className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/10 text-slate-200 text-[11px]"
               >
                 <Paperclip className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Add files or photos</span>
+                <span>Add files, photos or videos</span>
               </button>
               <button
                 type="button"
@@ -292,6 +375,21 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
           </form>
 
         </div>
+      )}
+
+      {/* Media & Document Viewer Modal */}
+      {previewAttachment && (
+        <ChatAttachmentViewerModal
+          attachment={previewAttachment}
+          onClose={() => setPreviewAttachment(null)}
+          onNavigateToTab={() => {
+            setIsOpen(false);
+            if (onOpenFullHub) onOpenFullHub();
+          }}
+          onAskAvenAboutFile={(fileName) => {
+            handleSend(`Aven, analyze the attached file "${fileName}" and provide key recommendations.`);
+          }}
+        />
       )}
     </div>
   );
