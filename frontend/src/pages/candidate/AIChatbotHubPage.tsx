@@ -5,7 +5,9 @@ import {
   CheckCircle2, ArrowRight, ShieldCheck, Zap, MessageSquare, Terminal, Lightbulb,
   Compass, Sliders, Mic, MicOff, ExternalLink, HelpCircle, Code, Layers,
   Paperclip, FolderPlus, Award, Network, Puzzle, Globe, X, Upload,
-  Image as ImageIcon, Film, Music, Eye, Play, FileCode
+  Image as ImageIcon, Film, Music, Eye, Play, FileCode,
+  SquarePen, Images, Library, Clock, AtSign, MoreHorizontal, PanelLeftClose, PanelLeft,
+  Calendar, Bookmark, Sparkle, History, Settings, CheckCircle
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
 import { sendChatMessage, getChatSessions, clearChatHistory } from '../../api/client';
@@ -76,6 +78,12 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const actionMenuRef = useRef<HTMLDivElement | null>(null);
 
+  // ChatGPT Navigation Bar State
+  const [activeNavModal, setActiveNavModal] = useState<'images' | 'library' | 'scheduled' | 'plugins' | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState<boolean>(false);
+  const moreMenuRef = useRef<HTMLDivElement | null>(null);
+
   // Google AI Connection State
   const [googleKeyModalOpen, setGoogleKeyModalOpen] = useState<boolean>(false);
   const [geminiApiKeyInput, setGeminiApiKeyInput] = useState<string>(() => {
@@ -99,12 +107,15 @@ export const AIChatbotHubPage: React.FC<AIChatbotHubPageProps> = ({
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Close + Action Menu when clicking outside
+  // Close + Action Menu & More Menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
         setIsActionMenuOpen(false);
         setActiveSubMenu(null);
+      }
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setIsMoreMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -357,78 +368,209 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
         className="hidden"
       />
 
-      {/* SIDEBAR: CHAT HISTORY & AVEN SETTINGS */}
-      <aside className={`w-full lg:w-72 shrink-0 border-r border-white/10 bg-[#0B0F19]/90 backdrop-blur-xl flex flex-col transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden lg:flex'}`}>
+      {/* SIDEBAR: CHATGPT-STYLE NAVIGATION BAR (Matches screenshot exactly!) */}
+      <aside className={`w-full lg:w-64 shrink-0 border-r border-white/10 bg-[#000000] flex flex-col transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden lg:flex'}`}>
         
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-white/10 space-y-3">
-          <button
-            onClick={handleNewChat}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-[0.99]"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Chat with Aven</span>
-          </button>
+        {/* ChatGPT Header (Matches screenshot) */}
+        <div className="p-3 pb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2 pl-1">
+            <span className="font-bold text-base text-white tracking-tight font-sans">
+              ChatGPT
+            </span>
+          </div>
 
-          {/* Search History */}
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              value={searchHistory}
-              onChange={(e) => setSearchHistory(e.target.value)}
-              placeholder="Search chat history..."
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
-            />
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className={`p-1.5 rounded-lg transition-colors ${isSearchOpen ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+              title="Search Conversations"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              title="Close Sidebar"
+            >
+              <PanelLeftClose className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        {/* Sessions List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-2 block mb-1">
-            Recent Consultations
+        {/* ChatGPT Vertical Navigation Menu (Exact layout from user screenshot!) */}
+        <div className="px-2 py-1 space-y-0.5" ref={moreMenuRef}>
+          
+          {/* 1. New chat */}
+          <button
+            type="button"
+            onClick={handleNewChat}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-[#212121] hover:bg-[#2f2f2f] text-white font-medium text-xs sm:text-sm transition-all group active:scale-[0.99] text-left shadow-sm"
+          >
+            <SquarePen className="w-4 h-4 text-white group-hover:scale-105 transition-transform shrink-0" />
+            <span>New chat</span>
+          </button>
+
+          {/* 2. Images */}
+          <button
+            type="button"
+            onClick={() => setActiveNavModal('images')}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.08] text-slate-200 hover:text-white text-xs sm:text-sm transition-colors text-left group"
+          >
+            <Images className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 transition-colors shrink-0" />
+            <span>Images</span>
+          </button>
+
+          {/* 3. Library */}
+          <button
+            type="button"
+            onClick={() => setActiveNavModal('library')}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.08] text-slate-200 hover:text-white text-xs sm:text-sm transition-colors text-left group"
+          >
+            <Library className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0" />
+            <span>Library</span>
+          </button>
+
+          {/* 4. Scheduled */}
+          <button
+            type="button"
+            onClick={() => setActiveNavModal('scheduled')}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.08] text-slate-200 hover:text-white text-xs sm:text-sm transition-colors text-left group"
+          >
+            <Clock className="w-4 h-4 text-slate-400 group-hover:text-purple-400 transition-colors shrink-0" />
+            <span>Scheduled</span>
+          </button>
+
+          {/* 5. Plugins */}
+          <button
+            type="button"
+            onClick={() => setActiveNavModal('plugins')}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.08] text-slate-200 hover:text-white text-xs sm:text-sm transition-colors text-left group"
+          >
+            <AtSign className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors shrink-0" />
+            <span>Plugins</span>
+          </button>
+
+          {/* 6. More */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.08] text-slate-200 hover:text-white text-xs sm:text-sm transition-colors text-left group"
+            >
+              <MoreHorizontal className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors shrink-0" />
+              <span>More</span>
+            </button>
+
+            {isMoreMenuOpen && (
+              <div className="absolute left-full top-0 ml-2 w-60 bg-[#171717] border border-white/15 rounded-2xl shadow-2xl p-1.5 space-y-1 z-50 animate-scale-up backdrop-blur-2xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleToggleVoice();
+                    setIsMoreMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/10 text-xs text-slate-200 text-left transition-colors"
+                >
+                  <Mic className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Voice Simulation Mode</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSendMessage(`Aven, show me the latest live compensation benchmarks and salary ranges for ${targetRole}.`);
+                    setIsMoreMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/10 text-xs text-slate-200 text-left transition-colors"
+                >
+                  <Award className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Salary Benchmarks</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGoogleKeyModalOpen(true);
+                    setIsMoreMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/10 text-xs text-slate-200 text-left transition-colors"
+                >
+                  <Sliders className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Google AI Connection</span>
+                </button>
+                <div className="border-t border-white/10 my-1"></div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleClearHistory();
+                    setIsMoreMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-rose-950/40 text-xs text-rose-400 text-left transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Chat History</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* Optional Search Bar dropdown */}
+        {isSearchOpen && (
+          <div className="p-2 border-t border-white/10 animate-fade-in">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                value={searchHistory}
+                onChange={(e) => setSearchHistory(e.target.value)}
+                placeholder="Search conversations..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/10 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                autoFocus
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Recent Chats Section */}
+        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin border-t border-white/10">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 px-3 block mb-1">
+            Recent
           </span>
           {filteredSessions.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveSessionId(s.id)}
-              className={`w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-start gap-2.5 ${
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5 ${
                 activeSessionId === s.id
-                  ? 'bg-white/[0.08] border border-cyan-500/30 text-white font-semibold'
-                  : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-200'
+                  ? 'bg-white/[0.12] text-white font-medium'
+                  : 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-200'
               }`}
             >
-              <MessageSquare className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${activeSessionId === s.id ? 'text-cyan-400' : 'text-slate-500'}`} />
+              <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${activeSessionId === s.id ? 'text-cyan-400' : 'text-slate-500'}`} />
               <div className="flex-1 min-w-0">
                 <div className="truncate">{s.title}</div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">{s.created_at}</div>
               </div>
             </button>
           ))}
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="p-3 border-t border-white/10 space-y-2 bg-black/20">
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+        {/* Sidebar Footer: Aven Copilot Status */}
+        <div className="p-2.5 border-t border-white/10 bg-black/40">
+          <div className="p-2 rounded-xl hover:bg-white/[0.05] flex items-center justify-between transition-colors">
             <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-cyan-400" />
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center p-0.5 text-slate-950 font-bold text-xs">
+                A
+              </div>
               <div>
-                <div className="text-[11px] font-bold text-white">Aven AI Career Agent</div>
-                <div className="text-[9px] text-slate-400 font-mono">Consensus Multi-Engine</div>
+                <div className="text-xs font-bold text-white leading-none">Aven Copilot</div>
+                <div className="text-[9px] text-emerald-400 font-mono mt-0.5">ChatGPT-4o • Gemini</div>
               </div>
             </div>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">
-              ONLINE
-            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           </div>
-
-          <button
-            onClick={handleClearHistory}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 text-xs transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Delete Chat History</span>
-          </button>
         </div>
       </aside>
 
@@ -438,8 +580,18 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
         {/* Top Header Bar: Target Role Calibration & Model Selector */}
         <div className="p-3 sm:p-4 border-b border-white/10 bg-[#0B0F19]/80 backdrop-blur-md shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3">
           
-          {/* Target Role Selector */}
+          {/* Target Role Selector & Sidebar Expand Toggle */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            {!sidebarOpen && (
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all shadow-md mr-1 shrink-0"
+                title="Open ChatGPT Navigation Sidebar"
+              >
+                <PanelLeft className="w-4 h-4" />
+              </button>
+            )}
             <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
               <Target className="w-4 h-4" />
             </div>
@@ -1220,6 +1372,247 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* 1. IMAGES MODAL (From ChatGPT Sidebar 'Images') */}
+      {activeNavModal === 'images' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-lg bg-[#0F1422] border border-white/20 rounded-3xl shadow-2xl p-6 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <Images className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">AI Images & System Visualizations</h3>
+                  <p className="text-xs text-slate-400">Generate diagrams, skill maps & system blueprints</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveNavModal(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {[
+                {
+                  title: '🏗️ Distributed Architecture Diagram',
+                  prompt: `Aven, generate a detailed architecture diagram and explanation for a real-time distributed microservices backend using FastAPI, Redis pub/sub, PostgreSQL, and WebSockets.`
+                },
+                {
+                  title: '📊 Candidate Skill & Tech Stack Map',
+                  prompt: `Aven, create a structured visual ASCII/markdown skill map comparing my resume capabilities against the industry benchmarks for ${targetRole}.`
+                },
+                {
+                  title: '🎨 Single-Column ATS Resume Blueprint',
+                  prompt: `Aven, visualize the optimal single-column ATS resume layout with strict typography, section hierarchies, and keyword density guidelines.`
+                },
+                {
+                  title: '☁️ Cloud Serverless Event Flow',
+                  prompt: `Aven, map out the event-driven workflow for an AWS Lambda + SQS + DynamoDB serverless microservice pipeline.`
+                }
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActiveNavModal(null);
+                    handleSendMessage(item.prompt);
+                  }}
+                  className="w-full text-left p-3 rounded-2xl bg-white/[0.03] hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/40 transition-all group flex items-center justify-between"
+                >
+                  <div className="min-w-0 pr-2">
+                    <span className="text-xs font-bold text-white group-hover:text-cyan-300 block">{item.title}</span>
+                    <span className="text-[11px] text-slate-400 truncate block mt-0.5">{item.prompt}</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. LIBRARY MODAL (From ChatGPT Sidebar 'Library') */}
+      {activeNavModal === 'library' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-lg bg-[#0F1422] border border-white/20 rounded-3xl shadow-2xl p-6 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <Library className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Aven Resource & Prompt Library</h3>
+                  <p className="text-xs text-slate-400">Master templates, STAR formulas, and interview cheat sheets</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveNavModal(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {[
+                {
+                  title: '📝 STAR Resume Rewrite Formula',
+                  desc: 'Transform passive responsibilities into high-impact quantified achievements.',
+                  prompt: 'Aven, rewrite my backend engineering experience using the STAR formula with strong action verbs and quantified impact metrics.'
+                },
+                {
+                  title: '🧠 45-Min System Design Master Checklist',
+                  desc: 'Step-by-step framework: Requirements, Back-of-envelope, HLD, Deep Dive, Bottlenecks.',
+                  prompt: 'Aven, provide the complete 45-minute System Design framework checklist for Senior SDE interviews.'
+                },
+                {
+                  title: '⚡ Top 75 DSA Pattern Breakdown',
+                  desc: 'Sliding Window, Two Pointers, Fast & Slow Pointers, Monotonic Stack, Dynamic Programming.',
+                  prompt: 'Aven, summarize the top LeetCode DSA patterns with time complexity trade-offs and code examples.'
+                },
+                {
+                  title: '🤝 Recruiter Outreach & InMail Scripts',
+                  desc: 'High-conversion cold messages for engineering hiring managers and technical recruiters.',
+                  prompt: 'Aven, draft 2 high-response recruiter outreach messages highlighting my experience for ${targetRole}.'
+                }
+              ].map((lib, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActiveNavModal(null);
+                    handleSendMessage(lib.prompt);
+                  }}
+                  className="w-full text-left p-3 rounded-2xl bg-white/[0.03] hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/40 transition-all group flex items-center justify-between"
+                >
+                  <div className="min-w-0 pr-2">
+                    <span className="text-xs font-bold text-white group-hover:text-emerald-300 block">{lib.title}</span>
+                    <span className="text-[11px] text-slate-400 block mt-0.5">{lib.desc}</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. SCHEDULED MODAL (From ChatGPT Sidebar 'Scheduled') */}
+      {activeNavModal === 'scheduled' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-lg bg-[#0F1422] border border-white/20 rounded-3xl shadow-2xl p-6 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Scheduled Upskilling & Mock Drills</h3>
+                  <p className="text-xs text-slate-400">Automated study reminders and technical milestones</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveNavModal(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-purple-400" /> Daily 9:00 AM LeetCode Challenge
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">
+                    ACTIVE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Medium-tier data structures & algorithm challenge calibrated to top tech company rubrics.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-cyan-400" /> Saturday System Design Mock Drill
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono font-bold">
+                    SCHEDULED
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  45-minute interactive simulated system design interview with multi-AI feedback.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-white/10 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveNavModal(null);
+                  handleSendMessage(`Aven, start today's scheduled technical interview practice drill for ${targetRole}.`);
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-400 hover:to-cyan-400 text-slate-950 font-bold text-xs shadow-lg transition-all active:scale-95"
+              >
+                🚀 Run Scheduled Mock Drill Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. PLUGINS MODAL (From ChatGPT Sidebar 'Plugins') */}
+      {activeNavModal === 'plugins' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-lg bg-[#0F1422] border border-white/20 rounded-3xl shadow-2xl p-6 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <AtSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">AI Plugins & Integrations</h3>
+                  <p className="text-xs text-slate-400">Active intelligence extensions for Aven</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveNavModal(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {[
+                { name: 'ATS Resume Calibrator', desc: 'Real-time keyword scoring & ATS compliance matching', active: true },
+                { name: 'LeetCode Live Interview Grader', desc: 'Synthesizes code correctness, Big-O complexity & test cases', active: true },
+                { name: 'GitHub Repository Analyzer', desc: 'Evaluates project architectures and repo documentation', active: true },
+                { name: 'Market Demand & Compensation Engine', desc: 'Live market salary and skill demand index scanner', active: true }
+              ].map((plugin, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3"
+                >
+                  <div>
+                    <span className="text-xs font-bold text-white block">{plugin.name}</span>
+                    <span className="text-[11px] text-slate-400 block mt-0.5">{plugin.desc}</span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold shrink-0 flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" /> ENABLED
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
