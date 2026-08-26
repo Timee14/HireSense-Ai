@@ -3,7 +3,8 @@ import {
   MessageSquare, X, Send, Bot, Sparkles, Target, ArrowRight,
   Maximize2, RefreshCw, CheckCircle2, ChevronRight, Layers,
   Plus, Paperclip, Globe, Check, Award, FolderPlus,
-  Image as ImageIcon, Film, Music, Eye, FileCode
+  Image as ImageIcon, Film, Music, Eye, FileCode,
+  SquarePen, Images, Library, Clock, AtSign, MoreHorizontal
 } from 'lucide-react';
 import { Resume } from '../../types';
 import { sendChatMessage } from '../../api/client';
@@ -144,8 +145,17 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
     }
   };
 
+  const handleNewChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        text: `👋 New conversation started. Ask Aven about skill gap analysis, STAR resume optimization, or system design!`
+      }
+    ]);
+  };
+
   return (
-    <div className="fixed bottom-6 right-6 z-40">
+    <div className="fixed bottom-6 left-6 z-40">
       
       <input
         type="file"
@@ -155,7 +165,7 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
         accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.csv,.json,.md,.js,.ts,.py,*"
       />
 
-      {/* Floating Toggle Bubble */}
+      {/* Floating Toggle Bubble (Positioned on Left Side) */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -167,9 +177,9 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
         </button>
       )}
 
-      {/* Floating Chat Drawer Window */}
+      {/* Floating Chat Drawer Window with Left Navigation Bar */}
       {isOpen && (
-        <div className="w-80 sm:w-96 h-[500px] rounded-2xl bg-[#0B0F19]/95 backdrop-blur-2xl border border-white/20 shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+        <div className="w-[360px] sm:w-[440px] h-[520px] rounded-3xl bg-[#0B0F19]/95 backdrop-blur-2xl border border-white/20 shadow-2xl flex flex-col overflow-hidden animate-scale-up">
           
           {/* Header */}
           <div className="p-3.5 bg-white/[0.04] border-b border-white/10 flex items-center justify-between">
@@ -180,9 +190,9 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
               <div>
                 <div className="text-xs font-bold text-white flex items-center gap-1.5">
                   <span>Aven AI Copilot</span>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300">Multi-AI</span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300">ChatGPT-4o</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono">ChatGPT • Claude • Gemini</div>
+                <div className="text-[10px] text-slate-400 font-mono">Multi-AI Career Intelligence</div>
               </div>
             </div>
 
@@ -208,30 +218,89 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
             </div>
           </div>
 
-          {/* Quick Starter Suggestions */}
-          <div className="p-2 bg-white/[0.02] border-b border-white/5 flex gap-1.5 overflow-x-auto scrollbar-none">
-            <button
-              onClick={() => handleSend('Aven, what are my biggest skill gaps for Senior Full-Stack?')}
-              className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-cyan-500/20 text-[10px] font-semibold text-cyan-300 whitespace-nowrap border border-white/10 transition-colors"
-            >
-              🎯 Skill Gaps
-            </button>
-            <button
-              onClick={() => handleSend('Aven, rewrite my resume bullet points with the STAR formula')}
-              className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-emerald-500/20 text-[10px] font-semibold text-emerald-300 whitespace-nowrap border border-white/10 transition-colors"
-            >
-              📝 STAR Bullets
-            </button>
-            <button
-              onClick={() => handleSend('Aven, generate a 30-day upskilling roadmap for Senior engineering roles')}
-              className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-purple-500/20 text-[10px] font-semibold text-purple-300 whitespace-nowrap border border-white/10 transition-colors"
-            >
-              🚀 30-Day Plan
-            </button>
-          </div>
+          {/* Body with Left ChatGPT-Style Navigation Strip + Right Chat Messages */}
+          <div className="flex-1 flex overflow-hidden">
+            
+            {/* Left Mini ChatGPT Navigation Strip */}
+            <div className="w-14 bg-black/60 border-r border-white/10 flex flex-col items-center py-2.5 space-y-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleNewChat}
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all group"
+                title="New Chat"
+              >
+                <SquarePen className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSend('Aven, generate a visual system architecture diagram for scalable microservices.')}
+                className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-cyan-300 flex items-center justify-center transition-colors"
+                title="Images & Architecture Diagrams"
+              >
+                <Images className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSend('Aven, provide the STAR resume polish formula checklist.')}
+                className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-emerald-300 flex items-center justify-center transition-colors"
+                title="Resource & STAR Library"
+              >
+                <Library className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSend('Aven, schedule today\'s technical interview practice question.')}
+                className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-purple-300 flex items-center justify-center transition-colors"
+                title="Scheduled Practice Drills"
+              >
+                <Clock className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSend('Aven, calibrate my resume against ATS keyword benchmarks.')}
+                className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-amber-300 flex items-center justify-center transition-colors"
+                title="AI Plugins (ATS Calibrator)"
+              >
+                <AtSign className="w-4 h-4" />
+              </button>
+              <div className="flex-1" />
+              <button
+                type="button"
+                onClick={() => onOpenFullHub && onOpenFullHub()}
+                className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+                title="Open Full AI Hub"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </div>
 
-          {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-thin text-xs">
+            {/* Right Chat Column */}
+            <div className="flex-1 flex flex-col min-w-0">
+              
+              {/* Quick Starter Suggestions */}
+              <div className="p-2 bg-white/[0.02] border-b border-white/5 flex gap-1.5 overflow-x-auto scrollbar-none">
+                <button
+                  onClick={() => handleSend('Aven, what are my biggest skill gaps for Senior Full-Stack?')}
+                  className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-cyan-500/20 text-[10px] font-semibold text-cyan-300 whitespace-nowrap border border-white/10 transition-colors"
+                >
+                  🎯 Skill Gaps
+                </button>
+                <button
+                  onClick={() => handleSend('Aven, rewrite my resume bullet points with the STAR formula')}
+                  className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-emerald-500/20 text-[10px] font-semibold text-emerald-300 whitespace-nowrap border border-white/10 transition-colors"
+                >
+                  📝 STAR Bullets
+                </button>
+                <button
+                  onClick={() => handleSend('Aven, generate a 30-day upskilling roadmap for Senior engineering roles')}
+                  className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-purple-500/20 text-[10px] font-semibold text-purple-300 whitespace-nowrap border border-white/10 transition-colors"
+                >
+                  🚀 30-Day Plan
+                </button>
+              </div>
+
+              {/* Messages Stream */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-thin text-xs">
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -373,6 +442,9 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
               <Send className="w-3.5 h-3.5" />
             </button>
           </form>
+
+            </div>
+          </div>
 
         </div>
       )}
