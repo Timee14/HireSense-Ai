@@ -7,16 +7,19 @@ import { sendAuthOtp, verifyAuthOtp, googleAuthLogin, setToken } from '../api/cl
 
 type UserRole = 'candidate' | 'recruiter';
 
+export type AuthMode = 'login' | 'register' | 'forgot_password' | 'two_step_verification' | 'google_select';
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, role: UserRole, name?: string, password?: string) => Promise<void>;
-  onRegister: (email: string, role: UserRole, name: string, password?: string) => Promise<void>;
+  onLogin: (email: string, role: UserRole, name?: string, password?: string, targetTab?: string) => Promise<void>;
+  onRegister: (email: string, role: UserRole, name: string, password?: string, targetTab?: string) => Promise<void>;
   onResetPassword?: (email: string, newPassword: string) => Promise<void>;
-  onQuickDemo: (role: UserRole) => void;
+  onQuickDemo: (role: UserRole, targetTab?: string) => void;
+  initialRole?: UserRole;
+  initialMode?: AuthMode;
+  targetTab?: string;
 }
-
-type AuthMode = 'login' | 'register' | 'forgot_password' | 'two_step_verification' | 'google_select';
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
@@ -24,10 +27,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onLogin,
   onRegister,
   onResetPassword,
-  onQuickDemo
+  onQuickDemo,
+  initialRole = 'candidate',
+  initialMode = 'register',
+  targetTab
 }) => {
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [role, setRole] = useState<UserRole>('candidate');
+  const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
+  const [role, setRole] = useState<UserRole>(initialRole);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,6 +51,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Sync initial configuration whenever modal opens
+  useEffect(() => {
+    if (isOpen) {
+      if (initialRole) setRole(initialRole);
+      if (initialMode) setAuthMode(initialMode);
+      setError('');
+      setSuccessMsg('');
+    }
+  }, [isOpen, initialRole, initialMode]);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -242,7 +258,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       if (res && res.access_token) {
         setToken(res.access_token);
       }
-      await onLogin(email, role, name || res.name, password || 'google_verified_pass');
+      const verifiedName = name || res?.name || (email.split('@')[0] ? email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1) : 'User');
+      if (authMode === 'register' && !isGoogleAuth) {
+        await onRegister(email, role, verifiedName, password || 'google_verified_pass', targetTab);
+      } else {
+        await onLogin(email, role, verifiedName, password || 'google_verified_pass', targetTab);
+      }
       setSuccessMsg('Two-Step Verification successful! Redirecting...');
       setTimeout(() => {
         onClose();
@@ -250,7 +271,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: any) {
       // Fallback verification
       if (code === activeOtpCode || code === '849201' || code === '123456') {
-        await onLogin(email, role, name, password || 'google_verified_pass');
+        const verifiedName = name || (email.split('@')[0] ? email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1) : 'User');
+        if (authMode === 'register' && !isGoogleAuth) {
+          await onRegister(email, role, verifiedName, password || 'google_verified_pass', targetTab);
+        } else {
+          await onLogin(email, role, verifiedName, password || 'google_verified_pass', targetTab);
+        }
         setSuccessMsg('Two-Step Verification successful! Redirecting...');
         setTimeout(() => {
           onClose();
@@ -366,10 +392,64 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </p>
         </div>
 
-        {/* 1-Click Demo Accounts (Only on initial login) */}
-        {authMode === 'login' && (
+        {/* Top Mode Tabs (Register / Sign In) */}
+        {(authMode === 'login' || authMode === 'register') && (
+          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-white/[0.05] border border-white/10">
+            <button
+              type="button"
+              onClick={handleSwitchToRegister}
+              className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                authMode === 'register' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Create Account / Sign Up
+            </button>
+            <button
+              type="button"
+              onClick={handleSwitchToLogin}
+              className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                authMode === 'login' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Sign In
+            </button>
+          </div>
+        )}
+
+        {/* Role Selector */}
+        {(authMode === 'login' || authMode === 'register') && (
+          <div>
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1.5">
+              Select Your Portal Role:
+            </label>
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10">
+              <button
+                type="button"
+                onClick={() => setRole('candidate')}
+                className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  role === 'candidate' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>Candidate Profile</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('recruiter')}
+                className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  role === 'recruiter' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Recruiter Portal</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Google Sign-In Primary Action */}
+        {(authMode === 'login' || authMode === 'register') && (
           <div className="space-y-3">
-            {/* Google Sign-In Primary Option */}
             <button
               type="button"
               onClick={() => handleInitiateGoogleAuth()}
@@ -394,36 +474,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span>Continue with Google</span>
+              <span>
+                {authMode === 'register' ? 'Sign Up with Google (Gmail ID)' : 'Sign In with Google (Gmail ID)'}
+              </span>
             </button>
 
-            <div className="relative flex items-center justify-center py-1">
+            <div className="relative flex items-center justify-center py-0.5">
               <div className="border-t border-white/10 w-full"></div>
               <span className="bg-[#0B0F19] px-3 text-[11px] font-mono uppercase tracking-wider text-slate-400 shrink-0">
-                Or Quick Demo
-              </span>
-              <div className="border-t border-white/10 w-full"></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                onClick={() => { onQuickDemo('candidate'); onClose(); }}
-                className="btn-luma-glass !min-h-[38px] !text-xs !py-2 !px-3 justify-center"
-              >
-                <User className="w-3.5 h-3.5 text-cyan-400" /> Candidate Demo
-              </button>
-              <button
-                onClick={() => { onQuickDemo('recruiter'); onClose(); }}
-                className="btn-luma-glass !min-h-[38px] !text-xs !py-2 !px-3 justify-center"
-              >
-                <Briefcase className="w-3.5 h-3.5 text-purple-400" /> Recruiter Demo
-              </button>
-            </div>
-
-            <div className="relative flex items-center justify-center py-1">
-              <div className="border-t border-white/10 w-full"></div>
-              <span className="bg-[#0B0F19] px-3 text-[11px] font-mono uppercase tracking-wider text-slate-400 shrink-0">
-                Or Sign In with Email
+                {authMode === 'register' ? 'Or Sign Up with Email' : 'Or Sign In with Email'}
               </span>
               <div className="border-t border-white/10 w-full"></div>
             </div>
@@ -650,32 +709,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             
             {authMode === 'register' && (
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Select Role</label>
-                <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => setRole('candidate')}
-                    className={`py-2 rounded-lg text-xs font-bold transition-all ${
-                      role === 'candidate' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    Candidate
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('recruiter')}
-                    className={`py-2 rounded-lg text-xs font-bold transition-all ${
-                      role === 'recruiter' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    Recruiter
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {authMode === 'register' && (
-              <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
                   {role === 'candidate' ? 'Full Name' : 'Company Name'}
                 </label>
@@ -684,7 +717,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={role === 'candidate' ? 'Alex Chen' : 'Tech Innovations Inc.'}
+                  placeholder={role === 'candidate' ? 'e.g. Alex Chen' : 'e.g. Tech Innovations Inc.'}
                   className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
                 />
               </div>
@@ -692,13 +725,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             {/* Email Address */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                {role === 'candidate' ? 'Gmail / Email Address' : 'Work Email Address'}
+              </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="user@example.com or user@gmail.com"
+                placeholder="your.email@gmail.com"
                 className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
               />
             </div>
@@ -765,7 +800,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Footer Navigation Links */}
         {(authMode === 'login' || authMode === 'register' || authMode === 'forgot_password') && (
-          <div className="text-center pt-2 space-y-2 text-xs">
+          <div className="text-center pt-2 space-y-3 text-xs">
             {authMode === 'forgot_password' ? (
               <div className="flex items-center justify-between px-1">
                 <button
@@ -803,6 +838,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Quick Demo Preview Option */}
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
+              <span className="text-slate-400 font-mono text-[11px]">Instant evaluation test?</span>
+              <button
+                type="button"
+                onClick={() => { onQuickDemo(role, targetTab); onClose(); }}
+                className="text-cyan-400 hover:text-cyan-300 font-semibold underline text-xs"
+              >
+                Launch Instant Demo ({role === 'candidate' ? 'Candidate' : 'Recruiter'})
+              </button>
+            </div>
           </div>
         )}
 

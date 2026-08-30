@@ -8,10 +8,11 @@ import {
 import { LumaBackground } from '../components/ui/LumaBackground';
 
 interface LandingPageProps {
-  onSelectRoleDemo: (role: 'candidate' | 'recruiter', targetTab?: string) => void;
+  onOpenAuth: (role?: 'candidate' | 'recruiter', mode?: 'login' | 'register' | 'google_select', targetTab?: string) => void;
+  onSelectRoleDemo?: (role: 'candidate' | 'recruiter', targetTab?: string) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRoleDemo }) => {
   const [selectedDemoRole, setSelectedDemoRole] = useState<'candidate' | 'recruiter'>('candidate');
   const [currentTimeStr, setCurrentTimeStr] = useState('1:30 PM GMT+5:30');
 
@@ -56,14 +57,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
           </div>
 
           <button 
-            onClick={() => onSelectRoleDemo('candidate', 'resume_analyzer')}
+            onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
             className="text-slate-300 hover:text-white transition-colors font-medium text-xs sm:text-sm hidden sm:inline"
           >
             ATS Resume Grader
           </button>
 
           <button 
-            onClick={() => onSelectRoleDemo('candidate', 'ai_interview')}
+            onClick={() => onOpenAuth('candidate', 'register', 'ai_interview')}
             className="text-cyan-300 hover:text-cyan-200 transition-colors font-medium text-xs sm:text-sm hidden sm:inline flex items-center gap-1"
           >
             <BrainCircuit className="w-3.5 h-3.5" />
@@ -71,10 +72,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
           </button>
 
           <button
-            onClick={() => onSelectRoleDemo('candidate', 'candidate_dash')}
+            onClick={() => onOpenAuth('candidate', 'register', 'candidate_dash')}
             className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm transition-all border border-white/10"
           >
-            Launch App
+            Sign In / Register
           </button>
         </div>
       </header>
@@ -199,7 +200,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <button
-                  onClick={() => onSelectRoleDemo('candidate', 'resume_analyzer')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
                   className="px-3 py-1 rounded-full text-xs font-semibold bg-white text-black hover:bg-slate-200 transition-all"
                 >
                   Try Scanner
@@ -227,7 +228,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
 
               <div className="space-y-2.5">
                 <div 
-                  onClick={() => onSelectRoleDemo('candidate', 'resume_analyzer')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
                   className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
@@ -240,7 +241,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <div 
-                  onClick={() => onSelectRoleDemo('candidate', 'ai_interview')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'ai_interview')}
                   className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
@@ -253,7 +254,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <div 
-                  onClick={() => onSelectRoleDemo('recruiter', 'screening')}
+                  onClick={() => onOpenAuth('recruiter', 'register', 'screening')}
                   className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
@@ -266,7 +267,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <div 
-                  onClick={() => onSelectRoleDemo('candidate', 'skill_gaps')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'skill_gaps')}
                   className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
@@ -326,14 +327,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
             </div>
 
             {/* 2. ACCESS & DEMO BOX (Matching Luma Glass Modal/Box) */}
+            {/* Interactive Portal Access Stage Card */}
             <div className="luma-card p-5 sm:p-6 space-y-4 relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-                  Interactive Platform Demo
+                  Precision Talent Workspace
                 </h3>
                 <span className="text-[11px] font-mono text-emerald-400 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  Instant Free Access
+                  Instant Access via Gmail
                 </span>
               </div>
 
@@ -343,22 +345,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div className="space-y-0.5">
-                  <div className="text-xs font-bold text-white">Full Demo Environment Ready</div>
+                  <div className="text-xs font-bold text-white">Create Your Candidate Profile</div>
                   <div className="text-[11px] text-slate-400">
-                    No credit card or waitlist required. Explore candidate tools, AI mock interviews, or recruiter screening with one click.
+                    Sign in or sign up with your Google / Gmail ID or email to unlock ATS resume analysis, AI mock interviews, and matched jobs.
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-slate-300 font-medium">
-                  Select your primary role to launch the live workspace:
+                  Select your portal to continue with Gmail / Email:
                 </p>
 
                 {/* Role Switcher Primary Action */}
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => onSelectRoleDemo('candidate', 'candidate_dash')}
+                    onClick={() => onOpenAuth('candidate', 'register', 'candidate_dash')}
                     className="btn-luma-primary text-center justify-center font-bold text-xs sm:text-sm cursor-pointer"
                   >
                     <span>Candidate Portal</span>
@@ -366,7 +368,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                   </button>
 
                   <button
-                    onClick={() => onSelectRoleDemo('recruiter', 'recruiter_dash')}
+                    onClick={() => onOpenAuth('recruiter', 'register', 'recruiter_dash')}
                     className="btn-luma-glass text-center justify-center font-bold text-xs sm:text-sm cursor-pointer !bg-white/15"
                   >
                     <span>Recruiter Portal</span>
@@ -382,7 +384,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <button
-                    onClick={() => onSelectRoleDemo('candidate', 'resume_analyzer')}
+                    onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
                     className="btn-luma-glass !text-xs !py-2.5 !px-3 w-full justify-between"
                   >
                     <span>Scan Resume</span>
@@ -390,7 +392,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                   </button>
 
                   <button
-                    onClick={() => onSelectRoleDemo('candidate', 'ai_interview')}
+                    onClick={() => onOpenAuth('candidate', 'register', 'ai_interview')}
                     className="btn-luma-glass !text-xs !py-2.5 !px-3 w-full justify-between !border-cyan-400/30 hover:!bg-cyan-500/15 text-cyan-200"
                   >
                     <span>AI Mock Studio</span>
@@ -398,7 +400,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                   </button>
 
                   <button
-                    onClick={() => onSelectRoleDemo('recruiter', 'screening')}
+                    onClick={() => onOpenAuth('recruiter', 'register', 'screening')}
                     className="btn-luma-glass !text-xs !py-2.5 !px-3 w-full justify-between"
                   >
                     <span>Screening Matrix</span>
@@ -429,7 +431,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-3">
                 
                 <div 
-                  onClick={() => onSelectRoleDemo('candidate', 'resume_analyzer')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
                   className="p-4 rounded-2xl bg-white/[0.035] border border-white/[0.08] hover:border-white/20 transition-all cursor-pointer space-y-2 group"
                 >
                   <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
@@ -445,7 +447,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <div 
-                  onClick={() => onSelectRoleDemo('candidate', 'ai_interview')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'ai_interview')}
                   className="p-4 rounded-2xl bg-white/[0.035] border border-white/[0.08] hover:border-white/20 transition-all cursor-pointer space-y-2 group"
                 >
                   <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
@@ -461,7 +463,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <div 
-                  onClick={() => onSelectRoleDemo('candidate', 'skill_gaps')}
+                  onClick={() => onOpenAuth('candidate', 'register', 'skill_gaps')}
                   className="p-4 rounded-2xl bg-white/[0.035] border border-white/[0.08] hover:border-white/20 transition-all cursor-pointer space-y-2 group"
                 >
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
@@ -477,7 +479,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
                 </div>
 
                 <div 
-                  onClick={() => onSelectRoleDemo('recruiter', 'screening')}
+                  onClick={() => onOpenAuth('recruiter', 'register', 'screening')}
                   className="p-4 rounded-2xl bg-white/[0.035] border border-white/[0.08] hover:border-white/20 transition-all cursor-pointer space-y-2 group"
                 >
                   <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
@@ -510,13 +512,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRoleDemo }) =>
             <span>Autonomous Precision Resume Screening & Talent Intelligence</span>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => onSelectRoleDemo('candidate', 'candidate_dash')} className="hover:text-slate-300">
-              Candidate Demo
+            <button onClick={() => onOpenAuth('candidate', 'register', 'candidate_dash')} className="hover:text-slate-300">
+              Candidate Portal
             </button>
-            <button onClick={() => onSelectRoleDemo('recruiter', 'recruiter_dash')} className="hover:text-slate-300">
-              Recruiter Demo
+            <button onClick={() => onOpenAuth('recruiter', 'register', 'recruiter_dash')} className="hover:text-slate-300">
+              Recruiter Portal
             </button>
-            <button onClick={() => onSelectRoleDemo('candidate', 'ai_interview')} className="hover:text-slate-300">
+            <button onClick={() => onOpenAuth('candidate', 'register', 'ai_interview')} className="hover:text-slate-300">
               AI Mock Studio
             </button>
           </div>

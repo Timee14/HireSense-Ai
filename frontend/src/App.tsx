@@ -22,8 +22,31 @@ import { User, CandidateProfile, RecruiterProfile, Resume, Job, JobRecommendatio
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<string>('landing');
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalConfig, setAuthModalConfig] = useState<{
+    isOpen: boolean;
+    role: 'candidate' | 'recruiter';
+    mode: 'login' | 'register' | 'google_select';
+    targetTab?: string;
+  }>({
+    isOpen: false,
+    role: 'candidate',
+    mode: 'register',
+    targetTab: 'candidate_dash'
+  });
   const [selectedMatchRec, setSelectedMatchRec] = useState<JobRecommendation | null>(null);
+
+  const handleOpenAuth = (
+    role: 'candidate' | 'recruiter' = 'candidate',
+    mode: 'login' | 'register' | 'google_select' = 'register',
+    targetTab?: string
+  ) => {
+    setAuthModalConfig({
+      isOpen: true,
+      role,
+      mode,
+      targetTab: targetTab || (role === 'candidate' ? 'candidate_dash' : 'recruiter_dash')
+    });
+  };
 
   // Candidate Data State
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile | null>(null);
@@ -287,7 +310,7 @@ export const App: React.FC = () => {
             user={user}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            onOpenAuth={() => setAuthModalOpen(true)}
+            onOpenAuth={() => handleOpenAuth('candidate', 'register', 'candidate_dash')}
             onLogout={handleLogout}
             notifications={notifications}
             onMarkNotificationRead={handleMarkNotificationRead}
@@ -299,7 +322,10 @@ export const App: React.FC = () => {
           
           {/* Landing View */}
           {activeTab === 'landing' && (
-            <LandingPage onSelectRoleDemo={handleQuickDemo} />
+            <LandingPage
+              onOpenAuth={handleOpenAuth}
+              onSelectRoleDemo={handleQuickDemo}
+            />
           )}
 
         {/* Candidate Views */}
@@ -405,12 +431,15 @@ export const App: React.FC = () => {
 
       {/* Auth Modal */}
       <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        isOpen={authModalConfig.isOpen}
+        onClose={() => setAuthModalConfig(prev => ({ ...prev, isOpen: false }))}
         onLogin={handleLogin}
         onRegister={handleRegister}
         onResetPassword={handleResetPassword}
         onQuickDemo={handleQuickDemo}
+        initialRole={authModalConfig.role}
+        initialMode={authModalConfig.mode}
+        targetTab={authModalConfig.targetTab}
       />
 
       {/* Match Radar Modal */}
