@@ -1,8 +1,9 @@
 import React from 'react';
 import { FileText, Briefcase, Award, ArrowUpRight, Target, Sparkles, CheckCircle2, Cpu, ArrowRight, TrendingUp, BrainCircuit, Mic, Zap } from 'lucide-react';
-import { CandidateProfile, Resume, JobRecommendation } from '../../types';
+import { User, CandidateProfile, Resume, JobRecommendation } from '../../types';
 
 interface CandidateDashboardProps {
+  user?: User | null;
   profile: CandidateProfile | null;
   resume: Resume | null;
   recommendations: JobRecommendation[];
@@ -11,6 +12,7 @@ interface CandidateDashboardProps {
 }
 
 export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
+  user,
   profile,
   resume,
   recommendations,
@@ -27,6 +29,9 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
   const impactScore = analysis?.impact_score ?? 15;
   const skillsScore = analysis?.skills_score ?? 85;
   const experienceScore = analysis?.experience_score ?? 20;
+
+  const displayName = user?.name || profile?.full_name || 'Candidate';
+  const firstName = displayName.trim().split(' ')[0] || 'Candidate';
 
   const getScoreColor = (val: number) => {
     if (val >= 80) return '#38bdf8';
@@ -48,7 +53,7 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
             <span className="uppercase tracking-wider">Candidate Intelligence</span>
           </div>
           <h1 className="font-editorial text-3xl md:text-5xl font-normal text-white tracking-tight">
-            Welcome back, {profile?.full_name?.split(' ')[0] || 'Candidate'}.
+            Welcome back, {firstName}.
           </h1>
           <p className="text-sm text-slate-400">
             Career Tier: <strong className="text-white">{careerLevel}</strong> • High-Dimensional Vector Calibrated

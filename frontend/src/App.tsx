@@ -105,10 +105,25 @@ export const App: React.FC = () => {
     }
   };
 
-  const loadCandidateData = async () => {
+  const loadCandidateData = async (activeUser?: User | null) => {
+    const currentUser = activeUser || user;
     try {
       const prof = await apiRequest<CandidateProfile>('/candidates/me').catch(() => null);
-      if (prof) setCandidateProfile(prof);
+      if (prof) {
+        if (currentUser?.name && (prof.full_name === 'Alex Chen' || !prof.full_name)) {
+          prof.full_name = currentUser.name;
+        }
+        setCandidateProfile(prof);
+      } else if (currentUser?.name) {
+        setCandidateProfile({
+          id: currentUser.id,
+          full_name: currentUser.name,
+          headline: "Candidate & Developer",
+          phone: "+1 (555) 019-2834",
+          location: "Remote",
+          profile_completion_pct: 95
+        });
+      }
       
       const r = await apiRequest<Resume>('/resumes/me').catch(() => null);
       if (r && r.analysis) {
@@ -161,11 +176,26 @@ export const App: React.FC = () => {
         body: JSON.stringify({ email, password, role, full_name: name })
       });
       setToken(res.access_token);
-      const u: User = { id: res.user_id, email: res.email, role: res.role, name: res.name || name };
+      const finalName = res.name || name || (email.split('@')[0] ? email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1) : (role === 'candidate' ? 'Candidate' : 'Recruiter'));
+      const u: User = { id: res.user_id, email: res.email, role: res.role, name: finalName };
       setUser(u);
+      try {
+        localStorage.setItem('hiresense_user', JSON.stringify(u));
+      } catch (e) {}
+
       if (res.role === 'candidate') {
+        setCandidateProfile(prev => ({
+          ...(prev || {
+            id: u.id,
+            headline: "Candidate & Developer",
+            phone: "+1 (555) 019-2834",
+            location: "Remote",
+            profile_completion_pct: 95
+          }),
+          full_name: finalName
+        }));
         setActiveTab(targetTab || 'candidate_dash');
-        loadCandidateData();
+        loadCandidateData(u);
       } else {
         setActiveTab(targetTab || 'recruiter_dash');
         loadRecruiterData();
@@ -173,23 +203,39 @@ export const App: React.FC = () => {
     } catch (err) {
       // Direct fallback login for instant access
       const isCandidate = role === 'candidate';
+      const finalName = name || (email.split('@')[0] ? email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1) : (isCandidate ? 'Candidate' : 'Recruiter'));
       const u: User = {
         id: isCandidate ? 'cand-demo-01' : 'rec-demo-01',
-        email: email || (isCandidate ? 'alex.dev@example.com' : 'recruiter@techinnovations.com'),
+        email: email || (isCandidate ? 'candidate@example.com' : 'recruiter@techinnovations.com'),
         role: isCandidate ? 'candidate' : 'recruiter',
-        name: name || (isCandidate ? 'Alex Chen' : 'Tech Innovations Recruiter')
+        name: finalName
       };
       setUser(u);
-      setActiveTab(targetTab || (isCandidate ? 'candidate_dash' : 'recruiter_dash'));
+      try {
+        localStorage.setItem('hiresense_user', JSON.stringify(u));
+      } catch (e) {}
+
       if (isCandidate) {
-        loadCandidateData();
+        setCandidateProfile(prev => ({
+          ...(prev || {
+            id: u.id,
+            headline: "Candidate & Developer",
+            phone: "+1 (555) 019-2834",
+            location: "Remote",
+            profile_completion_pct: 95
+          }),
+          full_name: finalName
+        }));
+        setActiveTab(targetTab || 'candidate_dash');
+        loadCandidateData(u);
       } else {
+        setActiveTab(targetTab || 'recruiter_dash');
         loadRecruiterData();
       }
     }
   };
 
-  const handleRegister = async (email: string, pass: string, role: 'candidate' | 'recruiter', name: string) => {
+  const handleRegister = async (email: string, pass: string, role: 'candidate' | 'recruiter', name: string, targetTab?: string) => {
     try {
       const res = await apiRequest<any>('/auth/register', {
         method: 'POST',
@@ -202,22 +248,53 @@ export const App: React.FC = () => {
         })
       });
       setToken(res.access_token);
-      const u: User = { id: res.user_id, email: res.email, role: res.role, name: res.name };
+      const finalName = res.name || name || (email.split('@')[0] ? email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1) : (role === 'candidate' ? 'Candidate' : 'Recruiter'));
+      const u: User = { id: res.user_id, email: res.email, role: res.role, name: finalName };
       setUser(u);
+      try {
+        localStorage.setItem('hiresense_user', JSON.stringify(u));
+      } catch (e) {}
+
       if (role === 'candidate') {
-        setActiveTab('candidate_dash');
-        loadCandidateData();
+        setCandidateProfile(prev => ({
+          ...(prev || {
+            id: u.id,
+            headline: "Candidate & Developer",
+            phone: "+1 (555) 019-2834",
+            location: "Remote",
+            profile_completion_pct: 95
+          }),
+          full_name: finalName
+        }));
+        setActiveTab(targetTab || 'candidate_dash');
+        loadCandidateData(u);
       } else {
-        setActiveTab('recruiter_dash');
+        setActiveTab(targetTab || 'recruiter_dash');
         loadRecruiterData();
       }
     } catch (err) {
-      const u: User = { id: 'user-01', email, role, name };
+      const finalName = name || (email.split('@')[0] ? email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1) : (role === 'candidate' ? 'Candidate' : 'Recruiter'));
+      const u: User = { id: 'user-01', email, role, name: finalName };
       setUser(u);
-      setActiveTab(role === 'candidate' ? 'candidate_dash' : 'recruiter_dash');
+      try {
+        localStorage.setItem('hiresense_user', JSON.stringify(u));
+      } catch (e) {}
+
       if (role === 'candidate') {
-        loadCandidateData();
+        setCandidateProfile(prev => ({
+          ...(prev || {
+            id: u.id,
+            headline: "Candidate & Developer",
+            phone: "+1 (555) 019-2834",
+            location: "Remote",
+            profile_completion_pct: 95
+          }),
+          full_name: finalName
+        }));
+        setActiveTab(targetTab || 'candidate_dash');
+        loadCandidateData(u);
       } else {
+        setActiveTab(targetTab || 'recruiter_dash');
         loadRecruiterData();
       }
     }
@@ -333,6 +410,7 @@ export const App: React.FC = () => {
           <>
             {activeTab === 'candidate_dash' && (
               <CandidateDashboard
+                user={user}
                 profile={candidateProfile}
                 resume={resume}
                 recommendations={recommendations}

@@ -82,12 +82,19 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
   // Graceful Mock Responder for Vercel Static Previews & Offline Execution
   if (endpoint.includes('/auth/me')) {
+    const savedUserStr = localStorage.getItem('hiresense_user');
+    if (savedUserStr) {
+      try {
+        const saved = JSON.parse(savedUserStr);
+        if (saved && saved.email) return saved as any;
+      } catch (e) {}
+    }
     const isRecruiter = token?.includes('recruiter');
     return {
       id: isRecruiter ? 'rec-demo-01' : 'cand-demo-01',
       email: isRecruiter ? 'recruiter@techinnovations.com' : 'alex.dev@example.com',
       role: isRecruiter ? 'recruiter' : 'candidate',
-      name: isRecruiter ? 'Tech Innovations Recruiter' : 'Alex Chen'
+      name: isRecruiter ? 'Tech Innovations Recruiter' : 'Candidate'
     } as any;
   }
 
@@ -110,20 +117,36 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     const bodyStr = options.body?.toString() || '';
     const isRecruiter = endpoint.includes('recruiter') || bodyStr.includes('recruiter');
     let email = isRecruiter ? 'recruiter@techinnovations.com' : 'alex.dev@example.com';
-    let name = isRecruiter ? 'Tech Innovations Recruiter' : 'Alex Chen';
+    let name = isRecruiter ? 'Tech Innovations Recruiter' : '';
     try {
       const parsed = JSON.parse(bodyStr);
       if (parsed.email) email = parsed.email;
       if (parsed.full_name) name = parsed.full_name;
+      else if (parsed.name) name = parsed.name;
     } catch(e) {}
+
+    if (!name && email) {
+      const prefix = email.split('@')[0];
+      name = prefix ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : (isRecruiter ? 'Recruiter' : 'Candidate');
+    }
+
+    const u = {
+      id: isRecruiter ? 'rec-demo-01' : 'cand-demo-01',
+      email: email,
+      role: isRecruiter ? 'recruiter' : 'candidate',
+      name: name
+    };
+    try {
+      localStorage.setItem('hiresense_user', JSON.stringify(u));
+    } catch (e) {}
 
     return {
       access_token: 'demo-jwt-token-hiresense-2026',
       token_type: 'bearer',
-      user_id: isRecruiter ? 'rec-demo-01' : 'cand-demo-01',
-      email: email,
-      role: isRecruiter ? 'recruiter' : 'candidate',
-      name: name
+      user_id: u.id,
+      email: u.email,
+      role: u.role,
+      name: u.name
     } as any;
   }
 
@@ -173,7 +196,20 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     return DEFAULT_RESUME as any;
   }
 
-  if (endpoint.includes('/candidates/me')) return MOCK_CANDIDATE as any;
+  if (endpoint.includes('/candidates/me')) {
+    const savedUserStr = localStorage.getItem('hiresense_user');
+    let fullName = MOCK_CANDIDATE.full_name;
+    if (savedUserStr) {
+      try {
+        const parsed = JSON.parse(savedUserStr);
+        if (parsed.name) fullName = parsed.name;
+      } catch (e) {}
+    }
+    return {
+      ...MOCK_CANDIDATE,
+      full_name: fullName
+    } as any;
+  }
   if (endpoint.includes('/jobs/recruiter/my-jobs')) return MOCK_JOBS as any;
   if (endpoint.includes('/applications/recruiter/all') || endpoint.includes('/applications/job/')) {
     return [
