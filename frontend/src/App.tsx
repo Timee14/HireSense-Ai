@@ -526,11 +526,19 @@ export const App: React.FC = () => {
         onClose={() => setSelectedMatchRec(null)}
       />
 
-      {/* Floating AI Career Assistant (Visible across Candidate views) */}
-      {user?.role === 'candidate' && activeTab !== 'ai_chatbot' && (
+      {/* Floating AI Career & Platform Assistant (Visible globally across Layout / Landing / Candidate / Recruiter views) */}
+      {activeTab !== 'ai_chatbot' && (
         <FloatingAIChatWidget
           resume={resume}
-          onOpenFullHub={() => setActiveTab('ai_chatbot')}
+          onOpenFullHub={() => {
+            if (user?.role === 'candidate') {
+              setActiveTab('ai_chatbot');
+            } else if (!user) {
+              handleOpenAuth('candidate', 'register', 'ai_chatbot');
+            } else {
+              setActiveTab('candidate_dash');
+            }
+          }}
         />
       )}
 
