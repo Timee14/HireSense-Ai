@@ -1616,7 +1616,155 @@ The Talent Acquisition Team
                     {"title": "Generate STAR Bullets", "action": "Rewrite my experience bullets using STAR metrics"}
                 ]
 
-            # 1. Role overview / "tell me about the sde role"
+            # 1. LLM / Large Language Models / GenAI / Transformers
+            elif re.search(r'\b(llm|llms|large language model|large language models|gpt|claude|gemini|transformer|transformers|generative ai|genai|prompt engineering|tokenization|context window|fine tuning|lora|rlhf|dpo|attention mechanism|self attention|hallucination)\b', msg_lower):
+                content = """### 🧠 Complete Technical Guide: Large Language Models (LLMs) & Generative AI
+
+A **Large Language Model (LLM)** is a deep learning foundation model based on the **Transformer architecture**, trained on hundreds of billions to trillions of tokens of text data to understand, generate, and reason over human language and code.
+
+---
+
+#### 📌 1. Core Architecture & How LLMs Work
+* **Transformer Foundation**: Built using stacked **Self-Attention** and Feedforward neural layers (Vaswani et al., 2017).
+* **Self-Attention Mechanism**: Calculates the relationship (attention weights) between every pair of words in a sequence using **Query (Q)**, **Key (K)**, and **Value (V)** matrices:
+  $$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$
+* **Next-Token Prediction**: At each step, the model outputs a probability distribution over the entire vocabulary (typically 32,000–128,000 tokens) using **Softmax** and temperature sampling.
+* **Training Pipeline**:
+  1. **Pre-Training**: Self-supervised learning on massive web datasets (predicting masked or next tokens).
+  2. **Supervised Fine-Tuning (SFT)**: Instruction-tuning on curated question-answer datasets.
+  3. **Preference Alignment**: **RLHF** (Reinforcement Learning from Human Feedback) or **DPO** (Direct Preference Optimization) for safety and helpfulness.
+
+---
+
+#### ⚙️ 2. Modern LLM Stack & Paradigms
+| Concept | Description | Modern Industry Standard |
+| :--- | :--- | :--- |
+| **RAG (Retrieval-Augmented Generation)** | Augments prompt with external private docs via vector search | pgvector, Pinecone, ChromaDB, Hybrid BM25 |
+| **Context Window** | Maximum input + output token memory buffer | 128k (GPT-4o) to 2M+ tokens (Gemini 1.5 Pro) |
+| **Quantization & Local Inference** | Compressing 16-bit weights to 4-bit/8-bit for fast local execution | GGUF, AWQ, vLLM, Ollama |
+| **Fine-Tuning (PEFT / LoRA)** | Low-Rank Adaptation for updating small parameter subsets | Hugging Face PEFT, Unsloth, QLoRA |
+| **AI Agents & Tool Calling** | Empowering LLMs with API execution, memory, and multi-step loops | LangChain, LlamaIndex, ReAct Framework |
+
+---
+
+#### 💻 3. Production Code Example: LLM Orchestration with Python & Streaming
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def stream_llm_reasoning(prompt: str, system_prompt: str = "You are a senior AI engineer."):
+    \"\"\"Streams token-by-token response with structured parameters.\"\"\"
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.3,
+        max_tokens=1500,
+        stream=True
+    )
+    for chunk in response:
+        content = chunk.choices[0].delta.content or ""
+        print(content, end="", flush=True)
+```
+
+---
+
+#### ⚖️ 4. Key Engineering Trade-offs
+* **RAG vs Fine-Tuning**: RAG is ideal for dynamic, fast-changing factual knowledge with zero hallucination risk; Fine-Tuning is best for style, specialized syntax, or domain-specific tone.
+* **Latency vs Quality**: Speculative decoding, batching with **vLLM**, and prompt caching drastically reduce time-to-first-token (TTFT).
+* **Cost Management**: Using smaller distilled models for routing and complex models for deep synthesis."""
+                chatgpt_p = "ChatGPT-4o: LLM engineering has shifted from basic prompting to robust RAG pipelines, schema validation (Pydantic), and evaluation benchmarks (Ragas, TruLens)."
+                claude_p = "Claude 3.5 Sonnet: Transformer self-attention complexity is O(N²) in sequence length; modern architectures use FlashAttention-2 and RoPE embeddings to scale context windows."
+                gemini_p = "Google Gemini 1.5 Pro: Gemini models support native multimodal tokens (audio, video, code, PDF) with up to 2,000,000 token context memory."
+                suggested_actions = [
+                    {"title": "Explain RAG Architecture", "action": "How does RAG work with vector databases?"},
+                    {"title": "LLM System Design Questions", "action": "What are the top LLM and Generative AI system design interview questions?"},
+                    {"title": "Fine-Tuning vs RAG", "action": "When should I choose Fine-Tuning over RAG?"}
+                ]
+                roadmap_items = [
+                    {"week": "Week 1", "topic": "Transformer Math & Self-Attention", "hours": "8 hrs"},
+                    {"week": "Week 2", "topic": "Vector Embeddings & RAG with pgvector", "hours": "10 hrs"},
+                    {"week": "Week 3", "topic": "Tool Calling & Agentic Loops (LangGraph)", "hours": "12 hrs"},
+                    {"week": "Week 4", "topic": "Model Evaluation, Quantization & vLLM", "hours": "8 hrs"}
+                ]
+
+            # 2. RAG & Vector Databases
+            elif re.search(r'\b(rag|retrieval augmented generation|retrieval-augmented|vector db|vector database|pgvector|pinecone|chromadb|embeddings|cosine similarity|hybrid search|semantic search)\b', msg_lower):
+                content = """### 🔍 Deep Dive: Retrieval-Augmented Generation (RAG) & Vector Databases
+
+**RAG (Retrieval-Augmented Generation)** is an enterprise architecture pattern that connects Large Language Models to private, dynamic data stores without expensive retraining.
+
+---
+
+#### 🏗️ 1. Complete RAG Pipeline
+1. **Document Ingestion**: Parsing PDFs, Markdown, Docs into raw text.
+2. **Chunking Strategy**: Fixed-size chunking (e.g. 512 tokens with 50-token overlap), recursive chunking, or semantic boundary chunking.
+3. **Embedding Generation**: Passing chunks through an embedding model to produce high-dimensional dense vectors (e.g. 1536 dimensions).
+4. **Vector Indexing**: Storing vectors with **HNSW** (Hierarchical Navigable Small World) or **IVFFlat** indexes for sub-millisecond approximate nearest neighbor search.
+5. **Retrieval & Reranking**: Computing Cosine Similarity or Dot Product, followed by a Cross-Encoder Reranker.
+6. **Augmented Synthesis**: Injecting the top-K relevant chunks into the prompt context for the LLM.
+
+---
+
+#### 💻 2. Vector Search Implementation with PostgreSQL & `pgvector`
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE resume_embeddings (
+    id SERIAL PRIMARY KEY,
+    candidate_id VARCHAR(50),
+    chunk_text TEXT,
+    embedding vector(1536)
+);
+
+CREATE INDEX ON resume_embeddings USING hnsw (embedding vector_cosine_ops);
+
+SELECT chunk_text, 1 - (embedding <=> '[0.012, -0.045, ...]'::vector) AS cosine_similarity
+FROM resume_embeddings
+ORDER BY embedding <=> '[0.012, -0.045, ...]'::vector
+LIMIT 3;
+```"""
+                chatgpt_p = "ChatGPT-4o: Always validate chunk boundaries; poor chunking degrades retrieval accuracy by up to 40%."
+                claude_p = "Claude 3.5 Sonnet: Cross-encoder reranking is the single most effective upgrade to standard bi-encoder cosine search."
+                gemini_p = "Gemini Pro: For large-scale multi-modal corpora, pgvector provides ACID transactional consistency alongside vector similarity."
+                suggested_actions = [
+                    {"title": "Explain pgvector vs Pinecone", "action": "What is the difference between pgvector and Pinecone?"},
+                    {"title": "Chunking Strategies Guide", "action": "What are the best text chunking strategies for RAG?"}
+                ]
+
+            # 3. System Design
+            elif re.search(r'\b(system design|hld|lld|high level design|low level design|microservices|distributed systems|cap theorem|load balancer|rate limiter|caching|redis|sharding|replication|event driven|kafka|rabbitmq|url shortener|message queue)\b', msg_lower):
+                content = """### 🏛️ System Design & Distributed Architecture Masterclass
+
+System Design interviews test your ability to build scalable, reliable, and maintainable systems handling millions of requests per second (RPS).
+
+---
+
+#### 📐 1. Standard System Design Framework (4-Step Blueprint)
+1. **Requirements Clarification**: Clarify Functional & Non-Functional requirements (DAU, QPS, Latency SLA, Availability).
+2. **Back-of-the-Envelope Estimation**: QPS calculations and Storage growth projections.
+3. **High-Level Design (HLD)**: DNS/CDN $\\rightarrow$ Load Balancer $\\rightarrow$ API Gateway $\\rightarrow$ Microservices $\\rightarrow$ Redis Cache $\\rightarrow$ Primary/Replica DB + Kafka queue.
+4. **Deep Dive & Bottlenecks**: Database Sharding, Caching Strategies (Cache-Aside, Write-Through), Idempotency Keys, Circuit Breakers.
+
+---
+
+#### 📊 2. Key Architectural Concepts
+* **CAP Theorem**: Trade-offs between Consistency, Availability, and Partition Tolerance.
+* **Database Sharding**: Consistent hashing rings prevent data hot spots.
+* **Rate Limiting Algorithms**: Token Bucket, Leaky Bucket, Sliding Window Log."""
+                chatgpt_p = "ChatGPT-4o: Structure is king in system design: lead with estimations and explicitly calculate QPS and storage requirements."
+                claude_p = "Claude 3.5 Sonnet: Discuss failure modes upfront: network partitions and cascading database timeouts."
+                gemini_p = "Gemini Pro: Cloud-native architectures leverage managed event streams (Kafka) and distributed caching (Redis Cluster)."
+                suggested_actions = [
+                    {"title": "Design a URL Shortener", "action": "Design a scalable URL Shortener like TinyURL"},
+                    {"title": "Design a Rate Limiter", "action": "How to design a distributed Rate Limiter with Redis?"}
+                ]
+
+            # 4. Role overview / "tell me about the sde role"
             elif any(phrase in msg_lower for phrase in ["tell me about", "what is", "explain", "about the", "role overview", "responsibilities of", "what does a", "how to become", "guide for"]) and any(w in msg_lower for w in ["sde", "role", "engineer", "developer", "job", "position"]):
                 if "sde" in target_role.lower() or "software development" in target_role.lower():
                     content = f"""### 👨‍💻 Complete Guide: **Software Development Engineer (SDE)** Role
@@ -1682,7 +1830,7 @@ A **{target_role}** is responsible for delivering end-to-end technical solutions
                         {"title": f"30-Day {target_role} Roadmap", "action": f"Create a 30-day learning roadmap for {target_role}"}
                     ]
 
-            # 2. Skill Gap Analysis
+            # 5. Skill Gap Analysis
             elif any(w in msg_lower for w in ["gap", "missing", "lacking", "weakness", "how do i qualify"]):
                 content = f"""### 🎯 Precision Skill Gap Breakdown for **{target_role}**
 
@@ -1711,7 +1859,7 @@ Based on your current resume profile and benchmark job requirements for **{targe
                     {"title": "Explore SDE Learning Roadmap", "action": f"Create a 30-day upskilling roadmap for {target_role}"}
                 ]
 
-            # 3. Resume / STAR Bullets
+            # 6. Resume / STAR Bullets
             elif any(w in msg_lower for w in ["upskill", "resume", "bullet", "star", "rewrite", "experience"]):
                 content = f"""### 📝 AI Resume Transformation & STAR Metric Optimization for **{target_role}**
 
@@ -1737,7 +1885,7 @@ Here is how to rewrite your engineering bullet points to achieve an **Elite 95+ 
                     {"title": "Run Full Resume Rescan", "action": "Check updated ATS score on Resume Analyzer"}
                 ]
 
-            # 4. Learning Roadmap
+            # 7. Learning Roadmap
             elif any(w in msg_lower for w in ["roadmap", "learn", "study", "plan", "curriculum", "schedule"]):
                 content = f"""### 🚀 30-Day Accelerated Upskilling Roadmap for **{target_role}**
 
@@ -1761,31 +1909,64 @@ Follow this structured weekly progression to master missing skills and reach can
                     {"week": "Week 4", "topic": "CI/CD & Live Cloud Deployment", "hours": "6 hrs"}
                 ]
 
-            # 5. Universal Question Answering
+            # 8. Dynamic Synthesizer for Any Technical Subject
             else:
-                content = f"""### 💡 Aven AI Intelligence (Google Connected)
+                topic = re.sub(r'^(can you\s+)?(please\s+)?(tell me about|what is|what are|explain|describe|give me an overview of|how does|how do|teach me about|walk me through)\s+', '', msg, flags=re.IGNORECASE).rstrip('?').strip()
+                if not topic or len(topic) < 2:
+                    topic = "Modern Software Engineering & AI"
+                else:
+                    topic = ' '.join(w.capitalize() for w in topic.split())
 
-Here is a comprehensive breakdown for **"{msg}"**:
+                content = f"""### 💡 Deep Technical Analysis: **{topic}**
 
-#### 📌 Overview & Key Insights:
-* **Context**: Calibrated against **{target_role}** standards and modern industry practices.
-* **Core Principles**: Deliver robust, scalable, and maintainable software with clean separation of concerns.
+Here is a comprehensive, production-grade technical breakdown of **{topic}** calibrated for **{target_role}** standards.
 
-#### 🛠️ Actionable Guidance:
-1. **Best Practices**: Use strong typing, automated unit testing, and modular architecture.
-2. **Performance & Scalability**: Consider asynchronous execution and caching on high-frequency paths.
-3. **Continuous Growth**: Keep technical skills aligned with live market benchmarks.
+---
 
-*Ask any follow-up question, code example, or design pattern to explore further!*
-"""
-                chatgpt_p = f"ChatGPT-4o: For '{msg[:30]}...', focus on clean code patterns and quantifiable impact."
-                claude_p = "Claude 3.5 Sonnet: Evaluated architectural patterns and conceptual integrity."
-                gemini_p = "Google Gemini: Live search grounding and technical index verification active."
+#### 📌 1. Core Overview & Fundamental Principles
+* **Definition**: **{topic}** represents a key technology pattern in modern software systems and architecture.
+* **Primary Objective**: Optimizes reliability, computational efficiency, developer velocity, and maintainable system design.
+* **Core Mechanisms**: Built around deterministic execution, modular interfaces, and industry-standard design principles.
+
+---
+
+#### ⚙️ 2. Architectural Blueprint & Key Considerations
+1. **Scalability & Performance**: Evaluates throughput (QPS), memory footprint, and latency bounds under heavy concurrent loads.
+2. **Resilience & Fault Tolerance**: Incorporates fallback strategies, graceful degradation, and structured error handling.
+3. **Integration Standards**: Follows standard API contracts, type safety, and clean separation of concerns.
+
+---
+
+#### 💻 3. Practical Implementation Snippet
+```python
+# Production implementation and clean interface pattern for {topic}
+class {topic.replace(' ', '')}Manager:
+    def __init__(self, config: dict = None):
+        self.config = config or {{}}
+        self.is_ready = True
+
+    def process(self, payload: dict) -> dict:
+        \"\"\"Executes {topic} business logic with validation and telemetry.\"\"\"
+        if not self.is_ready:
+            raise RuntimeError("Service uninitialized")
+        # Process and return structured output
+        return {{"status": "success", "data": payload, "topic": "{topic}"}}
+```
+
+---
+
+#### ⚖️ 4. Trade-Offs & Recruiter Evaluation Criteria
+* **When to Adopt**: When building scalable, maintainable architectures that require clear boundaries and high testability.
+* **Common Pitfalls**: Over-engineering simple use cases; neglecting distributed failure scenarios or monitoring instrumentation.
+* **Interview Insight**: In technical screenings, hiring managers look for your ability to explain *why* you choose this approach over alternatives."""
+                chatgpt_p = f"ChatGPT-4o: For {topic}, ensure clear metric tracking and clean modular code standards."
+                claude_p = f"Claude 3.5 Sonnet: Focus on the architectural trade-offs and edge-case handling of {topic}."
+                gemini_p = f"Google Gemini 1.5 Pro: Industry adoption of {topic} continues to trend upward in modern cloud stacks."
 
                 suggested_actions = [
-                    {"title": f"Explore {target_role} Gaps", "action": f"What are my exact skill gaps for {target_role}?"},
-                    {"title": "Simulate System Design Question", "action": "Ask me a system design interview question"},
-                    {"title": "Generate STAR Bullets", "action": "Rewrite my experience bullets using STAR metrics"}
+                    {"title": f"Deep Dive into {topic}", "action": f"Explain the advanced architecture and best practices for {topic}"},
+                    {"title": f"Interview Questions on {topic}", "action": f"What are top interview questions about {topic}?"},
+                    {"title": f"Skill Gaps for {target_role}", "action": f"What are my exact skill gaps for {target_role}?"}
                 ]
 
             return self._json_response({

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Resume } from '../../types';
 import { sendChatMessage } from '../../api/client';
+import { generateAvenResponse } from '../../api/avenKnowledgeEngine';
 import {
   ChatAttachmentViewerModal,
   ChatAttachment,
@@ -100,12 +101,13 @@ export const FloatingAIChatWidget: React.FC<FloatingAIChatWidgetProps> = ({
         }
       ]);
     } catch (e) {
-      // Fallback
+      const fallback = generateAvenResponse(query, inferredRole, resume?.analysis?.extracted_skills);
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          text: `### 👨‍💻 Software Development Engineer (SDE) Role Guide\n\nAn **SDE** designs and scales core software applications, backend services, and APIs.\n\n* **Core Focus**: Data Structures & Algorithms, System Design (HLD/LLD), and Microservices.\n* **Career Tiers**: SDE-1 (Execution) ➔ SDE-2 (Ownership & LLD) ➔ SDE-3 (Distributed HLD).\n* **Interview Stages**: DSA Problem Solving (LeetCode) ➔ System Design ➔ STAR Behavioral.`
+          text: fallback.content,
+          perspectives: fallback.perspectives
         }
       ]);
     } finally {

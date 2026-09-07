@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
 import { sendChatMessage, getChatSessions, clearChatHistory } from '../../api/client';
+import { generateAvenResponse } from '../../api/avenKnowledgeEngine';
 import {
   ChatAttachmentViewerModal,
   ChatAttachment,
@@ -286,18 +287,16 @@ I have calibrated your profile (**${resume?.file_name || 'Alex_Chen_Resume.pdf'}
 
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
-      // Fallback response
+      const fallback = generateAvenResponse(query, activeRole, candidateSkills);
       const fallbackMsg: ChatMessage = {
         id: 'bot-' + Date.now(),
         role: 'assistant',
-        content: `### 👨‍💻 Software Development Engineer (SDE) Role Guide\n\nAn **SDE** designs and scales core software applications, backend services, and APIs.\n\n* **Core Focus**: Data Structures & Algorithms, System Design (HLD/LLD), and Microservices.\n* **Career Tiers**: SDE-1 (Execution) ➔ SDE-2 (Ownership & LLD) ➔ SDE-3 (Distributed HLD).\n* **Interview Stages**: DSA Problem Solving (LeetCode) ➔ System Design ➔ STAR Behavioral.`,
+        content: fallback.content,
         model_used: selectedModel,
         timestamp: 'Just now',
-        perspectives: {
-          chatgpt: `ChatGPT-4o: For SDE applications, recruiters look for solid DSA fundamentals and clear quantifiable STAR metrics on past software deliverables.`,
-          claude: `Claude 3.5 Sonnet: SDE-2+ interviews heavily weigh systems thinking: explain trade-offs (e.g. CAP theorem, caching strategies, and eventual vs strong consistency).`,
-          gemini: `Gemini Flash / Pro: Current industry demand for SDEs favors engineers proficient in cloud-native microservices, async APIs, and PostgreSQL/vector search architectures.`
-        }
+        perspectives: fallback.perspectives,
+        suggested_actions: fallback.suggested_actions,
+        roadmap_items: fallback.roadmap_items
       };
       setMessages(prev => [...prev, fallbackMsg]);
     } finally {
