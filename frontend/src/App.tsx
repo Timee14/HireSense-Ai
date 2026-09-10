@@ -14,6 +14,7 @@ import { CreateJobPage } from './pages/recruiter/CreateJobPage';
 import { CandidateScreeningPage } from './pages/recruiter/CandidateScreeningPage';
 import { RecruiterAnalyticsPage } from './pages/recruiter/RecruiterAnalyticsPage';
 import { MatchRadarModal } from './components/ui/MatchRadarModal';
+import { JobDetailModal } from './components/ui/JobDetailModal';
 import { FloatingAIChatWidget } from './components/ui/FloatingAIChatWidget';
 import { LumaBackground } from './components/ui/LumaBackground';
 import { apiRequest, uploadFile, getToken, setToken, removeToken, getNotifications, markNotificationAsRead, DEFAULT_RESUME } from './api/client';
@@ -416,6 +417,7 @@ export const App: React.FC = () => {
                 recommendations={recommendations}
                 onNavigate={setActiveTab}
                 onApply={handleApplyJob}
+                onOpenJobDetail={setSelectedMatchRec}
               />
             )}
 
@@ -435,13 +437,13 @@ export const App: React.FC = () => {
             )}
 
             {activeTab === 'resume_analyzer' && (
-
               <ResumeAnalyzerPage
                 resume={resume}
                 recommendations={recommendations}
                 onUploadResume={handleUploadResume}
                 onApply={handleApplyJob}
                 onNavigate={setActiveTab}
+                onOpenJobDetail={setSelectedMatchRec}
               />
             )}
 
@@ -450,6 +452,7 @@ export const App: React.FC = () => {
                 recommendations={recommendations}
                 onApply={handleApplyJob}
                 onOpenMatchModal={setSelectedMatchRec}
+                onOpenJobDetail={setSelectedMatchRec}
               />
             )}
 
@@ -520,10 +523,18 @@ export const App: React.FC = () => {
         targetTab={authModalConfig.targetTab}
       />
 
-      {/* Match Radar Modal */}
-      <MatchRadarModal
+      {/* Comprehensive Job Opening & Detailed Role Description Modal */}
+      <JobDetailModal
         rec={selectedMatchRec}
         onClose={() => setSelectedMatchRec(null)}
+        onApply={handleApplyJob}
+        isApplied={selectedMatchRec ? candidateApplications.some(a => a.job_id === selectedMatchRec.job.id) : false}
+        onNavigateToInterview={(roleTitle, jobDesc) => {
+          setActiveTab('ai_interview');
+        }}
+        onNavigateToChat={(roleTitle) => {
+          setActiveTab('ai_chatbot');
+        }}
       />
 
       {/* Floating AI Career & Platform Assistant (Visible globally across Layout / Landing / Candidate / Recruiter views) */}

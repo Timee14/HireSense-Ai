@@ -37,21 +37,71 @@ const MOCK_JOBS = [
     employment_type: "Full-time",
     experience_level: "Senior",
     salary_range: "₹28,00,000 - ₹34,00,000",
-    description: "Seeking an experienced Full-Stack Engineer skilled in Python, FastAPI, and React.",
+    description: "Seeking an experienced Senior Full-Stack Engineer to architect and scale mission-critical backend microservices with FastAPI, reactive React frontends, and PostgreSQL vector embeddings. You will lead technical feature design, optimize query performance, and ensure high system reliability.",
+    department: "Platform Engineering",
+    responsibilities: [
+      "Architect and scale microservices with Python (FastAPI), asyncio worker queues, and PostgreSQL.",
+      "Build responsive, high-performance UI workflows using React 18, TypeScript, and modern component systems.",
+      "Implement and optimize vector search indexing with pgvector for low-latency similarity matching.",
+      "Lead code reviews, define CI/CD testing gates, and uphold software engineering best practices.",
+      "Collaborate closely with product management and AI engineers to deliver end-to-end features."
+    ],
+    qualifications: [
+      "4+ years of professional full-stack software development experience.",
+      "Strong proficiency in Python (FastAPI/Django), React, TypeScript, and SQL databases.",
+      "Deep understanding of distributed systems, REST API architecture, and database indexing.",
+      "Experience with containerized deployment using Docker and cloud platforms (AWS / GCP)."
+    ],
+    preferred_qualifications: [
+      "Experience with pgvector, Pinecone, or other vector databases in production.",
+      "Familiarity with Kubernetes orchestration, Redis caching, and Celery asynchronous tasks.",
+      "Prior experience leading technical design RFCs and mentoring engineering teams."
+    ],
+    benefits: [
+      "Top-tier competitive base salary + lucrative equity grants.",
+      "100% remote-first flexibility with home office ergonomics stipend.",
+      "Comprehensive health & dental insurance for employee and dependents.",
+      "Annual ₹1,50,000 learning & conference budget."
+    ],
     status: "active",
+    required_skills: ["Python", "FastAPI", "React", "PostgreSQL", "Docker", "Redis"],
+    preferred_skills: ["Kubernetes", "pgvector", "AWS", "TypeScript"],
     created_at: new Date().toISOString()
   },
   {
     id: "job-02",
     recruiter_id: "rec-01",
     company_name: "CloudScale Systems",
-    title: "Software Development Engineer",
+    title: "Software Development Engineer (SDE-2)",
     location: "Hyderabad / Hybrid",
     employment_type: "Full-time",
     experience_level: "Mid-Level",
     salary_range: "₹20,00,000 - ₹26,00,000",
-    description: "Core backend & API development in Python and React.",
+    description: "Core backend & API development in Python, asynchronous worker queues, and distributed data pipelines. You will take ownership of backend services powering millions of daily requests with high reliability.",
+    department: "Core Backend Infrastructure",
+    responsibilities: [
+      "Design, build, and maintain high-concurrency RESTful APIs and backend services using FastAPI and Python.",
+      "Design resilient database schemas, optimize SQL queries, and implement Redis caching layers.",
+      "Implement background task workers and event-driven data streaming pipelines.",
+      "Write comprehensive unit and integration tests (pytest) to maintain 85%+ test coverage."
+    ],
+    qualifications: [
+      "2-5 years of backend engineering experience with Python or Node.js.",
+      "Hands-on experience with PostgreSQL, relational modeling, and query tuning.",
+      "Familiarity with REST APIs, authentication (JWT/OAuth), and Docker containerization."
+    ],
+    preferred_qualifications: [
+      "Experience with message brokers like RabbitMQ or Apache Kafka.",
+      "Familiarity with AWS cloud primitives (EC2, S3, RDS, Lambda)."
+    ],
+    benefits: [
+      "Competitive salary + annual performance bonuses.",
+      "Hybrid work flexibility with flexible working hours.",
+      "Comprehensive health insurance and annual wellness stipend."
+    ],
     status: "active",
+    required_skills: ["Python", "FastAPI", "PostgreSQL", "System Design", "AWS"],
+    preferred_skills: ["Kafka", "Docker", "Redis"],
     created_at: new Date().toISOString()
   }
 ];

@@ -102,7 +102,11 @@ export interface Job {
   experience_level: string;
   salary_range?: string;
   description: string;
+  department?: string;
   responsibilities?: string[];
+  qualifications?: string[];
+  preferred_qualifications?: string[];
+  benefits?: string[];
   status: string;
   created_at: string;
   company_name?: string;

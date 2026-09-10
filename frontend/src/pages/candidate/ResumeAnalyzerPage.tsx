@@ -13,6 +13,7 @@ interface ResumeAnalyzerPageProps {
   onUploadResume: (file: File) => Promise<any>;
   onApply?: (jobId: string) => void;
   onNavigate?: (tab: string) => void;
+  onOpenJobDetail?: (rec: JobRecommendation) => void;
 }
 
 export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
@@ -20,7 +21,8 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
   recommendations = [],
   onUploadResume,
   onApply,
-  onNavigate
+  onNavigate,
+  onOpenJobDetail
 }) => {
   const [activeResume, setActiveResume] = useState<Resume>(resume || (DEFAULT_RESUME as any));
   const [uploading, setUploading] = useState(false);
@@ -505,39 +507,54 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
 
               <div className="space-y-4">
                 {recommendations.slice(0, 3).map((rec, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-white/[0.035] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/20 transition-all">
+                  <div 
+                    key={idx} 
+                    onClick={() => onOpenJobDetail && onOpenJobDetail(rec)}
+                    className="p-5 rounded-2xl bg-white/[0.035] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/25 hover:bg-white/[0.05] transition-all cursor-pointer group"
+                  >
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-mono font-bold border border-white/15">
+                        <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-mono font-bold border border-cyan-400/20">
                           {rec.match_details.overall_score}% MATCH
                         </span>
-                        <h4 className="text-base font-bold text-white font-sans">{rec.job.title}</h4>
+                        <h4 className="text-base font-bold text-white font-sans group-hover:text-cyan-200 transition-colors flex items-center gap-1.5">
+                          <span>{rec.job.title}</span>
+                          <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-300 transition-colors" />
+                        </h4>
                       </div>
                       <p className="text-xs text-slate-400">
                         {rec.job.company_name} • {rec.job.location} • {rec.job.experience_level}
                       </p>
-                      <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
+                      <p className="text-xs text-slate-300 leading-relaxed max-w-xl line-clamp-2">
                         {rec.match_details.ai_explanation}
                       </p>
                     </div>
 
-                    <button
-                      onClick={() => handleApplyClick(rec.job.id)}
-                      disabled={appliedJobIds[rec.job.id]}
-                      className={`btn-luma-primary text-xs px-5 py-2.5 shrink-0 ${appliedJobIds[rec.job.id] ? 'opacity-70 !bg-slate-300' : ''}`}
-                    >
-                      {appliedJobIds[rec.job.id] ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 text-black" />
-                          <span>Applied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 text-black" />
-                          <span>1-Click Apply</span>
-                        </>
-                      )}
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-cyan-300 font-medium group-hover:underline">
+                        Role Details
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApplyClick(rec.job.id);
+                        }}
+                        disabled={appliedJobIds[rec.job.id]}
+                        className={`btn-luma-primary text-xs px-5 py-2.5 shrink-0 ${appliedJobIds[rec.job.id] ? 'opacity-70 !bg-emerald-500 !text-black' : ''}`}
+                      >
+                        {appliedJobIds[rec.job.id] ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 text-black" />
+                            <span>Applied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 text-black" />
+                            <span>1-Click Apply</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

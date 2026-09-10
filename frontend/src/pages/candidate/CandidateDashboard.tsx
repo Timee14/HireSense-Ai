@@ -9,6 +9,7 @@ interface CandidateDashboardProps {
   recommendations: JobRecommendation[];
   onNavigate: (tab: string) => void;
   onApply: (jobId: string) => void;
+  onOpenJobDetail?: (rec: JobRecommendation) => void;
 }
 
 export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
@@ -17,7 +18,8 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
   resume,
   recommendations,
   onNavigate,
-  onApply
+  onApply,
+  onOpenJobDetail
 }) => {
   const analysis = resume?.analysis;
   const resumeScore = analysis?.overall_score ?? (resume ? 35 : 0);
@@ -132,22 +134,40 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
           </p>
         </div>
 
-        <div className="luma-card p-5 space-y-2">
-          <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Top Job Match</span>
+        <div 
+          onClick={() => {
+            if (recommendations[0] && onOpenJobDetail) {
+              onOpenJobDetail(recommendations[0]);
+            } else {
+              onNavigate('job_recs');
+            }
+          }}
+          className="luma-card p-5 space-y-2 cursor-pointer hover:border-white/20 transition-all group"
+        >
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Top Job Match</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-300 transition-colors" />
+          </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-black text-cyan-300 font-outfit tracking-tight">{topMatchScore}%</span>
             <span className="text-xs text-slate-400 font-mono font-bold">Fit</span>
           </div>
-          <p className="text-xs text-slate-400 truncate">{topMatchTitle}</p>
+          <p className="text-xs text-slate-400 truncate group-hover:text-white transition-colors">{topMatchTitle}</p>
         </div>
 
-        <div className="luma-card p-5 space-y-2">
-          <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Matched Openings</span>
+        <div 
+          onClick={() => onNavigate('job_recs')}
+          className="luma-card p-5 space-y-2 cursor-pointer hover:border-white/20 transition-all group"
+        >
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">Matched Openings</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-300 transition-colors" />
+          </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-black text-white font-outfit tracking-tight">{recommendations.length}</span>
             <span className="text-xs text-slate-400 font-mono font-bold">Active</span>
           </div>
-          <p className="text-xs text-slate-400">Ranked by cosine vector distance</p>
+          <p className="text-xs text-slate-400 group-hover:text-white transition-colors">Click to explore all openings</p>
         </div>
 
         <div className="luma-card p-5 space-y-2">
@@ -267,14 +287,18 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
             {recommendations.slice(0, 3).map((rec) => (
               <div
                 key={rec.job.id}
-                className="p-3.5 rounded-xl bg-white/[0.035] border border-white/10 hover:border-white/20 transition-all space-y-2"
+                onClick={() => onOpenJobDetail && onOpenJobDetail(rec)}
+                className="p-3.5 rounded-xl bg-white/[0.035] border border-white/10 hover:border-white/25 hover:bg-white/[0.06] transition-all space-y-2 cursor-pointer group"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-sm text-white font-sans">{rec.job.title}</h3>
+                    <h3 className="font-bold text-sm text-white font-sans group-hover:text-cyan-200 transition-colors flex items-center gap-1">
+                      <span>{rec.job.title}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-300 transition-colors" />
+                    </h3>
                     <p className="text-xs text-slate-400">{rec.job.company_name} • {rec.job.location}</p>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-white/10 text-white font-mono text-xs font-bold border border-white/15 shrink-0">
+                  <span className="px-2 py-0.5 rounded-full bg-white/10 text-cyan-300 font-mono text-xs font-bold border border-white/15 shrink-0">
                     {rec.match_details.overall_score}%
                   </span>
                 </div>
@@ -283,13 +307,21 @@ export const CandidateDashboard: React.FC<CandidateDashboardProps> = ({
                   <span className="text-[11px] text-slate-400 font-mono">
                     {rec.job.experience_level}
                   </span>
-                  <button
-                    onClick={() => onApply(rec.job.id)}
-                    className="text-xs font-bold text-white hover:underline flex items-center gap-1"
-                  >
-                    <span>Apply</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-cyan-400 font-medium group-hover:underline">
+                      View Details
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onApply(rec.job.id);
+                      }}
+                      className="text-xs font-bold text-white hover:underline flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 border border-white/15"
+                    >
+                      <span>Apply</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
