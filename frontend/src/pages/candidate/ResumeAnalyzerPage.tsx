@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Resume, JobRecommendation } from '../../types';
 import { DEFAULT_RESUME } from '../../api/client';
+import { DEFAULT_JOBS } from './JobRecommendationsPage';
 
 interface ResumeAnalyzerPageProps {
   resume: Resume | null;
@@ -24,6 +25,7 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
   onNavigate,
   onOpenJobDetail
 }) => {
+  const effectiveRecs = recommendations && recommendations.length > 0 ? recommendations : DEFAULT_JOBS;
   const [activeResume, setActiveResume] = useState<Resume>(resume || (DEFAULT_RESUME as any));
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -490,7 +492,7 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
           </div>
 
           {/* Best-Fit Open Positions */}
-          {recommendations.length > 0 && (
+          {effectiveRecs.length > 0 && (
             <div className="luma-card p-6 md:p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -506,7 +508,7 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
               </div>
 
               <div className="space-y-4">
-                {recommendations.slice(0, 3).map((rec, idx) => (
+                {effectiveRecs.slice(0, 3).map((rec, idx) => (
                   <div 
                     key={idx} 
                     onClick={() => onOpenJobDetail && onOpenJobDetail(rec)}
@@ -515,7 +517,7 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-mono font-bold border border-cyan-400/20">
-                          {rec.match_details.overall_score}% MATCH
+                          {rec.match_details?.overall_score ?? 90}% MATCH
                         </span>
                         <h4 className="text-base font-bold text-white font-sans group-hover:text-cyan-200 transition-colors flex items-center gap-1.5">
                           <span>{rec.job.title}</span>
@@ -526,7 +528,7 @@ export const ResumeAnalyzerPage: React.FC<ResumeAnalyzerPageProps> = ({
                         {rec.job.company_name} • {rec.job.location} • {rec.job.experience_level}
                       </p>
                       <p className="text-xs text-slate-300 leading-relaxed max-w-xl line-clamp-2">
-                        {rec.match_details.ai_explanation}
+                        {rec.match_details?.ai_explanation || rec.job.description}
                       </p>
                     </div>
 
