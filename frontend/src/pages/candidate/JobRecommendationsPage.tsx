@@ -9,7 +9,7 @@ interface JobRecommendationsPageProps {
   onOpenJobDetail?: (rec: JobRecommendation) => void;
 }
 
-const DEFAULT_JOBS: JobRecommendation[] = [
+export const DEFAULT_JOBS: JobRecommendation[] = [
   {
     job: {
       id: "job-01",

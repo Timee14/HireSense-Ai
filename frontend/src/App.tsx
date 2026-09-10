@@ -403,6 +403,7 @@ export const App: React.FC = () => {
             <LandingPage
               onOpenAuth={handleOpenAuth}
               onSelectRoleDemo={handleQuickDemo}
+              onOpenJobDetail={setSelectedMatchRec}
             />
           )}
 

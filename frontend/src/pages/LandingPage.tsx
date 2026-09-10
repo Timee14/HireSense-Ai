@@ -2,15 +2,18 @@ import React from 'react';
 import {
   Sparkles, ArrowRight, BrainCircuit, Users,
   FileText, Target, ChevronRight, Zap, CheckCircle2,
-  Cpu, Github
+  Cpu, Github, Briefcase, MapPin, DollarSign, ArrowUpRight, ShieldCheck
 } from 'lucide-react';
+import { JobRecommendation } from '../types';
+import { DEFAULT_JOBS } from './candidate/JobRecommendationsPage';
 
 interface LandingPageProps {
   onOpenAuth: (role?: 'candidate' | 'recruiter', mode?: 'login' | 'register' | 'google_select', targetTab?: string) => void;
   onSelectRoleDemo?: (role: 'candidate' | 'recruiter', targetTab?: string) => void;
+  onOpenJobDetail?: (rec: JobRecommendation) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRoleDemo, onOpenJobDetail }) => {
   return (
     <div className="min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black flex flex-col justify-between">
       
@@ -30,6 +33,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
 
         <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+          {onSelectRoleDemo && (
+            <button
+              onClick={() => onSelectRoleDemo('candidate', 'job_recs')}
+              className="text-cyan-300 hover:text-cyan-200 transition-colors font-medium hidden md:inline flex items-center gap-1.5"
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              Live Job Openings
+            </button>
+          )}
           <button 
             onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
             className="text-slate-300 hover:text-white transition-colors font-medium hidden md:inline"
@@ -53,7 +65,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
       </header>
 
       {/* 2. HERO SECTION */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 w-full space-y-16 text-center">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-16 w-full space-y-16 text-center">
         
         {/* Badge & Headline */}
         <div className="space-y-5 max-w-3xl mx-auto">
@@ -70,24 +82,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
           </h1>
 
           <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Eliminate keyword bias. Parse resumes instantly with high fidelity, rank candidates with cosine similarity embeddings, and prepare with voice-enabled AI interviews.
+            Eliminate keyword bias. Parse resumes instantly with high fidelity, rank candidates with cosine similarity embeddings, and explore detailed role descriptions with AI match breakdown.
           </p>
 
           {/* Simple Direct Portal CTA Buttons */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
             <button
-              onClick={() => onOpenAuth('candidate', 'register', 'candidate_dash')}
+              onClick={() => onSelectRoleDemo ? onSelectRoleDemo('candidate', 'candidate_dash') : onOpenAuth('candidate', 'register', 'candidate_dash')}
               className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2 shadow-lg shadow-white/10 group cursor-pointer"
             >
-              <span>For Job Candidates</span>
+              <span>Explore Candidate Portal</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </button>
 
             <button
-              onClick={() => onOpenAuth('recruiter', 'register', 'recruiter_dash')}
+              onClick={() => onSelectRoleDemo ? onSelectRoleDemo('recruiter', 'recruiter_dash') : onOpenAuth('recruiter', 'register', 'recruiter_dash')}
               className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm transition-all border border-white/15 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>For Recruiters</span>
+              <span>Recruiter Portal Demo</span>
               <ArrowRight className="w-4 h-4 text-slate-400" />
             </button>
           </div>
@@ -101,8 +113,81 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
               <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Instant ATS Scoring
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Free Demo
+              <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Interactive Role Deep-Dives
             </span>
+          </div>
+        </div>
+
+        {/* 2.5 FEATURED LIVE JOB OPENINGS (1-Click Role Deep Dive) */}
+        <div className="text-left space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono font-semibold uppercase tracking-wider">
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Featured Open Positions & Role Descriptions</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-sans mt-0.5">
+                Click any opening to view full responsibilities & qualifications
+              </h2>
+            </div>
+            <button
+              onClick={() => onSelectRoleDemo ? onSelectRoleDemo('candidate', 'job_recs') : onOpenAuth('candidate', 'register', 'job_recs')}
+              className="text-xs font-bold text-cyan-300 hover:text-white flex items-center gap-1 transition-colors group cursor-pointer"
+            >
+              <span>View All 12+ Openings</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {DEFAULT_JOBS.slice(0, 3).map((rec) => (
+              <div
+                key={rec.job.id}
+                onClick={() => {
+                  if (onOpenJobDetail) {
+                    onOpenJobDetail(rec);
+                  } else if (onSelectRoleDemo) {
+                    onSelectRoleDemo('candidate', 'job_recs');
+                  } else {
+                    onOpenAuth('candidate', 'register', 'job_recs');
+                  }
+                }}
+                className="p-5 rounded-2xl bg-[#0e121d]/90 border border-white/10 hover:border-cyan-500/40 hover:bg-[#121726] transition-all cursor-pointer space-y-3.5 group relative overflow-hidden flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 text-[11px] font-mono font-semibold">
+                      {rec.job.employment_type} • {rec.job.experience_level}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/10 text-cyan-300 font-mono text-xs font-bold border border-white/15">
+                      {rec.match_details?.overall_score ?? 92}% Match
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-bold text-white font-sans group-hover:text-cyan-200 transition-colors flex items-center justify-between">
+                      <span>{rec.job.title}</span>
+                      <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
+                    </h3>
+                    <p className="text-xs text-slate-400 font-medium">{rec.job.company_name} • {rec.job.location}</p>
+                  </div>
+
+                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                    {rec.job.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-xs">
+                  <span className="text-slate-400 font-mono font-medium">
+                    {rec.job.salary_range}
+                  </span>
+                  <span className="text-cyan-400 font-semibold flex items-center gap-1 group-hover:underline">
+                    View Role Description
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -110,7 +195,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
           
           <div 
-            onClick={() => onOpenAuth('candidate', 'register', 'resume_analyzer')}
+            onClick={() => onSelectRoleDemo ? onSelectRoleDemo('candidate', 'resume_analyzer') : onOpenAuth('candidate', 'register', 'resume_analyzer')}
             className="p-5 rounded-2xl bg-[#0e121d]/80 border border-white/10 hover:border-cyan-500/30 hover:bg-[#121726]/90 transition-all cursor-pointer space-y-3 group"
           >
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
@@ -128,7 +213,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
           </div>
 
           <div 
-            onClick={() => onOpenAuth('candidate', 'register', 'ai_interview')}
+            onClick={() => onSelectRoleDemo ? onSelectRoleDemo('candidate', 'ai_interview') : onOpenAuth('candidate', 'register', 'ai_interview')}
             className="p-5 rounded-2xl bg-[#0e121d]/80 border border-white/10 hover:border-cyan-500/30 hover:bg-[#121726]/90 transition-all cursor-pointer space-y-3 group"
           >
             <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
@@ -146,7 +231,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
           </div>
 
           <div 
-            onClick={() => onOpenAuth('candidate', 'register', 'skill_gaps')}
+            onClick={() => onSelectRoleDemo ? onSelectRoleDemo('candidate', 'skill_gaps') : onOpenAuth('candidate', 'register', 'skill_gaps')}
             className="p-5 rounded-2xl bg-[#0e121d]/80 border border-white/10 hover:border-cyan-500/30 hover:bg-[#121726]/90 transition-all cursor-pointer space-y-3 group"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
@@ -164,7 +249,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
           </div>
 
           <div 
-            onClick={() => onOpenAuth('recruiter', 'register', 'screening')}
+            onClick={() => onSelectRoleDemo ? onSelectRoleDemo('recruiter', 'screening') : onOpenAuth('recruiter', 'register', 'screening')}
             className="p-5 rounded-2xl bg-[#0e121d]/80 border border-white/10 hover:border-cyan-500/30 hover:bg-[#121726]/90 transition-all cursor-pointer space-y-3 group"
           >
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
@@ -201,7 +286,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
             </a>
           </div>
         </div>
-
       </main>
 
       {/* 5. MINIMAL FOOTER */}

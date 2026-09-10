@@ -28,11 +28,22 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
 
   if (!rec) return null;
 
-  const { job, match_details: m } = rec;
+  const rawRec = rec as any;
+  const job = rawRec.job || rawRec;
+  const m = rawRec.match_details || null;
+
+  const jobId = job.id || "job-01";
+  const jobTitle = job.title || "Senior Full-Stack Engineer";
+  const companyName = job.company_name || "Tech Innovations Inc.";
+  const location = job.location || "Bengaluru / Remote";
+  const experienceLevel = job.experience_level || "Senior (4+ yrs)";
+  const salaryRange = job.salary_range || "₹28,00,000 - ₹34,00,000";
+  const employmentType = job.employment_type || "Full-time";
+  const description = job.description || `Seeking an experienced ${jobTitle} to join our high-performance engineering team. In this role, you will architect mission-critical backend systems and interactive modern web applications.`;
 
   const handleApply = () => {
     if (onApply && !appliedLocal) {
-      onApply(job.id);
+      onApply(jobId);
       setAppliedLocal(true);
     }
   };
