@@ -26,20 +26,28 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
   const [activeTab, setActiveTab] = useState<'overview' | 'responsibilities' | 'requirements' | 'ai_match'>('overview');
   const [appliedLocal, setAppliedLocal] = useState(isApplied);
 
+  React.useEffect(() => {
+    setAppliedLocal(Boolean(isApplied));
+  }, [isApplied, rec]);
+
+  React.useEffect(() => {
+    setActiveTab('overview');
+  }, [rec]);
+
   if (!rec) return null;
 
   const rawRec = rec as any;
   const job = rawRec.job || rawRec;
   const m = rawRec.match_details || null;
 
-  const jobId = job.id || "job-01";
-  const jobTitle = job.title || "Senior Full-Stack Engineer";
-  const companyName = job.company_name || "Tech Innovations Inc.";
-  const location = job.location || "Bengaluru / Remote";
-  const experienceLevel = job.experience_level || "Senior (4+ yrs)";
-  const salaryRange = job.salary_range || "₹28,00,000 - ₹34,00,000";
-  const employmentType = job.employment_type || "Full-time";
-  const description = job.description || `Seeking an experienced ${jobTitle} to join our high-performance engineering team. In this role, you will architect mission-critical backend systems and interactive modern web applications.`;
+  const jobId = job?.id || "job-01";
+  const jobTitle = job?.title || "Senior Full-Stack Engineer";
+  const companyName = job?.company_name || "Tech Innovations Inc.";
+  const location = job?.location || "Bengaluru / Remote";
+  const experienceLevel = job?.experience_level || "Senior (4+ yrs)";
+  const salaryRange = job?.salary_range || "₹28,00,000 - ₹34,00,000";
+  const employmentType = job?.employment_type || "Full-time";
+  const description = job?.description || `Seeking an experienced ${jobTitle} to join our high-performance engineering team. In this role, you will architect mission-critical backend systems and interactive modern web applications.`;
 
   const handleApply = () => {
     if (onApply && !appliedLocal) {
@@ -89,7 +97,7 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
       ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn text-white">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn text-white">
       <div className="relative w-full max-w-4xl bg-[#090b10] border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
         
         {/* Header Ribbon */}

@@ -407,6 +407,16 @@ export const App: React.FC = () => {
             />
           )}
 
+          {/* Public / Unauthenticated Job Explorer View */}
+          {!user && activeTab === 'job_recs' && (
+            <JobRecommendationsPage
+              recommendations={recommendations}
+              onApply={(jobId) => handleOpenAuth('candidate', 'register', 'job_recs')}
+              onOpenMatchModal={setSelectedMatchRec}
+              onOpenJobDetail={setSelectedMatchRec}
+            />
+          )}
+
         {/* Candidate Views */}
         {user?.role === 'candidate' && (
           <>
@@ -529,7 +539,10 @@ export const App: React.FC = () => {
         rec={selectedMatchRec}
         onClose={() => setSelectedMatchRec(null)}
         onApply={handleApplyJob}
-        isApplied={selectedMatchRec ? candidateApplications.some(a => a.job_id === selectedMatchRec.job.id) : false}
+        isApplied={selectedMatchRec ? candidateApplications.some(a => {
+          const recId = selectedMatchRec.job?.id || (selectedMatchRec as any)?.id;
+          return a.job_id === recId;
+        }) : false}
         onNavigateToInterview={(roleTitle, jobDesc) => {
           setActiveTab('ai_interview');
         }}

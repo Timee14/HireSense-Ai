@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, MapPin, DollarSign, Award, ChevronRight, Send, CheckCircle2, Sparkles, SlidersHorizontal, ArrowUpRight, Eye, Briefcase } from 'lucide-react';
 import { JobRecommendation } from '../../types';
+import { JobDetailModal } from '../../components/ui/JobDetailModal';
 
 interface JobRecommendationsPageProps {
   recommendations: JobRecommendation[];
@@ -171,12 +172,17 @@ export const JobRecommendationsPage: React.FC<JobRecommendationsPageProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [appliedMap, setAppliedMap] = useState<Record<string, boolean>>({});
+  const [localSelectedRec, setLocalSelectedRec] = useState<JobRecommendation | null>(null);
 
   const handleOpenDetail = (rec: JobRecommendation) => {
     if (onOpenJobDetail) {
       onOpenJobDetail(rec);
-    } else if (onOpenMatchModal) {
+    }
+    if (onOpenMatchModal) {
       onOpenMatchModal(rec);
+    }
+    if (!onOpenJobDetail && !onOpenMatchModal) {
+      setLocalSelectedRec(rec);
     }
   };
 
@@ -420,7 +426,18 @@ export const JobRecommendationsPage: React.FC<JobRecommendationsPageProps> = ({
         </div>
       )}
 
+      {/* Fallback local Job Details Modal if rendered standalone without parent modal orchestration */}
+      {!onOpenJobDetail && !onOpenMatchModal && (
+        <JobDetailModal
+          rec={localSelectedRec}
+          onClose={() => setLocalSelectedRec(null)}
+          onApply={(jobId) => handleApplyClick(jobId)}
+          isApplied={localSelectedRec ? Boolean(appliedMap[localSelectedRec.job?.id || (localSelectedRec as any)?.id]) : false}
+        />
+      )}
+
     </div>
   );
 };
+
 
