@@ -36,10 +36,14 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
   }, [isApplied, rec]);
 
   useEffect(() => {
-    if (rec) {
-      setCoverNote('');
-    }
-  }, [rec]);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   if (!rec) return null;
 
@@ -129,8 +133,13 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-fadeIn text-white">
-      <div className="relative w-full max-w-6xl bg-[#0b0e14] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[94vh] flex flex-col overflow-hidden">
+    <div 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-fadeIn text-white cursor-pointer"
+    >
+      <div className="relative w-full max-w-6xl bg-[#0b0e14] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[94vh] flex flex-col overflow-hidden cursor-default">
         
         {/* Top Floating Action Bar */}
         <div className="px-6 py-4 bg-[#0e121b] border-b border-white/10 flex items-center justify-between shrink-0">

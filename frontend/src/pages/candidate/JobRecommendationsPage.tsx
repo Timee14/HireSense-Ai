@@ -442,11 +442,9 @@ export const JobRecommendationsPage: React.FC<JobRecommendationsPageProps> = ({
   const handleOpenDetail = (rec: JobRecommendation) => {
     if (onOpenJobDetail) {
       onOpenJobDetail(rec);
-    }
-    if (onOpenMatchModal) {
+    } else if (onOpenMatchModal) {
       onOpenMatchModal(rec);
-    }
-    if (!onOpenJobDetail && !onOpenMatchModal) {
+    } else {
       setLocalSelectedRec(rec);
     }
   };
