@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X, Building2, MapPin, DollarSign, Briefcase, Award, CheckCircle2,
   AlertTriangle, Sparkles, Send, BrainCircuit, MessageSquare, ArrowRight,
-  ShieldCheck, Layers, ChevronRight, Clock, Users, Gift, Check, Flame
+  ShieldCheck, Layers, ChevronRight, Clock, Users, Gift, Check, Flame,
+  Share2, Bookmark, BookmarkCheck, Globe, HelpCircle, ExternalLink,
+  Laptop, CheckCheck, Sparkle, ArrowUpRight
 } from 'lucide-react';
 import { JobRecommendation } from '../../types';
 
@@ -23,15 +25,20 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
   onNavigateToInterview,
   onNavigateToChat,
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'responsibilities' | 'requirements' | 'ai_match'>('overview');
   const [appliedLocal, setAppliedLocal] = useState(isApplied);
+  const [isSaved, setIsSaved] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [coverNote, setCoverNote] = useState('');
+  const [aiGeneratingNote, setAiGeneratingNote] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setAppliedLocal(Boolean(isApplied));
   }, [isApplied, rec]);
 
-  React.useEffect(() => {
-    setActiveTab('overview');
+  useEffect(() => {
+    if (rec) {
+      setCoverNote('');
+    }
   }, [rec]);
 
   if (!rec) return null;
@@ -41,13 +48,58 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
   const m = rawRec.match_details || null;
 
   const jobId = job?.id || "job-01";
-  const jobTitle = job?.title || "Senior Full-Stack Engineer";
-  const companyName = job?.company_name || "Tech Innovations Inc.";
-  const location = job?.location || "Bengaluru / Remote";
-  const experienceLevel = job?.experience_level || "Senior (4+ yrs)";
-  const salaryRange = job?.salary_range || "₹28,00,000 - ₹34,00,000";
-  const employmentType = job?.employment_type || "Full-time";
-  const description = job?.description || `Seeking an experienced ${jobTitle} to join our high-performance engineering team. In this role, you will architect mission-critical backend systems and interactive modern web applications.`;
+  const jobTitle = job?.title || "Software Developer";
+  const companyName = job?.company_name || "Decipher Zone";
+  const location = job?.location || "Jaipur / Remote";
+  const experienceLevel = job?.experience_level || "1-4 Years";
+  const salaryRange = job?.salary_range || "$11k – $12k • No equity";
+  const employmentType = job?.employment_type || "Full-Time";
+  const department = job?.department || "Enterprise Software Engineering & Scalable Multi-Agent AI Architectures";
+  const description = job?.description || `We are looking for a skilled and motivated ${jobTitle} to join our engineering development team. The ideal candidate will be responsible for designing, developing, testing, and maintaining scalable and high-performance applications.`;
+
+  const skillsList: string[] = job?.required_skills && job.required_skills.length > 0
+    ? job.required_skills
+    : ["Java", "Springboot", "RESTful APIs", "SQL", "Git", "Problem Solving"];
+
+  const preferredSkillsList: string[] = job?.preferred_skills && job.preferred_skills.length > 0
+    ? job.preferred_skills
+    : ["Spring Security", "Hibernate/JPA", "Docker", "CI/CD", "AWS", "Kafka", "Agile/Scrum"];
+
+  const responsibilities: string[] = job?.responsibilities && job.responsibilities.length > 0
+    ? job.responsibilities
+    : [
+        `Develop, test, and maintain high-quality ${jobTitle} applications and microservices.`,
+        `Design and implement scalable, resilient, and reliable software architectures.`,
+        `Write clean, efficient, reusable, and well-documented production code.`,
+        `Develop and integrate high-throughput RESTful APIs, webhooks, and backend services.`,
+        `Work with relational and distributed databases such as MySQL, PostgreSQL, or MongoDB.`,
+        `Troubleshoot, debug, and resolve complex application bugs and performance bottlenecks.`,
+        `Collaborate closely with developers, QA engineers, product managers, and UI/UX designers.`,
+        `Participate actively in code reviews and uphold engineering excellence and security best practices.`,
+        `Optimize application performance, system latency, and containerized deployment pipelines.`
+      ];
+
+  const qualifications: string[] = job?.qualifications && job.qualifications.length > 0
+    ? job.qualifications
+    : [
+        `Bachelor's degree in Computer Science, Information Technology, Engineering, or a related field.`,
+        `Relevant professional hands-on experience in ${jobTitle} or software engineering.`,
+        `Strong analytical problem-solving, communication, and teamwork skills.`
+      ];
+
+  const preferredQualifications: string[] = job?.preferred_qualifications && job.preferred_qualifications.length > 0
+    ? job.preferred_qualifications
+    : preferredSkillsList.map(s => `Hands-on knowledge or production experience with ${s}.`);
+
+  const benefits: string[] = job?.benefits && job.benefits.length > 0
+    ? job.benefits
+    : [
+        `Competitive compensation package (${salaryRange}).`,
+        `Opportunity to work on challenging, high-impact multi-agent AI & enterprise projects.`,
+        `Continuous learning, upskilling, and rapid professional growth opportunities.`,
+        `Collaborative, supportive, and engineering-first work culture.`,
+        `Flexible remote working options and generous wellness support.`
+      ];
 
   const handleApply = () => {
     if (onApply && !appliedLocal) {
@@ -56,475 +108,452 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
     }
   };
 
-  const skillsList = job?.required_skills && job.required_skills.length > 0
-    ? job.required_skills
-    : ["Technical Architecture", "Domain Expertise", "Strategic Execution", "Problem Solving"];
+  const handleShare = () => {
+    navigator.clipboard?.writeText(window.location.href);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
 
-  // Dynamic role-specific details
-  const responsibilities = job?.responsibilities && job.responsibilities.length > 0
-    ? job.responsibilities
-    : [
-        `Lead technical and operational execution for ${jobTitle} initiatives at ${companyName}.`,
-        `Partner cross-functionally with product, engineering, and business stakeholders to design scalable solutions.`,
-        `Establish and enforce high-quality engineering standards and domain best practices utilizing ${skillsList.slice(0, 3).join(', ')}.`,
-        `Analyze key operational metrics, performance bottlenecks, and user feedback to drive continuous improvements.`,
-        `Mentor team members, lead architectural design discussions, and contribute to the technical roadmap.`
-      ];
+  const handleAutoGenerateNote = () => {
+    setAiGeneratingNote(true);
+    setTimeout(() => {
+      setCoverNote(`Hi ${companyName} team,\n\nI am thrilled to apply for the ${jobTitle} role. With my background in ${skillsList.slice(0, 3).join(', ')} and building resilient software architectures, I am confident I can immediately contribute to your team's mission. I look forward to connecting!`);
+      setAiGeneratingNote(false);
+    }, 450);
+  };
 
-  const qualifications = job?.qualifications && job.qualifications.length > 0
-    ? job.qualifications
-    : [
-        `Bachelor's or Master's degree in Computer Science, Engineering, Marketing, Business, or equivalent practical industry experience.`,
-        `Demonstrated professional experience working in ${jobTitle} or related domains.`,
-        `Proficiency and hands-on track record working with ${skillsList.join(', ')}.`,
-        `Strong analytical, collaborative, and problem-solving skills with a focus on measurable impact.`
-      ];
-
-  const preferredQualifications = job?.preferred_qualifications && job.preferred_qualifications.length > 0
-    ? job.preferred_qualifications
-    : [
-        `Prior experience operating in high-growth technology environments or enterprise scale ecosystems.`,
-        `Familiarity with industry-leading automation, monitoring, cloud services, or performance optimization frameworks.`,
-        `Proven track record of driving cross-functional projects from conceptual design through to launch and scaling.`
-      ];
-
-  const benefits = job?.benefits && job.benefits.length > 0
-    ? job.benefits
-    : [
-        `Competitive market compensation package: ${salaryRange} + performance bonuses & equity options.`,
-        `Comprehensive healthcare, dental, and vision insurance coverage for employees and dependents.`,
-        `Flexible hybrid / remote-first working setup with ergonomic home office allowances.`,
-        `Annual professional development, conference sponsorship, and continuous learning stipends.`,
-        `Generous paid time off (PTO), paid parental leave, and company wellness recharge days.`
-      ];
+  // Other jobs at same company sample
+  const relatedCompanyJobs = [
+    { title: "Software Developer", location: "Remote only • Everywhere", salary: "$11k – $12k • No equity", posted: "3 days ago" },
+    { title: "Business Analyst", location: "Remote only • Everywhere", salary: "$60k – $70k", posted: "1 month ago" },
+  ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn text-white">
-      <div className="relative w-full max-w-4xl bg-[#090b10] border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-fadeIn text-white">
+      <div className="relative w-full max-w-6xl bg-[#0b0e14] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[94vh] flex flex-col overflow-hidden">
         
-        {/* Header Ribbon */}
-        <div className="p-6 md:p-8 bg-gradient-to-r from-[#121520] via-[#0c0e16] to-[#121520] border-b border-white/10 relative shrink-0">
-          <button
-            onClick={onClose}
-            className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors p-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10"
-            title="Close modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          <div className="space-y-3 pr-10">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-300 font-mono font-semibold text-xs uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Active Job Opening</span>
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-mono text-xs border border-white/15">
-                {job.experience_level || "Mid-Senior"}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 font-mono text-xs">
-                {job.employment_type || "Full-time"}
-              </span>
-            </div>
-
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white font-sans tracking-tight">
-                  {job.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400 mt-2">
-                  <span className="flex items-center gap-1.5 font-medium text-slate-200">
-                    <Building2 className="w-4 h-4 text-cyan-400" />
-                    {job.company_name || "Tech Innovations Inc."}
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-cyan-400" />
-                    {job.location || "Remote / Hybrid"}
-                  </span>
-                  <span>•</span>
-                  <span className="font-mono font-bold text-white flex items-center gap-1">
-                    <DollarSign className="w-4 h-4 text-emerald-400" />
-                    {job.salary_range || "Competitive Package"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Match Score Pill */}
-              {m && (
-                <div className="flex items-center gap-3 bg-white/[0.04] border border-white/15 px-4 py-2.5 rounded-2xl shrink-0">
-                  <div className="text-right">
-                    <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">AI Fit Score</span>
-                    <span className="text-xs font-bold text-cyan-300">High Vector Match</span>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-300 font-black text-lg flex items-center justify-center font-outfit border border-cyan-400/30">
-                    {m.overall_score}%
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* Top Floating Action Bar */}
+        <div className="px-6 py-4 bg-[#0e121b] border-b border-white/10 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/10 text-[11px] font-mono text-slate-300 font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Job Opening ID: {jobId}</span>
+            </span>
           </div>
 
-          {/* Navigation Sub-Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pt-5 mt-4 border-t border-white/10 no-scrollbar">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                activeTab === 'overview'
-                  ? 'bg-white text-black shadow-md'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
-              }`}
+              onClick={handleShare}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5"
+              title="Share job opening"
             >
-              Role Overview & Summary
+              <Share2 className="w-4 h-4 text-cyan-400" />
+              <span className="hidden sm:inline">{copiedLink ? "Link Copied!" : "Share"}</span>
             </button>
 
             <button
-              onClick={() => setActiveTab('responsibilities')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                activeTab === 'responsibilities'
-                  ? 'bg-white text-black shadow-md'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
+              onClick={() => setIsSaved(!isSaved)}
+              className={`p-2 rounded-xl border text-xs flex items-center gap-1.5 transition-all ${
+                isSaved
+                  ? 'bg-amber-500/20 border-amber-400/40 text-amber-300'
+                  : 'bg-white/5 hover:bg-white/10 border-white/10 text-slate-300 hover:text-white'
               }`}
+              title="Save opening"
             >
-              Key Responsibilities ({responsibilities.length})
+              {isSaved ? <BookmarkCheck className="w-4 h-4 text-amber-400" /> : <Bookmark className="w-4 h-4 text-slate-400" />}
+              <span className="hidden sm:inline">{isSaved ? "Saved" : "Save"}</span>
             </button>
 
             <button
-              onClick={() => setActiveTab('requirements')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                activeTab === 'requirements'
-                  ? 'bg-white text-black shadow-md'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
-              }`}
+              onClick={onClose}
+              className="p-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white transition-colors ml-2"
+              title="Close modal"
             >
-              Skills & Qualifications
+              <X className="w-5 h-5" />
             </button>
-
-            {m && (
-              <button
-                onClick={() => setActiveTab('ai_match')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
-                  activeTab === 'ai_match'
-                    ? 'bg-cyan-400 text-black shadow-md'
-                    : 'bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 border border-cyan-400/20'
-                }`}
-              >
-                <Award className="w-3.5 h-3.5" />
-                <span>AI Match Radar ({m.overall_score}%)</span>
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Scrollable Content Area */}
-        <div className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1 text-slate-300 text-sm leading-relaxed">
-          
-          {/* TAB 1: OVERVIEW */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6 animate-fadeIn">
+        {/* Modal Main Body (Scrollable Split Two-Column Layout) */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* LEFT COLUMN: Deep Job Specifications, About the Role, Responsibilities, Qualifications (8 Cols) */}
+            <div className="lg:col-span-8 space-y-8">
               
-              {/* About Role Banner */}
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-white font-sans flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-cyan-400" />
-                  <span>About the Role & Team Mission</span>
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed bg-white/[0.02] p-4 rounded-2xl border border-white/10">
-                  {job.description || `We are looking for an exceptional ${job.title} to join our high-velocity engineering team. In this role, you will be instrumental in architecting, building, and deploying mission-critical systems and user-facing applications that power scalable experiences.`}
-                </p>
+              {/* Header Company Card */}
+              <div className="p-6 rounded-2xl bg-[#111522] border border-white/10 space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-500 flex items-center justify-center p-2.5 shadow-lg shrink-0 border border-white/20">
+                    <Building2 className="w-8 h-8 text-white" />
+                  </div>
+
+                  <div className="space-y-1 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-bold text-white font-sans">{companyName}</h2>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-mono font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        Actively Hiring
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                      {department}
+                    </p>
+                    <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2 pt-0.5">
+                      <Users className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>51-200 Employees • Tech & Product Engineering</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-white/10 space-y-1.5">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-sans tracking-tight">
+                    {jobTitle}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-300 font-mono">
+                    <span className="text-cyan-300 font-semibold">Remote only</span>
+                    <span>•</span>
+                    <span>{location}</span>
+                    <span>•</span>
+                    <span className="font-bold text-emerald-400">{salaryRange}</span>
+                    <span>•</span>
+                    <span className="text-slate-300">{experienceLevel}</span>
+                    <span>•</span>
+                    <span className="text-slate-300">{employmentType}</span>
+                  </div>
+                  <div className="text-[11px] text-emerald-400/90 font-mono font-bold pt-1 flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>POSTED RECENTLY • RECRUITER ACTIVE</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Key Highlights Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-                  <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold uppercase font-mono">
-                    <DollarSign className="w-4 h-4" /> Compensation
-                  </div>
-                  <span className="text-base font-bold text-white font-sans block">{job.salary_range || "Competitive"}</span>
-                  <span className="text-[11px] text-slate-400">Annual base + equity options</span>
+              {/* 6-Grid Quick Specifications Table */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold block">Hires Remotely In</span>
+                  <span className="text-sm font-semibold text-white">Everywhere / Worldwide</span>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-                  <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold uppercase font-mono">
-                    <MapPin className="w-4 h-4" /> Workplace Setup
-                  </div>
-                  <span className="text-base font-bold text-white font-sans block">{job.location || "Remote"}</span>
-                  <span className="text-[11px] text-slate-400">Flexible hybrid / remote hub</span>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold block">Remote Work Policy</span>
+                  <span className="text-sm font-semibold text-white">Remote only (100% Distributed)</span>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-                  <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold uppercase font-mono">
-                    <Clock className="w-4 h-4" /> Seniority Level
-                  </div>
-                  <span className="text-base font-bold text-white font-sans block">{job.experience_level || "Mid-Senior"}</span>
-                  <span className="text-[11px] text-slate-400">Full-time direct hire</span>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold block">Company Location</span>
+                  <span className="text-sm font-semibold text-white">{location}</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold block">Visa Sponsorship</span>
+                  <span className="text-sm font-semibold text-white">Direct Contract / Available</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold block">Preferred Timezones</span>
+                  <span className="text-sm font-semibold text-white">Flexible / Indochina / IST / UTC</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold block">Relocation</span>
+                  <span className="text-sm font-semibold text-white">Not Required (Remote First)</span>
                 </div>
               </div>
 
-              {/* Core Required Skills Badges */}
+              {/* Primary Tech Stack & Core Competencies */}
               <div className="space-y-3">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                  Primary Tech Stack & Core Competencies
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                  Primary Skills & Tech Stack
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {(job.required_skills && job.required_skills.length > 0 ? job.required_skills : ["Python", "FastAPI", "React", "PostgreSQL", "Docker", "AWS"]).map((skill, idx) => (
+                  {skillsList.map((skill, idx) => (
                     <span
                       key={idx}
-                      className="px-3.5 py-1.5 rounded-xl bg-white/10 text-white font-mono text-xs font-semibold border border-white/15 flex items-center gap-1.5 shadow-sm"
+                      className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-200 font-mono text-xs font-semibold border border-cyan-400/25 shadow-sm"
                     >
-                      <Check className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{skill}</span>
+                      {skill}
+                    </span>
+                  ))}
+                  {preferredSkillsList.map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1.5 rounded-xl bg-white/[0.04] text-slate-300 font-mono text-xs border border-white/10"
+                    >
+                      {skill}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* Benefits & Perks */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-                  <Gift className="w-4 h-4 text-emerald-400" />
-                  <span>Company Perks & Comprehensive Benefits</span>
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {benefits.map((b, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/20 text-xs text-slate-200 flex items-start gap-2.5">
-                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{b}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* TAB 2: RESPONSIBILITIES */}
-          {activeTab === 'responsibilities' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div>
-                <h3 className="text-lg font-bold text-white font-sans mb-1">
-                  What You Will Do & Day-to-Day Impact
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Detailed breakdown of core architectural responsibilities and expected delivery outcomes.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {responsibilities.map((resp, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-2xl bg-white/[0.035] border border-white/10 flex items-start gap-3.5 hover:border-white/20 transition-colors"
-                  >
-                    <div className="w-6 h-6 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      {idx + 1}
-                    </div>
-                    <p className="text-sm text-slate-200 leading-relaxed">
-                      {resp}
-                    </p>
+              {/* Comprehensive "About the job" Section */}
+              <div className="space-y-6 pt-4 border-t border-white/10">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white font-sans">
+                    About the job
+                  </h3>
+                  <div className="p-4 rounded-xl bg-white/[0.025] border border-white/10 space-y-1 text-xs text-slate-300 font-mono">
+                    <div><span className="text-slate-400 font-bold">Job Title:</span> <span className="text-white font-bold">{jobTitle}</span></div>
+                    <div><span className="text-slate-400 font-bold">Location:</span> <span className="text-white">{location}</span></div>
+                    <div><span className="text-slate-400 font-bold">Employment Type:</span> <span className="text-white">{employmentType}</span></div>
+                    <div><span className="text-slate-400 font-bold">Experience:</span> <span className="text-white">{experienceLevel}</span></div>
                   </div>
-                ))}
-              </div>
-
-              {/* Day in the Life Callout */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-950/30 to-indigo-950/30 border border-blue-500/30 space-y-2">
-                <span className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-cyan-400" />
-                  Engineering Culture & Autonomy
-                </span>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  We believe in high ownership, direct deployment pipelines, minimal bureaucratic overhead, and strong peer mentorship. You will participate in sprint architecture RFCs and have direct influence on technical roadmaps.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: REQUIREMENTS & QUALIFICATIONS */}
-          {activeTab === 'requirements' && (
-            <div className="space-y-6 animate-fadeIn">
-              
-              {/* Minimum Qualifications */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-white font-sans flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-400" />
-                  <span>Minimum & Core Qualifications</span>
-                </h3>
-                <div className="space-y-2.5">
-                  {qualifications.map((q, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
-                      <span className="text-sm text-slate-200">{q}</span>
-                    </div>
-                  ))}
                 </div>
-              </div>
 
-              {/* Preferred Qualifications */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-white font-sans flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
-                  <span>Preferred Qualifications & Bonus Skills</span>
-                </h3>
-                <div className="space-y-2.5">
-                  {preferredQualifications.map((pq, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/20 flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-amber-400 mt-2 shrink-0" />
-                      <span className="text-sm text-slate-200">{pq}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* TAB 4: AI MATCH RADAR */}
-          {activeTab === 'ai_match' && m && (
-            <div className="space-y-6 animate-fadeIn">
-              
-              {/* Overall Compatibility Banner */}
-              <div className="p-6 rounded-2xl bg-[#0c1018] border border-cyan-400/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="space-y-1 text-center sm:text-left">
-                  <span className="text-xs font-mono uppercase text-cyan-300 font-bold">Vector Compatibility Rationale</span>
-                  <h3 className="text-2xl font-bold text-white font-sans">{m.overall_score}% Profile Alignment</h3>
-                  <p className="text-xs text-slate-300 max-w-lg leading-relaxed">
-                    {m.ai_explanation || 'Your verified experience and technical keywords align closely with the requirements for this position.'}
+                {/* About the Role */}
+                <div className="space-y-2">
+                  <h4 className="text-base font-bold text-white font-sans">
+                    About the Role
+                  </h4>
+                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">
+                    {description}
                   </p>
                 </div>
 
-                <div className="w-20 h-20 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 font-black text-3xl flex items-center justify-center font-outfit shrink-0 shadow-lg">
-                  {m.overall_score}%
-                </div>
-              </div>
-
-              {/* Sub-Score Progress Bars */}
-              <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3.5">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                  Multi-Dimensional Match Calibration
-                </h4>
-
-                {[
-                  { label: 'Technical Stack & Keywords (35%)', score: m.skills_score || 92, color: 'bg-gradient-to-r from-blue-500 to-cyan-400' },
-                  { label: 'Dense Vector Cosine Similarity (25%)', score: 94, color: 'bg-cyan-400' },
-                  { label: 'Experience & Seniority Depth (20%)', score: m.experience_score || 88, color: 'bg-gradient-to-r from-cyan-400 to-emerald-400' },
-                  { label: 'Project Technical Relevance (10%)', score: m.projects_score || 90, color: 'bg-indigo-400' },
-                  { label: 'Education & Academic Alignment (10%)', score: m.education_score || 92, color: 'bg-purple-400' }
-                ].map((cat, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-300">{cat.label}</span>
-                      <span className="text-white font-mono">{cat.score}%</span>
-                    </div>
-                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                      <div className={`${cat.color} h-full rounded-full transition-all duration-700`} style={{ width: `${cat.score}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Matched vs Missing Skills */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-2">
-                  <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5 font-mono">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Matched Skills Found
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {(m.matched_skills && m.matched_skills.length > 0 ? m.matched_skills : ["Python", "FastAPI", "React", "PostgreSQL", "Docker"]).map((s, idx) => (
-                      <span key={idx} className="px-2.5 py-1 rounded-lg bg-emerald-900/40 text-emerald-200 text-xs font-mono font-medium border border-emerald-500/30">
-                        ✓ {s}
-                      </span>
+                {/* Key Responsibilities */}
+                <div className="space-y-3">
+                  <h4 className="text-base font-bold text-white font-sans">
+                    Key Responsibilities
+                  </h4>
+                  <div className="space-y-2.5">
+                    {responsibilities.map((resp, idx) => (
+                      <div key={idx} className="flex items-start gap-3 text-sm text-slate-200">
+                        <span className="font-mono font-bold text-cyan-400 shrink-0 text-xs mt-0.5">{idx + 1}.</span>
+                        <p className="leading-relaxed">{resp}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 space-y-2">
-                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5 font-mono">
-                    <AlertTriangle className="w-4 h-4 text-amber-400" /> Target Skills to Mention
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {(!m.missing_skills || m.missing_skills.length === 0) ? (
-                      <span className="text-xs text-slate-400 italic">No critical missing required skills! Complete coverage.</span>
-                    ) : (
-                      m.missing_skills.map((s, idx) => (
-                        <span key={idx} className="px-2.5 py-1 rounded-lg bg-amber-900/40 text-amber-200 text-xs font-mono font-medium border border-amber-500/30">
-                          + {s}
-                        </span>
-                      ))
-                    )}
+                {/* Preferred Skills */}
+                <div className="space-y-3">
+                  <h4 className="text-base font-bold text-white font-sans">
+                    Preferred Skills & Bonus Tooling
+                  </h4>
+                  <ul className="space-y-2 text-sm text-slate-200">
+                    {preferredQualifications.map((pq, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                        <span>{pq}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Qualifications */}
+                <div className="space-y-3">
+                  <h4 className="text-base font-bold text-white font-sans">
+                    Qualifications & Core Requirements
+                  </h4>
+                  <ul className="space-y-2 text-sm text-slate-200">
+                    {qualifications.map((q, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                        <span>{q}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* What We Offer */}
+                <div className="space-y-3">
+                  <h4 className="text-base font-bold text-white font-sans">
+                    What We Offer & Compensation
+                  </h4>
+                  <ul className="space-y-2 text-sm text-slate-200">
+                    {benefits.map((b, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* How to Apply */}
+                <div className="p-4 rounded-xl bg-white/[0.025] border border-white/10 space-y-1">
+                  <h5 className="text-xs font-bold text-white uppercase font-mono">How to Apply:</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Interested candidates can apply directly with 1-click below. Our talent team reviews profiles within 24-48 hours and shortlisted candidates will be scheduled for technical discovery rounds.
+                  </p>
+                </div>
+              </div>
+
+              {/* Company Profile Card */}
+              <div className="p-6 rounded-2xl bg-[#0e121d] border border-white/10 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300 font-bold font-mono text-lg">
+                    {companyName.slice(0, 2).toUpperCase()}
                   </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                      <span>{companyName}</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                    </h4>
+                    <p className="text-xs text-slate-400">{department}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <span className="px-2.5 py-1 rounded-md bg-white/5 text-slate-300 font-mono">Enterprise Software</span>
+                  <span className="px-2.5 py-1 rounded-md bg-white/5 text-slate-300 font-mono">AI Architecture</span>
+                  <span className="px-2.5 py-1 rounded-md bg-white/5 text-slate-300 font-mono">Web Development</span>
+                  <span className="px-2.5 py-1 rounded-md bg-white/5 text-slate-300 font-mono">Cloud Systems</span>
+                </div>
+              </div>
+
+              {/* Recent Jobs at this Company */}
+              <div className="space-y-3 pt-2">
+                <h4 className="text-sm font-bold text-white uppercase font-mono tracking-wider">
+                  Recent Jobs at {companyName}
+                </h4>
+                <div className="space-y-2.5">
+                  {relatedCompanyJobs.map((rj, idx) => (
+                    <div key={idx} className="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-4">
+                      <div>
+                        <h5 className="font-bold text-sm text-white">{rj.title}</h5>
+                        <p className="text-xs text-slate-400">{rj.location} • {rj.salary}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">{rj.posted}</span>
+                        <button
+                          onClick={handleApply}
+                          className="btn-luma-glass text-xs px-3 py-1.5"
+                        >
+                          {appliedLocal ? "Applied ✓" : "Apply"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
             </div>
-          )}
 
-        </div>
+            {/* RIGHT COLUMN: Interactive Sticky Apply & AI Score Sidebar (4 Cols) */}
+            <div className="lg:col-span-4 space-y-5">
+              
+              {/* Main Apply Card */}
+              <div className="p-6 rounded-2xl bg-[#121624] border border-white/15 shadow-xl space-y-5 sticky top-0">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-white font-sans">
+                    Apply to {companyName}
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Is your profile up to date? Verify your resume alignment and stand out directly to recruiters.
+                  </p>
+                </div>
 
-        {/* Modal Bottom Action Bar */}
-        <div className="p-5 md:p-6 bg-[#06070a] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
-          
-          {/* AI Prep Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-            {onNavigateToInterview && (
-              <button
-                onClick={() => {
-                  onClose();
-                  onNavigateToInterview(job.title, job.description);
-                }}
-                className="btn-luma-glass text-xs px-3.5 py-2 flex items-center gap-1.5 text-cyan-300 hover:text-white"
-                title="Practice AI Mock Interview for this specific role"
-              >
-                <BrainCircuit className="w-4 h-4 text-cyan-400" />
-                <span>Practice Mock Interview</span>
-              </button>
-            )}
+                {/* AI Odds & Match Score Callout */}
+                <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 via-amber-950/20 to-transparent border border-amber-400/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold text-amber-300 flex items-center gap-1.5 uppercase">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      Improve your odds
+                    </span>
+                    {m && (
+                      <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold text-xs border border-cyan-400/30">
+                        {m.overall_score}% FIT
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {m?.ai_explanation || `Highlight your experience with ${skillsList.slice(0, 2).join(' & ')} in the note below to demonstrate strong alignment.`}
+                  </p>
+                </div>
 
-            {onNavigateToChat && (
-              <button
-                onClick={() => {
-                  onClose();
-                  onNavigateToChat(job.title);
-                }}
-                className="btn-luma-glass text-xs px-3.5 py-2 flex items-center gap-1.5 text-slate-300 hover:text-white"
-                title="Ask AI Career Copilot about this role"
-              >
-                <MessageSquare className="w-4 h-4 text-slate-400" />
-                <span>Ask AI Copilot</span>
-              </button>
-            )}
+                {/* Pitch / Cover Note Input */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <label className="font-semibold text-slate-200">
+                      What interests you about working here?
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAutoGenerateNote}
+                      disabled={aiGeneratingNote}
+                      className="text-[11px] text-cyan-300 hover:text-white flex items-center gap-1 font-mono hover:underline"
+                    >
+                      <Sparkle className="w-3 h-3 text-cyan-400" />
+                      <span>{aiGeneratingNote ? "Generating..." : "AI Draft Pitch"}</span>
+                    </button>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={coverNote}
+                    onChange={(e) => setCoverNote(e.target.value)}
+                    placeholder="Introduce yourself, mention key projects, and explain why you're a great fit for this team..."
+                    className="w-full p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 transition-all resize-none"
+                  />
+                </div>
+
+                {/* Primary Apply Button */}
+                <button
+                  onClick={handleApply}
+                  disabled={appliedLocal}
+                  className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg ${
+                    appliedLocal
+                      ? 'bg-emerald-500 text-black font-extrabold cursor-default'
+                      : 'btn-luma-primary !py-3.5'
+                  }`}
+                >
+                  {appliedLocal ? (
+                    <>
+                      <CheckCheck className="w-4 h-4 text-black" />
+                      <span>Applied to Position ✓</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 text-black" />
+                      <span>1-Click Apply Now</span>
+                    </>
+                  )}
+                </button>
+
+                {/* AI Practice & Prep Shortcuts */}
+                <div className="space-y-2 pt-3 border-t border-white/10">
+                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">
+                    AI Preparation Hub
+                  </span>
+                  
+                  {onNavigateToInterview && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onNavigateToInterview(jobTitle, description);
+                      }}
+                      className="w-full p-2.5 rounded-xl bg-white/[0.03] hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-400/30 text-xs text-left text-cyan-300 flex items-center justify-between transition-all"
+                    >
+                      <span className="flex items-center gap-2">
+                        <BrainCircuit className="w-4 h-4 text-cyan-400" />
+                        <span>AI Mock Interview for this Role</span>
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
+                  {onNavigateToChat && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onNavigateToChat(jobTitle);
+                      }}
+                      className="w-full p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-xs text-left text-slate-300 hover:text-white flex items-center justify-between transition-all"
+                    >
+                      <span className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-slate-400" />
+                        <span>Ask Aven Copilot About this Role</span>
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
-
-          {/* Primary Action Buttons */}
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-300 transition-colors"
-            >
-              Close
-            </button>
-
-            {onApply && (
-              <button
-                onClick={handleApply}
-                disabled={appliedLocal}
-                className={`btn-luma-primary text-xs px-6 py-2.5 flex items-center gap-2 ${
-                  appliedLocal ? 'opacity-80 !bg-emerald-500 !text-black' : ''
-                }`}
-              >
-                {appliedLocal ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-black" />
-                    <span>Applied to Opening ✓</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 text-black" />
-                    <span>1-Click Apply Now</span>
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-
         </div>
 
       </div>

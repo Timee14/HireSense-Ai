@@ -13,6 +13,65 @@ interface JobRecommendationsPageProps {
 export const DEFAULT_JOBS: JobRecommendation[] = [
   {
     job: {
+      id: "job-decipher-01",
+      recruiter_id: "rec-decipher",
+      company_name: "Decipher Zone",
+      title: "Software Developer",
+      location: "Jaipur / Remote (Everywhere)",
+      employment_type: "Full-time",
+      experience_level: "1-4 Years (1 year of exp)",
+      salary_range: "$11k – $12k • No equity",
+      description: "We are looking for a skilled and motivated Java Developer to join our development team. The ideal candidate will be responsible for designing, developing, testing, and maintaining scalable and high-performance applications using Java and related technologies.",
+      department: "Enterprise Software Engineering & Scalable Multi-Agent AI Architectures",
+      responsibilities: [
+        "Develop, test, and maintain high-quality Java applications.",
+        "Design and implement scalable and reliable software solutions.",
+        "Write clean, efficient, reusable, and well-documented code.",
+        "Develop and integrate RESTful APIs and web services.",
+        "Work with databases such as MySQL, PostgreSQL, or MongoDB.",
+        "Troubleshoot, debug, and resolve application issues.",
+        "Collaborate with developers, QA engineers, product managers, and other team members.",
+        "Participate in code reviews and follow software development best practices.",
+        "Optimize application performance and ensure application security."
+      ],
+      qualifications: [
+        "Bachelor's degree in Computer Science, Information Technology, Engineering, or a related field.",
+        "Relevant professional experience in Java development (1-4 years).",
+        "Strong communication and teamwork skills."
+      ],
+      preferred_qualifications: [
+        "Experience with Spring Security and Hibernate/JPA.",
+        "Experience with Docker and CI/CD.",
+        "Knowledge of AWS, Azure, or other cloud platforms.",
+        "Understanding of Kafka or other messaging systems.",
+        "Experience working in an Agile/Scrum environment."
+      ],
+      benefits: [
+        "Competitive salary package ($11k – $12k).",
+        "Opportunity to work on challenging and impactful projects.",
+        "Learning and professional growth opportunities.",
+        "Collaborative and supportive work environment.",
+        "Flexible/remote working options, depending on the role."
+      ],
+      status: "active",
+      required_skills: ["Java", "Springboot", "MySQL", "PostgreSQL", "MongoDB", "RESTful APIs"],
+      preferred_skills: ["Spring Security", "Hibernate/JPA", "Docker", "CI/CD", "AWS", "Kafka"],
+      created_at: new Date().toISOString()
+    },
+    match_details: {
+      overall_score: 96,
+      skills_score: 98,
+      experience_score: 94,
+      projects_score: 95,
+      education_score: 96,
+      certifications_score: 92,
+      matched_skills: ["Java", "Springboot", "MySQL", "PostgreSQL", "RESTful APIs"],
+      missing_skills: ["Docker"],
+      ai_explanation: "Outstanding match (96%) with your backend engineering experience, REST API architecture, and relational database skills."
+    }
+  },
+  {
+    job: {
       id: "job-google-01",
       recruiter_id: "rec-google",
       company_name: "Google",
