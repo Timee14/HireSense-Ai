@@ -1,19 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Sparkles, ArrowRight, BrainCircuit, Users,
   FileText, Target, ChevronRight, Zap, CheckCircle2,
-  Cpu, Github, Briefcase, MapPin, DollarSign, ArrowUpRight, ShieldCheck
+  Cpu, Github, Briefcase, MapPin, DollarSign, ArrowUpRight, ShieldCheck, Eye, Check
 } from 'lucide-react';
 import { JobRecommendation } from '../types';
 import { DEFAULT_JOBS } from './candidate/JobRecommendationsPage';
+import { JobDetailModal } from '../components/ui/JobDetailModal';
 
 interface LandingPageProps {
   onOpenAuth: (role?: 'candidate' | 'recruiter', mode?: 'login' | 'register' | 'google_select', targetTab?: string) => void;
   onSelectRoleDemo?: (role: 'candidate' | 'recruiter', targetTab?: string) => void;
   onOpenJobDetail?: (rec: JobRecommendation) => void;
+  onNavigate?: (tab: string) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRoleDemo, onOpenJobDetail }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRoleDemo, onOpenJobDetail, onNavigate }) => {
+  const [localJobDetail, setLocalJobDetail] = useState<JobRecommendation | null>(null);
+
+  const handleOpeningClick = (rec: JobRecommendation) => {
+    if (onOpenJobDetail) {
+      onOpenJobDetail(rec);
+    }
+    setLocalJobDetail(rec);
+  };
   return (
     <div className="min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black flex flex-col justify-between">
       
@@ -131,7 +141,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRo
               </h2>
             </div>
             <button
-              onClick={() => onSelectRoleDemo ? onSelectRoleDemo('candidate', 'job_recs') : onOpenAuth('candidate', 'register', 'job_recs')}
+              onClick={() => onNavigate ? onNavigate('job_recs') : (onSelectRoleDemo ? onSelectRoleDemo('candidate', 'job_recs') : onOpenAuth('candidate', 'register', 'job_recs'))}
               className="text-xs font-bold text-cyan-300 hover:text-white flex items-center gap-1 transition-colors group cursor-pointer"
             >
               <span>View All 12+ Openings</span>
@@ -143,15 +153,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRo
             {DEFAULT_JOBS.slice(0, 3).map((rec) => (
               <div
                 key={rec.job.id}
-                onClick={() => {
-                  if (onOpenJobDetail) {
-                    onOpenJobDetail(rec);
-                  } else if (onSelectRoleDemo) {
-                    onSelectRoleDemo('candidate', 'job_recs');
-                  } else {
-                    onOpenAuth('candidate', 'register', 'job_recs');
-                  }
-                }}
+                onClick={() => handleOpeningClick(rec)}
                 className="p-5 rounded-2xl bg-[#0e121d]/90 border border-white/10 hover:border-cyan-500/40 hover:bg-[#121726] transition-all cursor-pointer space-y-3.5 group relative overflow-hidden flex flex-col justify-between"
               >
                 <div className="space-y-2">
@@ -307,6 +309,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onSelectRo
           </div>
         </div>
       </footer>
+
+      {/* Fallback Direct Job Opening Modal for Landing View */}
+      <JobDetailModal
+        rec={localJobDetail}
+        onClose={() => setLocalJobDetail(null)}
+        onApply={() => {
+          setLocalJobDetail(null);
+          onOpenAuth('candidate', 'register', 'job_recs');
+        }}
+        isApplied={false}
+        onNavigateToInterview={() => {
+          setLocalJobDetail(null);
+          if (onNavigate) onNavigate('ai_interview');
+          else onOpenAuth('candidate', 'register', 'ai_interview');
+        }}
+        onNavigateToChat={() => {
+          setLocalJobDetail(null);
+          if (onNavigate) onNavigate('ai_chatbot');
+          else onOpenAuth('candidate', 'register', 'ai_chatbot');
+        }}
+      />
 
     </div>
   );

@@ -404,6 +404,7 @@ export const App: React.FC = () => {
               onOpenAuth={handleOpenAuth}
               onSelectRoleDemo={handleQuickDemo}
               onOpenJobDetail={setSelectedMatchRec}
+              onNavigate={setActiveTab}
             />
           )}
 
