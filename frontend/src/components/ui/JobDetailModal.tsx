@@ -56,44 +56,46 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
     }
   };
 
-  // Fallback rich details if not explicitly present on job object
-  const responsibilities = job.responsibilities && job.responsibilities.length > 0
+  const skillsList = job?.required_skills && job.required_skills.length > 0
+    ? job.required_skills
+    : ["Technical Architecture", "Domain Expertise", "Strategic Execution", "Problem Solving"];
+
+  // Dynamic role-specific details
+  const responsibilities = job?.responsibilities && job.responsibilities.length > 0
     ? job.responsibilities
     : [
-        "Architect and implement high-throughput backend microservices and resilient REST/gRPC API architectures.",
-        "Collaborate cross-functionally with Product, Design, and AI Infrastructure teams to deliver robust end-user features.",
-        "Design scalable database schemas with PostgreSQL, Redis caching, and vector indexing for real-time query performance.",
-        "Champion code quality through comprehensive unit/integration testing (80%+ coverage) and peer code reviews.",
-        "Optimize system latency, cloud infrastructure costs, and containerized deployment pipelines via Docker and CI/CD."
+        `Lead technical and operational execution for ${jobTitle} initiatives at ${companyName}.`,
+        `Partner cross-functionally with product, engineering, and business stakeholders to design scalable solutions.`,
+        `Establish and enforce high-quality engineering standards and domain best practices utilizing ${skillsList.slice(0, 3).join(', ')}.`,
+        `Analyze key operational metrics, performance bottlenecks, and user feedback to drive continuous improvements.`,
+        `Mentor team members, lead architectural design discussions, and contribute to the technical roadmap.`
       ];
 
-  const qualifications = job.qualifications && job.qualifications.length > 0
+  const qualifications = job?.qualifications && job.qualifications.length > 0
     ? job.qualifications
     : [
-        "3+ years of professional experience with modern backend or full-stack engineering stacks.",
-        "Demonstrated proficiency in Python (FastAPI / Django), React 18 / TypeScript, and relational databases (PostgreSQL).",
-        "Strong understanding of RESTful API principles, async programming, and distributed systems fundamentals.",
-        "Experience with containerization (Docker), version control (Git), and cloud hosting (AWS / GCP / Azure).",
-        "Bachelor's or Master's degree in Computer Science, Engineering, or equivalent practical industry experience."
+        `Bachelor's or Master's degree in Computer Science, Engineering, Marketing, Business, or equivalent practical industry experience.`,
+        `Demonstrated professional experience working in ${jobTitle} or related domains.`,
+        `Proficiency and hands-on track record working with ${skillsList.join(', ')}.`,
+        `Strong analytical, collaborative, and problem-solving skills with a focus on measurable impact.`
       ];
 
-  const preferredQualifications = job.preferred_qualifications && job.preferred_qualifications.length > 0
+  const preferredQualifications = job?.preferred_qualifications && job.preferred_qualifications.length > 0
     ? job.preferred_qualifications
     : [
-        "Hands-on experience with Vector Databases (pgvector, Pinecone, or ChromaDB) and LLM orchestration (LangChain / LlamaIndex).",
-        "Familiarity with Kubernetes cluster management, Helm charts, and infrastructure-as-code (Terraform).",
-        "Experience building high-concurrency systems handling 10,000+ requests per second with Redis caching.",
-        "Strong background in performance profiling, distributed tracing, and OpenTelemetry instrumentation."
+        `Prior experience operating in high-growth technology environments or enterprise scale ecosystems.`,
+        `Familiarity with industry-leading automation, monitoring, cloud services, or performance optimization frameworks.`,
+        `Proven track record of driving cross-functional projects from conceptual design through to launch and scaling.`
       ];
 
-  const benefits = job.benefits && job.benefits.length > 0
+  const benefits = job?.benefits && job.benefits.length > 0
     ? job.benefits
     : [
-        "Competitive top-tier base salary + significant equity stock grant options.",
-        "100% remote-first flexibility with home office setup and ergonomics stipend (₹75,000 / $1,000).",
-        "Comprehensive health, dental, and vision insurance with premium family coverage.",
-        "Annual ₹1,50,000 / $2,000 continuous learning, conference, and professional upskilling allowance.",
-        "Generous flexible Paid Time Off (PTO), wellness recharge days, and paid parental leave."
+        `Competitive market compensation package: ${salaryRange} + performance bonuses & equity options.`,
+        `Comprehensive healthcare, dental, and vision insurance coverage for employees and dependents.`,
+        `Flexible hybrid / remote-first working setup with ergonomic home office allowances.`,
+        `Annual professional development, conference sponsorship, and continuous learning stipends.`,
+        `Generous paid time off (PTO), paid parental leave, and company wellness recharge days.`
       ];
 
   return (
